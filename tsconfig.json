@@ -12,6 +12,13 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
     "plugins": [
       {
         "name": "next"
