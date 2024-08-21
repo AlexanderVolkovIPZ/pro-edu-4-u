@@ -6,14 +6,14 @@ import Link from "next/link";
 import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 
-export default function SignUpPage() {
+export default function SignInPage() {
   return (
     <Container>
       <div className="mx-auto w-full max-w-md space-y-4 rounded-lg bg-card p-6 shadow-lg">
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold">Sign Up</h2>
+          <h2 className="text-2xl font-bold">Sign In</h2>
           <p className="text-muted-foreground">
-            Create a new account or get started
+            Enter your email and password to sign in
           </p>
         </div>
         <form className="space-y-4">
@@ -35,17 +35,8 @@ export default function SignUpPage() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password" title="Confirm Password" />
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
           <Button className="w-full" type="submit" color="">
-            Sign Up
+            Sign In
           </Button>
         </form>
         <div className="relative">
@@ -69,13 +60,13 @@ export default function SignUpPage() {
           </Button>
         </div>
         <div className="text-center text-sm text-muted-foreground">
-          Already have an account?
+          Don&#39;t have an account?
           <Link
-            href="/sign-in"
+            href="/sign-up"
             className="font-medium underline underline-offset-4 ml-1 hover:text-slate-700"
             prefetch={false}
           >
-            Sign in
+            Sign up
           </Link>
         </div>
       </div>
