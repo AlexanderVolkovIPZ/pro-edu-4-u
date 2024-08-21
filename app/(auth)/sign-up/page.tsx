@@ -71,7 +71,7 @@ export default function SignUpPage() {
         <div className="text-center text-sm text-muted-foreground">
           Already have an account?
           <Link
-            href=""
+            href="/sign-in"
             className="font-medium underline underline-offset-4 ml-1 hover:text-slate-700"
             prefetch={false}
           >
