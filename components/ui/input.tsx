@@ -6,7 +6,7 @@ import { FieldError } from 'react-hook-form';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: FieldError | null;
+  error?: FieldError;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, error = null, ...props }, ref) => {
