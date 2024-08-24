@@ -13,6 +13,13 @@ import { FcGoogle } from 'react-icons/fc';
 import z from 'zod';
 
 const signUpSchemaPartial = z.object({
+  password: z
+    .string()
+    .min(6, 'Password must be at least 8 characters long')
+    .regex(/(?=.*[a-z])/, 'Must include at least one lowercase letter')
+    .regex(/(?=.*[A-Z])/, 'Must include at least one uppercase letter')
+    .regex(/(?=.*\d)/, 'Must contain at least one number')
+    .default(''),
   confirmPassword: z.string().default(''),
 });
 
@@ -38,7 +45,11 @@ export default function SignUp() {
     try {
       setIsLoading(true);
       console.log(data);
-      reset();
+      reset({
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
     } catch {
       console.log('Something went wrong');
     } finally {

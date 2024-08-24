@@ -1,7 +1,6 @@
-"use client";
-
-import React, { createContext } from "react";
-import getAuthUser from "../actions/get-auth-user";
+'use client';
+import { createContext, useEffect, useState } from 'react';
+import getAuthUser from '../actions/get-auth-user';
 
 type AuthUser = {
   id: string;
@@ -16,16 +15,15 @@ type AuthUser = {
 
 export const AuthUserContext = createContext<AuthUser>(null);
 
-export const AuthUserProvider = async ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const authUser = await getAuthUser();
+export const AuthUserProvider = ({ children }: { children: React.ReactNode }) => {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
-  return (
-    <AuthUserContext.Provider value={authUser}>
-      {children}
-    </AuthUserContext.Provider>
-  );
+  useEffect(() => {
+    (async () => {
+      const authUser = await getAuthUser();
+      setAuthUser(authUser);
+    })();
+  }, []);
+
+  return <AuthUserContext.Provider value={authUser}>{children}</AuthUserContext.Provider>;
 };
