@@ -1,15 +1,17 @@
 const Container = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
-      className="
-            mx-w-[2520px]
+      className='
+            max-w-[2520px]
             mx-auto 
-            2xl:px-5
-            xl:px-4
-            lg:px-3
-            md:px-2
-            sm:px-1
-            "
+            2xl:px-16
+            xl:px-12
+            lg:px-10
+            md:px-8
+            sm:px-6
+            px-4
+            py-4
+            '
     >
       {children}
     </div>
