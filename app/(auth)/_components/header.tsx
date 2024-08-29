@@ -1,8 +1,8 @@
 import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { menuLinksList } from '../_shared/menu-links-list';
-import MenuBurger from './menu-burger';
+import { menuLinksList } from '@/app/(auth)/_shared/menu-links-list';
+import MenuBurger from '@/app/(auth)/_components/menu-burger';
 
 const Header = () => {
   return (
