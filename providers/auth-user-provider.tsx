@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useEffect, useState } from 'react';
-import getAuthUser from '../actions/get-auth-user';
+import getAuthUser from '@/actions/get-auth-user';
 
 type AuthUser = {
   id: string;

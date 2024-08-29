@@ -1,5 +1,5 @@
-import Footer from './_components/footer';
-import Header from './_components/header';
+import Footer from '@/app/(auth)/_components/footer';
+import Header from '@/app/(auth)/_components/header';
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
