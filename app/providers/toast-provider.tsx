@@ -1,7 +1,7 @@
 'use client';
 import { Toaster } from 'react-hot-toast';
 
-const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Toaster />
@@ -9,5 +9,3 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     </>
   );
 };
-
-export default ToastProvider;
