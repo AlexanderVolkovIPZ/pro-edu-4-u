@@ -1,8 +1,9 @@
+import { AuthUserProvider } from '@/app/providers/auth-user-provider';
+import QueryClientProvider from '@/app/providers/query-client-provider';
+import { ToastProvider } from '@/app/providers/toast-provider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { AuthUserProvider } from './providers/auth-user-provider';
-import ToastProvider from './providers/toast-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,11 +19,13 @@ export default function RootLayout({
 }>) {
   return (
     <AuthUserProvider>
-      <html lang='en'>
-        <body className={`${inter.className}`}>
-          <ToastProvider>{children}</ToastProvider>
-        </body>
-      </html>
+      <QueryClientProvider>
+        <html lang='en'>
+          <body className={`${inter.className}`}>
+            <ToastProvider>{children}</ToastProvider>
+          </body>
+        </html>
+      </QueryClientProvider>
     </AuthUserProvider>
   );
 }
