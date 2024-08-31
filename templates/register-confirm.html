@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Your Subscription</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+      }
+      p {
+        color: #555;
+      }
+      a {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        color: #ffffff !important;
+        background-color: #f43f5e;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 3s ease-in;
+      }
+      a:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <span style="margin-left: 8px; font-size: 1.25rem; line-height: 1.75rem">
+          <span style="color: #6366f1">Pro</span>
+          <span style="color: #f43f5e">Edu</span>
+          <span style="color: #14b8a6">4</span>
+          <span style="color: #f97316">U</span>
+        </span>
+      </div>
+      <h1>Thank You for Subscribing!</h1>
+      <p>To confirm your subscription, please click the button below:</p>
+      <a href="{{$verificationUrl}}">Confirm Subscription</a>
+    </div>
+  </body>
+</html>
