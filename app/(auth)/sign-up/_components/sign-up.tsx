@@ -1,13 +1,17 @@
 'use client';
 
 import { schema } from '@/app/(auth)/_shared/schema';
+import useCreateUser from '@/app/queries/auth-user';
+import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import z from 'zod';
@@ -28,7 +32,7 @@ const signUpSchema = schema.merge(signUpSchemaPartial).refine((data) => data.pas
   path: ['confirmPassword'],
 });
 
-export default function SignUp() {
+const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -39,19 +43,36 @@ export default function SignUp() {
     resolver: zodResolver(signUpSchema),
     mode: 'onBlur',
   });
+  const { mutateAsync } = useCreateUser();
 
-  const onSubmit = (data: FieldValues) => {
+  const onSubmit = async (data: FieldValues) => {
     if (isLoading) return;
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      console.log(data);
+      const { email, password } = data;
+
+      await mutateAsync({
+        email,
+        password,
+      });
       reset({
         email: '',
         password: '',
         confirmPassword: '',
       });
+      toast.success(
+        () => (
+          <div>
+            <div className='text-center font-bold'>Registration Successful!</div>
+            <div className='text-center'>Please check your email to confirm your account.</div>
+          </div>
+        ),
+        {
+          duration: 5000,
+        }
+      );
     } catch {
-      console.log('Something went wrong');
+      toast.error('Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -97,8 +118,8 @@ export default function SignUp() {
             error={errors['confirmPassword'] as FieldError}
           />
         </div>
-        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)}>
-          Sign Up
+        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+          {isLoading ? <Spinner width={26} height={26} /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -110,11 +131,11 @@ export default function SignUp() {
         </div>
       </div>
       <div className='grid grid-cols-2 gap-4'>
-        <Button variant='outline'>
+        <Button variant='outline' onClick={async () => await signIn('github')}>
           <AiFillGithub size={25} className='mr-0.5' />
           GitHub
         </Button>
-        <Button variant='outline'>
+        <Button variant='outline' onClick={async () => await signIn('google')}>
           <FcGoogle size={25} className='mr-0.5' />
           Google
         </Button>
@@ -131,4 +152,6 @@ export default function SignUp() {
       </div>
     </div>
   );
-}
+};
+
+export default SignUp;
