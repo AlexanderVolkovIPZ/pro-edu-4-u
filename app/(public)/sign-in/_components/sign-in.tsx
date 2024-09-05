@@ -6,17 +6,25 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { schema } from '@/app/(auth)/_shared/schema';
+import { schema } from '@/app/(public)/_shared/schema';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import z from 'zod';
+import { signIn, SignInOptions } from 'next-auth/react';
+import toast from 'react-hot-toast';
+import Spinner from '@/components/spinner';
 
 const signInSchemaPartial = z.object({
   password: z.string().default(''),
 });
 
 const signInSchema = schema.merge(signInSchemaPartial);
+
+const authOptions: SignInOptions = {
+  redirect: true,
+  callbackUrl: '/',
+};
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,17 +38,26 @@ export default function SignIn() {
     mode: 'onBlur',
   });
 
-  const onSubmit = (data: FieldValues) => {
+  const onSubmit = async (data: FieldValues) => {
     if (isLoading) return;
     try {
       setIsLoading(true);
-      console.log(data);
-      reset({
-        email: '',
-        password: '',
+      const result = await signIn('credentials', {
+        ...data,
+        redirect: true,
+        callbackUrl: '/',
       });
+      if (result?.ok) {
+        toast.success('Authentication successful');
+        reset({
+          email: '',
+          password: '',
+        });
+      } else {
+        toast.error('Invalid credentials');
+      }
     } catch {
-      console.log('Something went wrong');
+      toast.error('Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -74,8 +91,8 @@ export default function SignIn() {
             {...register('password', { required: true })}
           />
         </div>
-        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)}>
-          Sign Up
+        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+          {isLoading ? <Spinner /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -87,11 +104,29 @@ export default function SignIn() {
         </div>
       </div>
       <div className='grid grid-cols-2 gap-4'>
-        <Button variant='outline'>
+        <Button
+          variant='outline'
+          onClick={async () => {
+            const result = await signIn('github', authOptions);
+
+            if (result?.error) {
+              toast.error('Authentication failed');
+            }
+          }}
+        >
           <AiFillGithub size={25} className='mr-0.5' />
           GitHub
         </Button>
-        <Button variant='outline'>
+        <Button
+          variant='outline'
+          onClick={async () => {
+            const result = await signIn('google', authOptions);
+
+            if (result?.error) {
+              toast.error('Authentication failed');
+            }
+          }}
+        >
           <FcGoogle size={25} className='mr-0.5' />
           Google
         </Button>

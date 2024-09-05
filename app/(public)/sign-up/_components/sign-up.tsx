@@ -1,13 +1,13 @@
 'use client';
 
-import { schema } from '@/app/(auth)/_shared/schema';
+import { schema } from '@/app/(public)/_shared/schema';
 import useCreateUser from '@/app/queries/auth-user';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
+import { signIn, SignInOptions } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
@@ -31,6 +31,11 @@ const signUpSchema = schema.merge(signUpSchemaPartial).refine((data) => data.pas
   message: "Passwords don't match",
   path: ['confirmPassword'],
 });
+
+const authOptions: SignInOptions = {
+  redirect: true,
+  callbackUrl: '/',
+};
 
 const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -119,7 +124,7 @@ const SignUp = () => {
           />
         </div>
         <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
-          {isLoading ? <Spinner width={26} height={26} /> : 'Sign Up'}
+          {isLoading ? <Spinner /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -131,11 +136,29 @@ const SignUp = () => {
         </div>
       </div>
       <div className='grid grid-cols-2 gap-4'>
-        <Button variant='outline' onClick={async () => await signIn('github')}>
+        <Button
+          variant='outline'
+          onClick={async () => {
+            const result = await signIn('github', authOptions);
+
+            if (result?.error) {
+              toast.error('Authentication failed');
+            }
+          }}
+        >
           <AiFillGithub size={25} className='mr-0.5' />
           GitHub
         </Button>
-        <Button variant='outline' onClick={async () => await signIn('google')}>
+        <Button
+          variant='outline'
+          onClick={async () => {
+            const result = await signIn('google', authOptions);
+
+            if (result?.error) {
+              toast.error('Authentication failed');
+            }
+          }}
+        >
           <FcGoogle size={25} className='mr-0.5' />
           Google
         </Button>
