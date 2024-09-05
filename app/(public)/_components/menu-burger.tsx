@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MenuIcon } from 'lucide-react';
 import Link from 'next/link';
-import { menuLinksList } from '@/app/(auth)/_shared/menu-links-list';
+import { menuLinksList } from '@/app/(public)/_shared/menu-links-list';
 
 const MenuBurger = () => {
   return (

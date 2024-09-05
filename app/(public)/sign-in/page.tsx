@@ -1,5 +1,5 @@
 import Container from '@/components/container';
-import SignIn from '@/app/(auth)/sign-in/_components/sign-in';
+import SignIn from '@/app/(public)/sign-in/_components/sign-in';
 
 export default function SignInPage() {
   return (
