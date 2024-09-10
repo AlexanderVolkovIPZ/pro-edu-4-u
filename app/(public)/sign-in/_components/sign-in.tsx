@@ -14,6 +14,7 @@ import z from 'zod';
 import { signIn, SignInOptions } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Spinner from '@/components/spinner';
+import { useRouter } from 'next/navigation';
 
 const signInSchemaPartial = z.object({
   password: z.string().default(''),
@@ -26,8 +27,19 @@ const authOptions: SignInOptions = {
   callbackUrl: '/',
 };
 
+type LoadingType = {
+  google: boolean;
+  github: boolean;
+  credentials: boolean;
+};
+
 export default function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState<LoadingType>({
+    google: false,
+    github: false,
+    credentials: false,
+  });
   const {
     register,
     handleSubmit,
@@ -41,25 +53,35 @@ export default function SignIn() {
   const onSubmit = async (data: FieldValues) => {
     if (isLoading) return;
     try {
-      setIsLoading(true);
-      const result = await signIn('credentials', {
+      setIsLoading((prevState) => ({
+        ...prevState,
+        credentials: true,
+      }));
+
+      const response = await signIn('credentials', {
         ...data,
-        redirect: true,
-        callbackUrl: '/',
+        redirect: false,
       });
-      if (result?.ok) {
+
+      if (response?.ok) {
         toast.success('Authentication successful');
         reset({
           email: '',
           password: '',
         });
-      } else {
+        router.push('/');
+      }
+
+      if (response?.error) {
         toast.error('Invalid credentials');
       }
     } catch {
       toast.error('Something went wrong');
     } finally {
-      setIsLoading(false);
+      setIsLoading((prevState) => ({
+        ...prevState,
+        credentials: false,
+      }));
     }
   };
 
@@ -91,8 +113,8 @@ export default function SignIn() {
             {...register('password', { required: true })}
           />
         </div>
-        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
-          {isLoading ? <Spinner /> : 'Sign Up'}
+        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
+          {isLoading.credentials ? <Spinner /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -106,12 +128,22 @@ export default function SignIn() {
       <div className='grid grid-cols-2 gap-4'>
         <Button
           variant='outline'
+          disabled={isLoading.github}
           onClick={async () => {
-            const result = await signIn('github', authOptions);
+            setIsLoading((prevState) => ({
+              ...prevState,
+              github: true,
+            }));
 
+            const result = await signIn('github', authOptions);
             if (result?.error) {
               toast.error('Authentication failed');
             }
+
+            setIsLoading((prevState) => ({
+              ...prevState,
+              github: false,
+            }));
           }}
         >
           <AiFillGithub size={25} className='mr-0.5' />
@@ -119,12 +151,22 @@ export default function SignIn() {
         </Button>
         <Button
           variant='outline'
+          disabled={isLoading.google}
           onClick={async () => {
-            const result = await signIn('google', authOptions);
+            setIsLoading((prevState) => ({
+              ...prevState,
+              google: true,
+            }));
 
+            const result = await signIn('google', authOptions);
             if (result?.error) {
               toast.error('Authentication failed');
             }
+
+            setIsLoading((prevState) => ({
+              ...prevState,
+              google: false,
+            }));
           }}
         >
           <FcGoogle size={25} className='mr-0.5' />
