@@ -3,6 +3,7 @@ import QueryClientProvider from '@/app/providers/query-client-provider';
 import { ToastProvider } from '@/app/providers/toast-provider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import getAuthUser from './actions/get-auth-user';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -12,13 +13,15 @@ export const metadata: Metadata = {
   description: 'PRO-EDU-4-U',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const authUser = await getAuthUser();
+
   return (
-    <AuthUserProvider>
+    <AuthUserProvider authUser={authUser}>
       <QueryClientProvider>
         <html lang='en'>
           <body className={`${inter.className}`}>

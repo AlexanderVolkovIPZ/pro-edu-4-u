@@ -1,8 +1,9 @@
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
 
 export default async function getAuthUser() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return null;
     }
@@ -12,6 +13,7 @@ export default async function getAuthUser() {
         email: session.user.email as string,
       },
     });
+
     if (!currentUser) {
       return null;
     }

@@ -1,6 +1,6 @@
 import { generateHtmlTemplate } from '@/app/utils/generate-html-template';
 import prismaDb from '@/lib/prismadb';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
