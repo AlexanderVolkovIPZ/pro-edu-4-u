@@ -1,6 +1,5 @@
 'use client';
-import { createContext, useEffect, useState } from 'react';
-import getAuthUser from '@/app/actions/get-auth-user';
+import { createContext } from 'react';
 
 type AuthUser = {
   id: string;
@@ -15,15 +14,6 @@ type AuthUser = {
 
 export const AuthUserContext = createContext<AuthUser>(null);
 
-export const AuthUserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const authUser = await getAuthUser();
-      setAuthUser(authUser);
-    })();
-  }, []);
-
+export const AuthUserProvider = ({ authUser, children }: { authUser: AuthUser; children: React.ReactNode }) => {
   return <AuthUserContext.Provider value={authUser}>{children}</AuthUserContext.Provider>;
 };
