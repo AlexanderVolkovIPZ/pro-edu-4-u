@@ -1,17 +1,20 @@
-import { GraduationCap } from 'lucide-react';
-import Link from 'next/link';
+'use client';
+
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const Logo = () => {
+  const router = useRouter();
+
   return (
-    <Link href='/' className='flex items-center'>
-      <GraduationCap className='h-8 w-8 text-indigo-500' />
-      <span className='ml-2 text-xl font-bold'>
-        <span className='text-indigo-500'>Pro</span>
-        <span className='text-rose-500'>Edu</span>
-        <span className='text-teal-500'>4</span>
-        <span className='text-orange-500'>U</span>
-      </span>
-    </Link>
+    <Image
+      src='/images/logo.png'
+      width={120}
+      height={20}
+      alt='Logo'
+      onClick={() => router.push('/')}
+      className='cursor-pointer'
+    />
   );
 };
 
