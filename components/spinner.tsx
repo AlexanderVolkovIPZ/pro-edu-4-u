@@ -7,7 +7,7 @@ type Spinner = {
   animate?: string;
 };
 
-const Spinner = ({ width = 32, height = 32, color = 'text-secondary', animate = 'animate-spin' }: Spinner) => {
+const Spinner = ({ width = 26, height = 26, color = 'text-secondary', animate = 'animate-spin' }: Spinner) => {
   return <Loader2 className={`${animate} ${color}`} style={{ width: `${width}px`, height: `${height}px` }} />;
 };
 
