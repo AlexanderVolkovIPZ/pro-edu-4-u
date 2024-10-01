@@ -1,11 +1,11 @@
 'use client';
 
-import Header from '@/app/(private)/_components/header';
 import Footer from '@/app/(private)/_components/footer';
+import Header from '@/app/(private)/_components/header';
 import Sidebar from '@/app/(private)/_components/sidebar';
+import { redirect } from 'next/navigation';
 import { useContext } from 'react';
 import { AuthUserContext } from '../providers/auth-user-provider';
-import { redirect } from 'next/navigation';
 
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   const authUser = useContext(AuthUserContext);
