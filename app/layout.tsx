@@ -5,6 +5,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import getAuthUser from './actions/get-auth-user';
 import './globals.css';
+import BrowserRouterProvider from './providers/browser-router-provider';
+import { AccountProvider } from './providers/account-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,14 +23,18 @@ export default async function RootLayout({
   const authUser = await getAuthUser();
 
   return (
-    <AuthUserProvider authUser={authUser}>
+    <BrowserRouterProvider>
       <QueryClientProvider>
-        <html lang='en'>
-          <body className={`${inter.className}`}>
-            <ToastProvider>{children}</ToastProvider>
-          </body>
-        </html>
+        <AuthUserProvider authUser={authUser}>
+          <AccountProvider>
+            <html lang='en'>
+              <body className={`${inter.className}`}>
+                <ToastProvider>{children}</ToastProvider>
+              </body>
+            </html>
+          </AccountProvider>
+        </AuthUserProvider>
       </QueryClientProvider>
-    </AuthUserProvider>
+    </BrowserRouterProvider>
   );
 }

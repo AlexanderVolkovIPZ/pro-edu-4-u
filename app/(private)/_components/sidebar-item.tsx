@@ -11,8 +11,8 @@ type SidebarItemProps = {
 };
 
 const SidebarItem = ({ link, name, icon: Icon }: SidebarItemProps) => {
-  const pathname = usePathname();
-  const isActive = pathname === link;
+  const pathName = usePathname();
+  const isActive = pathName === link || pathName?.startsWith(`${link}/`);
 
   return (
     <Link

@@ -3,7 +3,6 @@ const Container = ({ children }: { children: React.ReactNode }) => {
     <div
       className='
             max-w-[2520px]
-            mx-auto 
             2xl:px-16
             xl:px-12
             lg:px-10
