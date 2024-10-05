@@ -1,6 +1,8 @@
 'use client';
 
-import { schema } from '@/app/(public)/_shared/schema';
+import { confirmPasswordSchema } from '@/app/_shared/schemes/confirm-password-schema';
+import { emailSchema } from '@/app/_shared/schemes/email-schema';
+import { passwordSchema } from '@/app/_shared/schemes/password-schema';
 import useCreateUser from '@/app/queries/auth-user';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
@@ -14,31 +16,32 @@ import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import z from 'zod';
 
-const signUpSchemaPartial = z.object({
-  password: z
-    .string()
-    .min(6, 'Password must be at least 8 characters long')
-    .regex(/(?=.*[a-z])/, 'Must include at least one lowercase letter')
-    .regex(/(?=.*[A-Z])/, 'Must include at least one uppercase letter')
-    .regex(/(?=.*\d)/, 'Must contain at least one number')
-    .default(''),
-  confirmPassword: z.string().default(''),
-});
-
-const signUpSchema = schema.merge(signUpSchemaPartial).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+const signUpSchema = emailSchema
+  .merge(passwordSchema)
+  .merge(confirmPasswordSchema)
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 const authOptions: SignInOptions = {
   redirect: true,
   callbackUrl: '/',
 };
 
+type LoadingType = {
+  google: boolean;
+  github: boolean;
+  credentials: boolean;
+};
+
 const SignUp = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<LoadingType>({
+    google: false,
+    github: false,
+    credentials: false,
+  });
   const {
     register,
     handleSubmit,
@@ -51,9 +54,12 @@ const SignUp = () => {
   const { mutateAsync } = useCreateUser();
 
   const onSubmit = async (data: FieldValues) => {
-    if (isLoading) return;
-    setIsLoading(true);
+    if (isLoading.credentials || isLoading.github || isLoading.google) return;
     try {
+      setIsLoading((prevState) => ({
+        ...prevState,
+        credentials: true,
+      }));
       const { email, password } = data;
 
       await mutateAsync({
@@ -79,7 +85,10 @@ const SignUp = () => {
     } catch {
       toast.error('Something went wrong');
     } finally {
-      setIsLoading(false);
+      setIsLoading((prevState) => ({
+        ...prevState,
+        credentials: false,
+      }));
     }
   };
 
@@ -123,8 +132,8 @@ const SignUp = () => {
             error={errors['confirmPassword'] as FieldError}
           />
         </div>
-        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
-          {isLoading ? <Spinner /> : 'Sign Up'}
+        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
+          {isLoading.credentials ? <Spinner /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -138,29 +147,62 @@ const SignUp = () => {
       <div className='grid grid-cols-2 gap-4'>
         <Button
           variant='outline'
+          className='relative'
+          disabled={isLoading.github}
           onClick={async () => {
+            setIsLoading((prevState) => ({
+              ...prevState,
+              github: true,
+            }));
             const result = await signIn('github', authOptions);
 
             if (result?.error) {
               toast.error('Authentication failed');
             }
+
+            setIsLoading((prevState) => ({
+              ...prevState,
+              github: false,
+            }));
           }}
         >
           <AiFillGithub size={25} className='mr-0.5' />
           GitHub
+          {isLoading.github && (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <Spinner color='text-rose-500' />
+            </div>
+          )}
         </Button>
         <Button
           variant='outline'
+          className='relative'
+          disabled={isLoading.google}
           onClick={async () => {
+            setIsLoading((prevState) => ({
+              ...prevState,
+              google: true,
+            }));
+
             const result = await signIn('google', authOptions);
 
             if (result?.error) {
               toast.error('Authentication failed');
             }
+
+            setIsLoading((prevState) => ({
+              ...prevState,
+              google: false,
+            }));
           }}
         >
           <FcGoogle size={25} className='mr-0.5' />
           Google
+          {isLoading.google && (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <Spinner color='text-rose-500' />
+            </div>
+          )}
         </Button>
       </div>
       <div className='text-center text-sm text-muted-foreground'>

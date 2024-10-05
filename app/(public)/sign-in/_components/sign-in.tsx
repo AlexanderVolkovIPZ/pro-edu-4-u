@@ -1,26 +1,25 @@
 'use client';
 
+import { emailSchema } from '@/app/_shared/schemes/email-schema';
+import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn, SignInOptions } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FieldError, FieldValues, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { schema } from '@/app/(public)/_shared/schema';
-import { FieldError, FieldValues, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import z from 'zod';
-import { signIn, SignInOptions } from 'next-auth/react';
-import toast from 'react-hot-toast';
-import Spinner from '@/components/spinner';
-import { useRouter } from 'next/navigation';
+import { z } from 'zod';
 
-const signInSchemaPartial = z.object({
-  password: z.string().default(''),
+const signInSchema = z.object({
+  ...emailSchema.shape,
+  password: z.string().min(1, 'Password is required'),
 });
-
-const signInSchema = schema.merge(signInSchemaPartial);
 
 const authOptions: SignInOptions = {
   redirect: true,
@@ -43,7 +42,6 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<FieldValues>({
     resolver: zodResolver(signInSchema),
@@ -51,7 +49,7 @@ export default function SignIn() {
   });
 
   const onSubmit = async (data: FieldValues) => {
-    if (isLoading) return;
+    if (isLoading.credentials || isLoading.github || isLoading.google) return;
     try {
       setIsLoading((prevState) => ({
         ...prevState,
@@ -65,10 +63,6 @@ export default function SignIn() {
 
       if (response?.ok) {
         toast.success('Authentication successful');
-        reset({
-          email: '',
-          password: '',
-        });
         router.push('/');
       }
 
@@ -114,7 +108,7 @@ export default function SignIn() {
           />
         </div>
         <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
-          {isLoading.credentials ? <Spinner /> : 'Sign Up'}
+          {isLoading.credentials ? <Spinner /> : 'Sign In'}
         </Button>
       </div>
       <div className='relative'>
@@ -128,6 +122,7 @@ export default function SignIn() {
       <div className='grid grid-cols-2 gap-4'>
         <Button
           variant='outline'
+          className='relative'
           disabled={isLoading.github}
           onClick={async () => {
             setIsLoading((prevState) => ({
@@ -148,9 +143,15 @@ export default function SignIn() {
         >
           <AiFillGithub size={25} className='mr-0.5' />
           GitHub
+          {isLoading.github && (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <Spinner color='text-rose-500' />
+            </div>
+          )}
         </Button>
         <Button
           variant='outline'
+          className='relative'
           disabled={isLoading.google}
           onClick={async () => {
             setIsLoading((prevState) => ({
@@ -171,6 +172,11 @@ export default function SignIn() {
         >
           <FcGoogle size={25} className='mr-0.5' />
           Google
+          {isLoading.google && (
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <Spinner color='text-rose-500' />
+            </div>
+          )}
         </Button>
       </div>
       <div className='text-center text-sm text-muted-foreground'>

@@ -1,0 +1,11 @@
+import z from 'zod';
+
+export const passwordSchema = z.object({
+  password: z
+    .string()
+    .min(6, 'Password must be at least 8 characters long')
+    .regex(/(?=.*[a-z])/, 'Must include at least one lowercase letter')
+    .regex(/(?=.*[A-Z])/, 'Must include at least one uppercase letter')
+    .regex(/(?=.*\d)/, 'Must contain at least one number')
+    .default(''),
+});
