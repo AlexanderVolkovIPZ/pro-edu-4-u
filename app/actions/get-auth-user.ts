@@ -18,7 +18,10 @@ export default async function getAuthUser() {
       return null;
     }
 
-    return currentUser;
+    return {
+      ...currentUser,
+      provider: session.provider,
+    };
   } catch {
     return null;
   }

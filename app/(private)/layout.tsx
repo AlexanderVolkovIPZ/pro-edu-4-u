@@ -1,31 +1,32 @@
-'use client';
-
 import Footer from '@/app/(private)/_components/footer';
 import Header from '@/app/(private)/_components/header';
 import Sidebar from '@/app/(private)/_components/sidebar';
+import getAuthUser from '../actions/get-auth-user';
+import { AuthUserProvider } from '../providers/auth-user-provider';
 import { redirect } from 'next/navigation';
-import { useContext } from 'react';
-import { AuthUserContext } from '../providers/auth-user-provider';
 
-const HomeLayout = ({ children }: { children: React.ReactNode }) => {
-  const authUser = useContext(AuthUserContext);
+const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
+  const authUser = await getAuthUser();
 
   if (!authUser) {
     redirect('/sign-in');
   }
+
   return (
-    <div className='flex flex-col min-h-screen'>
-      <div className='fixed h-20 w-full sm:pl-40'>
-        <Header />
+    <AuthUserProvider authUser={authUser}>
+      <div className='flex flex-col min-h-screen'>
+        <div className='fixed h-20 w-full sm:pl-40'>
+          <Header />
+        </div>
+        <div className='fixed h-full w-40 hidden sm:block'>
+          <Sidebar />
+        </div>
+        <div className='flex-1 mt-20 sm:ml-40'>{children}</div>
+        <div className='ml-40'>
+          <Footer />
+        </div>
       </div>
-      <div className='fixed h-full w-40 hidden sm:block'>
-        <Sidebar />
-      </div>
-      <div className='flex flex-1 mt-20 sm:ml-40'>{children}</div>
-      <div className='ml-40'>
-        <Footer />
-      </div>
-    </div>
+    </AuthUserProvider>
   );
 };
 

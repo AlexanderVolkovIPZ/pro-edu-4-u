@@ -27,12 +27,21 @@ export async function POST(request: Request) {
           password: hashedPassword,
         },
       });
+    } else if (user && !user.password) {
+      user = await prismaDb.user.update({
+        data: {
+          password: hashedPassword,
+        },
+        where: {
+          email,
+        },
+      });
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: '1h',
     });
-    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/verify?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
