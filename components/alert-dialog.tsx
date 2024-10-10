@@ -17,6 +17,7 @@ type AlertDialogProps = {
   actionBtnTitle: string;
   showAlertDialog: boolean;
   setShowAlertDialog: Dispatch<SetStateAction<boolean>>;
+  onConfirm: () => void;
 };
 
 const AlertDialog = ({
@@ -26,6 +27,7 @@ const AlertDialog = ({
   actionBtnTitle,
   showAlertDialog,
   setShowAlertDialog,
+  onConfirm,
 }: AlertDialogProps) => {
   return (
     <SystemAlertDialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
@@ -36,7 +38,7 @@ const AlertDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setShowAlertDialog(false)}>{cancelBtnTitle}</AlertDialogCancel>
-          <AlertDialogAction>{actionBtnTitle}</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>{actionBtnTitle}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </SystemAlertDialog>
