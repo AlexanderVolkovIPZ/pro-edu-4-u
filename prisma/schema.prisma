@@ -81,8 +81,9 @@ model Course {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
-  published   Boolean @default(false)
-  approved    Boolean @default(false)
+  price       Float
+  isPublished Boolean @default(false)
+  isApproved  Boolean @default(false)
   ownerId     String  @db.ObjectId
 
   courseCategories CourseCategory[]
@@ -101,6 +102,7 @@ model Section {
   title       String
   description String?
   position    Int
+  isFree      Boolean @default(false)
   courseId    String  @db.ObjectId
 
   videos Video[]
@@ -145,9 +147,6 @@ model Progress {
   videoId     String  @db.ObjectId
   isCompleted Boolean @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
 }
@@ -157,9 +156,6 @@ model Category {
   name String @unique
 
   courseCategories CourseCategory[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model CourseCategory {
