@@ -20,9 +20,13 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String   @default("user") 
-  accounts      Account[]
-  sessions      Session[]
+  role          String    @default("user")
+
+  progress     Progress[]
+  certificates Certificate[]
+  accounts     Account[]
+  courses      Course[]
+  purchases    Purchase[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -50,22 +54,115 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  userId       String   @db.ObjectId
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Certificate {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String @db.ObjectId
+  courseId       String @db.ObjectId
+  certificateUrl String
+
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model Purchase {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String @db.ObjectId
+  courseId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Course {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  price       Float
+  isPublished Boolean @default(false)
+  isApproved  Boolean @default(false)
+  ownerId     String  @db.ObjectId
+
+  courseCategories CourseCategory[]
+  purchases        Purchase[]
+  certificates     Certificate[]
+  sections         Section[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id])
 }
 
-model VerificationToken {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  token      String
-  expires    DateTime
+model Section {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  position    Int
+  isFree      Boolean @default(false)
+  courseId    String  @db.ObjectId
 
-  @@unique([identifier, token])
+  videos Video[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Video {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  url       String
+  position  Int
+  sectionId String @db.ObjectId
+
+  files    File[]
+  progress Progress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+model File {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  url     String
+  videoId String @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+model Progress {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String  @db.ObjectId
+  videoId     String  @db.ObjectId
+  isCompleted Boolean @default(false)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  courseCategories CourseCategory[]
+}
+
+model CourseCategory {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  courseId   String @db.ObjectId
+  categoryId String @db.ObjectId
+
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
