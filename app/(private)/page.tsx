@@ -1,6 +1,7 @@
+'use client';
 import Main from './_components/main';
 
-const HomePage = async () => {
+const HomePage = () => {
   return <Main />;
 };
 

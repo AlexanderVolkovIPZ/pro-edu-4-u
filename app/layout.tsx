@@ -1,12 +1,10 @@
-import { AuthUserProvider } from '@/app/providers/auth-user-provider';
 import QueryClientProvider from '@/app/providers/query-client-provider';
 import { ToastProvider } from '@/app/providers/toast-provider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import getAuthUser from './actions/get-auth-user';
 import './globals.css';
-import BrowserRouterProvider from './providers/browser-router-provider';
 import { AccountProvider } from './providers/account-provider';
+import BrowserRouterProvider from './providers/browser-router-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,20 +18,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authUser = await getAuthUser();
-
   return (
     <BrowserRouterProvider>
       <QueryClientProvider>
-        <AuthUserProvider authUser={authUser}>
-          <AccountProvider>
-            <html lang='en'>
-              <body className={`${inter.className}`}>
-                <ToastProvider>{children}</ToastProvider>
-              </body>
-            </html>
-          </AccountProvider>
-        </AuthUserProvider>
+        <AccountProvider>
+          <html lang='en'>
+            <body className={`${inter.className}`}>
+              <ToastProvider>{children}</ToastProvider>
+            </body>
+          </html>
+        </AccountProvider>
       </QueryClientProvider>
     </BrowserRouterProvider>
   );

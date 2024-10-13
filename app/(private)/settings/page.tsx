@@ -1,18 +1,16 @@
 'use client';
 
 import Container from '@/components/container';
-import Tabs from './_components/tabs';
-import { Route, Routes } from 'react-router-dom';
-import Profile from './_components/tab-pages/profile';
-import Account from './_components/tab-pages/account';
-import Header from './_components/tab-pages/header';
 import { Separator } from '@/components/ui/separator';
 import { usePathname } from 'next/navigation';
+import { Route, Routes } from 'react-router-dom';
+import Account from './_components/tab-pages/account/account';
+import Header from './_components/tab-pages/header';
+import Profile from './_components/tab-pages/profile';
+import Tabs from './_components/tabs';
 
 const SettingsPage = () => {
   const location = usePathname();
-
-  console.log('PATH-NAME -> ', location);
 
   return (
     <div className='flex-grow'>
