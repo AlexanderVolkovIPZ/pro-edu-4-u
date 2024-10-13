@@ -3,7 +3,7 @@
 import { confirmPasswordSchema } from '@/app/_shared/schemes/confirm-password-schema';
 import { emailSchema } from '@/app/_shared/schemes/email-schema';
 import { passwordSchema } from '@/app/_shared/schemes/password-schema';
-import useCreateUser from '@/app/queries/auth-user';
+import { useCreateUser } from '@/app/queries/auth-user';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
