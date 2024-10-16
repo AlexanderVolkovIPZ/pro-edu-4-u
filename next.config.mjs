@@ -14,14 +14,6 @@ const nextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/settings/:path*',
-        destination: '/settings',
-      },
-    ];
-  },
 };
 
 export default nextConfig;
