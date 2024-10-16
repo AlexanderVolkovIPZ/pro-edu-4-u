@@ -4,7 +4,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AccountProvider } from './providers/account-provider';
-import BrowserRouterProvider from './providers/browser-router-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,16 +18,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <BrowserRouterProvider>
-      <QueryClientProvider>
-        <AccountProvider>
-          <html lang='en'>
-            <body className={`${inter.className}`}>
-              <ToastProvider>{children}</ToastProvider>
-            </body>
-          </html>
-        </AccountProvider>
-      </QueryClientProvider>
-    </BrowserRouterProvider>
+    <QueryClientProvider>
+      <AccountProvider>
+        <html lang='en'>
+          <body className={`${inter.className}`}>
+            <ToastProvider>{children}</ToastProvider>
+          </body>
+        </html>
+      </AccountProvider>
+    </QueryClientProvider>
   );
 }

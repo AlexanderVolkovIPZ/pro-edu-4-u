@@ -15,8 +15,8 @@ import { useContext, useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
-import TabPageHeader from '../_shared/tab-page-header';
-import FormField from './_components/form-field';
+import TabPageHeader from '../../_components/_shared/tab-page-header';
+import FormField from './form-field';
 
 const changePasswordSchema = z
   .object({
