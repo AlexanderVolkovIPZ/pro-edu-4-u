@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AccountProvider } from './providers/account-provider';
+import LayoutContainer from '@/components/layout-container';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +23,9 @@ export default async function RootLayout({
       <AccountProvider>
         <html lang='en'>
           <body className={`${inter.className}`}>
-            <ToastProvider>{children}</ToastProvider>
+            <LayoutContainer>
+              <ToastProvider>{children}</ToastProvider>
+            </LayoutContainer>
           </body>
         </html>
       </AccountProvider>
