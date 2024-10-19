@@ -7,8 +7,8 @@ export const sidebarList = [
     icon: House,
   },
   {
-    link: '/courses',
-    name: 'My courses',
+    link: '/auctions',
+    name: 'My auctions',
     icon: LayoutList,
   },
   {
