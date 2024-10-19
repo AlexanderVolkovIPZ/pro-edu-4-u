@@ -15,7 +15,7 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthUserProvider authUser={authUser}>
       <div className='flex flex-col min-h-screen'>
-        <div className='fixed h-20 w-full sm:pl-40'>
+        <div className='fixed h-20 w-full sm:pl-40 max-w-7xl'>
           <Header />
         </div>
         <div className='fixed h-full w-40 hidden sm:block'>
