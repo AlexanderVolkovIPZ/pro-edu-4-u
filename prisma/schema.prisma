@@ -21,148 +21,122 @@ model User {
   image         String?
   password      String?
   role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  progress     Progress[]
-  certificates Certificate[]
-  accounts     Account[]
-  courses      Course[]
-  purchases    Purchase[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  account Account[]
+  bid     Bid[]
 }
 
 model Account {
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String  @db.ObjectId
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @db.ObjectId
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.String
-  access_token      String? @db.String
+  refresh_token     String?  @db.String
+  access_token      String?  @db.String
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.String
+  id_token          String?  @db.String
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-model Certificate {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String @db.ObjectId
-  courseId       String @db.ObjectId
-  certificateUrl String
-
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
-}
-
-model Purchase {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  userId   String @db.ObjectId
-  courseId String @db.ObjectId
-
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-}
-
-model Course {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+model Auction {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId   String   @db.ObjectId
   title       String
   description String
-  price       Float
-  isPublished Boolean @default(false)
-  isApproved  Boolean @default(false)
-  ownerId     String  @db.ObjectId
+  status      Status
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  courseCategories CourseCategory[]
-  purchases        Purchase[]
-  certificates     Certificate[]
-  sections         Section[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  owner User @relation(fields: [ownerId], references: [id])
-}
-
-model Section {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String?
-  position    Int
-  isFree      Boolean @default(false)
-  courseId    String  @db.ObjectId
-
-  videos Video[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-}
-
-model Video {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  url       String
-  position  Int
-  sectionId String @db.ObjectId
-
-  files    File[]
-  progress Progress[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-}
-
-model File {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  name    String
-  url     String
-  videoId String @db.ObjectId
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
-}
-
-model Progress {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String  @db.ObjectId
-  videoId     String  @db.ObjectId
-  isCompleted Boolean @default(false)
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  auctionCategory AuctionCategory[]
+  lot             Lot[]
 }
 
 model Category {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  createdAt       DateTime          @default(now())
+  auctionCategory AuctionCategory[]
 
-  courseCategories CourseCategory[]
+  @@unique([name])
 }
 
-model CourseCategory {
+model AuctionCategory {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  courseId   String @db.ObjectId
+  auctionId  String @db.ObjectId
   categoryId String @db.ObjectId
 
-  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  auction  Auction  @relation(fields: [auctionId], references: [id])
+
+  @@unique([auctionId, categoryId])
+}
+
+model Lot {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  auctionId       String   @db.ObjectId
+  title           String
+  description     String
+  startBid        Float
+  buyNowBid       Float
+  minBidIncrement Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  auction Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  video   Video[]
+  photo   Photo[]
+  bid     Bid[]
+}
+
+model Video {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  pseudonym String?
+  url       String
+  position  Int
+  lotId     String  @db.ObjectId
+
+  lot Lot @relation(fields: [lotId], references: [id], onDelete: Cascade)
+}
+
+model Photo {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  pseudonym String?
+  url       String
+  position  Int
+  lotId     String  @db.ObjectId
+
+  lot Lot @relation(fields: [lotId], references: [id], onDelete: Cascade)
+}
+
+model Bid {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  lotId     String   @db.ObjectId
+  bidderId  String   @db.ObjectId
+  bidAmount Float
+  isWinner  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
 }
