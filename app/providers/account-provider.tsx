@@ -1,34 +1,24 @@
 'use client';
 import { createContext, useEffect, useState } from 'react';
 
-type Mode = 'teacher' | 'student';
 type AccountContextType = {
-  mode: Mode;
-  setMode: (mode: Mode) => void;
-};
-
-const getInitialMode = (): Mode => {
-  if (typeof window === 'undefined') {
-    return 'student';
-  }
-
-  const storedMode = localStorage.getItem('mode') as Mode;
-  return ['teacher', 'student'].includes(storedMode) ? storedMode : 'student';
+  locale: string[];
+  setLocale: (locale: string[]) => void;
 };
 
 export const AccountContext = createContext<AccountContextType>({
-  mode: 'student',
-  setMode: () => {},
+  locale: ['en'],
+  setLocale: () => {},
 });
 
 export const AccountProvider = ({ children }: { children: React.ReactNode }) => {
-  const [mode, setMode] = useState<Mode>(getInitialMode);
+  const [locale, setLocale] = useState(['en']);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mode', mode);
+    if (typeof window !== 'undefined' && navigator.languages) {
+      setLocale(Array.from(navigator.languages));
     }
-  }, [mode]);
+  }, []);
 
-  return <AccountContext.Provider value={{ mode, setMode }}>{children}</AccountContext.Provider>;
+  return <AccountContext.Provider value={{ locale, setLocale }}>{children}</AccountContext.Provider>;
 };

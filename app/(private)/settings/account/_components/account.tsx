@@ -2,16 +2,12 @@
 
 import { confirmPasswordSchema } from '@/app/_shared/schemes/confirm-password-schema';
 import { passwordSchema } from '@/app/_shared/schemes/password-schema';
-import { AccountContext } from '@/app/providers/account-provider';
 import { useChangePassword } from '@/app/queries/auth-user';
-import { capitalize } from '@/app/utils/capitalize';
 import AlertDialog from '@/components/alert-dialog';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
@@ -34,7 +30,6 @@ const changePasswordSchema = z
   });
 
 const Account = () => {
-  const { mode, setMode } = useContext(AccountContext);
   const { mutateAsync } = useChangePassword();
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [formData, setFormData] = useState<FieldValues>({
@@ -94,19 +89,6 @@ const Account = () => {
         })}
       <div>
         <TabPageHeader title='Account Settings' description='Update your account settings below.' />
-        <div className='flex items-center gap-x-4 my-6'>
-          <Switch
-            id='account-mode'
-            className='bg-rose-500'
-            checked={mode === 'teacher'}
-            onCheckedChange={(checked) => {
-              setMode(checked ? 'teacher' : 'student');
-            }}
-          />
-          <Label htmlFor='account-mode' className='text-lg font-semibold text-slate-600'>
-            {capitalize(mode)} Mode
-          </Label>
-        </div>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <FormField
             id='oldPassword'
@@ -132,11 +114,7 @@ const Account = () => {
             error={errors.confirmPassword as FieldError}
             placeholder='Confirm your new password'
           />
-          <Button
-            type='submit'
-            className='w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded'
-            disabled={isLoading}
-          >
+          <Button type='submit' className='w-full py-2 rounded' disabled={isLoading}>
             {isLoading ? <Spinner /> : 'Save Changes'}
           </Button>
         </form>

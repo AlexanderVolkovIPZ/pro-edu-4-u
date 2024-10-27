@@ -20,15 +20,15 @@ export default async function RootLayout({
 }>) {
   return (
     <QueryClientProvider>
-      <AccountProvider>
-        <html lang='en'>
-          <body className={`${inter.className}`}>
+      <html lang='en'>
+        <body className={`${inter.className}`}>
+          <AccountProvider>
             <LayoutContainer>
               <ToastProvider>{children}</ToastProvider>
             </LayoutContainer>
-          </body>
-        </html>
-      </AccountProvider>
+          </AccountProvider>
+        </body>
+      </html>
     </QueryClientProvider>
   );
 }
