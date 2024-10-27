@@ -50,15 +50,15 @@ model Account {
 }
 
 model Auction {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId   String   @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId   String    @db.ObjectId
   title       String
-  description String
-  status      Status
-  startDate   DateTime
-  endDate     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  status      Status    @default(UPCOMING)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   auctionCategory AuctionCategory[]
   lot             Lot[]
