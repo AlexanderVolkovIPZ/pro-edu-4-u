@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { MenuIcon } from 'lucide-react';
 import MobileSidebarList from './mobile-sidebar-list';
 
@@ -13,6 +13,10 @@ const MobileSidebar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side='left' className='max-w-60 sm:max-w-60'>
+        <SheetHeader className='hidden'>
+          <SheetTitle></SheetTitle>
+          <SheetDescription></SheetDescription>
+        </SheetHeader>
         <MobileSidebarList />
       </SheetContent>
     </Sheet>
