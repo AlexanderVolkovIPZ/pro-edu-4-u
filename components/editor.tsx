@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { ReactQuillProps } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-const Editor = () => {
-  const [value, setValue] = useState('');
-
+const Editor = ({ value, onChange, ...props }: ReactQuillProps) => {
   return (
-    <ReactQuill value={value} onChange={setValue} placeholder='...' theme='snow' modules={modules} formats={formats} />
+    <ReactQuill
+      {...props}
+      value={value}
+      onChange={onChange}
+      placeholder='...'
+      theme='snow'
+      modules={modules}
+      formats={formats}
+    />
   );
 };
 
