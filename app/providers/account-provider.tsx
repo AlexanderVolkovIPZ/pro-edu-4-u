@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from 'react';
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_TIME_ZONE = 'Europe/Kyiv';
+export const SUPPORTED_LOCALES = ['en-US', 'uk-UA', 'fr-FR', 'de-DE', 'es-ES', 'it-IT', 'pl-PL', 'zn-CN', 'ja-JP'];
 
 type AccountContextType = {
   locale: string;
@@ -24,7 +25,8 @@ export const AccountProvider = ({ children }: { children: React.ReactNode }) => 
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.languages) {
-      setLocale(navigator.languages[0] || DEFAULT_LOCALE);
+      const matchedLocale = navigator.languages.find((locale) => SUPPORTED_LOCALES.includes(locale)) || DEFAULT_LOCALE;
+      setLocale(matchedLocale);
     }
   }, []);
 
