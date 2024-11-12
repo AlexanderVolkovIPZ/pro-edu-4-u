@@ -148,7 +148,7 @@ const StartDateInput = ({ initialStartDate, initialEndDate, auctionId }: StartDa
         </>
       ) : (
         <div className={cn('text-slate-500 overflow-hidden text-ellipsis', !initialStartDate && 'italic')}>
-          {selectedDate?.toLocaleString(locale) ?? 'No start date'}
+          {initialStartDate ? selectedDate?.toLocaleString(locale) : 'No start date'}
         </div>
       )}
     </div>
