@@ -30,7 +30,7 @@ const CreateAuctionPage = () => {
     const { title } = data;
 
     try {
-      const response = await mutateAsync({
+      const { id } = await mutateAsync({
         title: title.trim(),
       });
 
@@ -39,11 +39,9 @@ const CreateAuctionPage = () => {
           textAlign: 'center',
         },
       });
-      reset();
 
-      if (response) {
-        router.push(`/auctions/${response.data.id}`);
-      }
+      reset();
+      router.push(`/auctions/${id}`);
     } catch {
       toast.error('Something went wrong');
     }
