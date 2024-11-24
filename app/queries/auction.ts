@@ -6,24 +6,27 @@ import axios, { AxiosResponse } from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { AUCTION } from './query-keys';
 
-export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutationResult<
-  AxiosResponse<Auction>,
-  Error,
-  T
-> {
-  return useMutation<AxiosResponse<Auction>, Error, T>({
+export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutationResult<Auction, Error, T> {
+  return useMutation<Auction, Error, T>({
     mutationFn: async (data: T) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, data);
-      return response;
+      const response = await axios.post<Auction>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, data);
+      return response.data;
     },
   });
 }
 
-export function useUpdateAuction<T>(auctionId: string): UseMutationResult<AxiosResponse<T>, Error, T> {
-  return useMutation<AxiosResponse<T>, Error, T>({
+export function useUpdateAuction<
+  T extends Partial<
+    Omit<Auction, 'startDate' | 'endDate' | 'createdAt' | 'updatedAt'> & {
+      startDate: string;
+      endDate: string;
+    }
+  >,
+>(auctionId: string): UseMutationResult<Auction, Error, T> {
+  return useMutation<Auction, Error, T>({
     mutationFn: async (data: T) => {
-      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`, data);
-      return response;
+      const response = await axios.patch<Auction>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`, data);
+      return response.data;
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
@@ -31,11 +34,23 @@ export function useUpdateAuction<T>(auctionId: string): UseMutationResult<AxiosR
   });
 }
 
-export function useAuction<T>(auctionId: string): UseQueryResult<AxiosResponse<T>, Error> {
-  return useQuery<AxiosResponse<T>, Error>({
+export function useAuction<T>(auctionId: string): UseQueryResult<T, Error> {
+  return useQuery<T, Error>({
     queryKey: [AUCTION, auctionId],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
+      return response.data;
+    },
+  });
+}
+
+export function useAuctionByFilter<T extends Auction>(filters: Partial<T>): UseQueryResult<AxiosResponse<T>, Error> {
+  return useQuery<AxiosResponse<T>, Error>({
+    queryKey: [AUCTION, filters],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
+        params: filters,
+      });
       return response;
     },
   });
