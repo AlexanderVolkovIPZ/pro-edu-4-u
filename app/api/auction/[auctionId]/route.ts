@@ -13,11 +13,18 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       where: {
         id: params.auctionId,
       },
+      include: {
+        lot: {
+          orderBy: {
+            position: 'asc',
+          },
+        },
+      },
     });
 
     return NextResponse.json(auction);
   } catch (error) {
-    console.error('CREATE_AUCTION_ERROR -> ', error);
+    console.error('GET_AUCTION_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
@@ -46,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 
     return NextResponse.json(auction);
   } catch (error) {
-    console.error('CREATE_AUCTION_ERROR -> ', error);
+    console.error('UPDATE_AUCTION_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
