@@ -88,10 +88,11 @@ model Lot {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   auctionId       String   @db.ObjectId
   title           String
-  description     String
-  startBid        Float
-  buyNowBid       Float
-  minBidIncrement Float
+  position        Int
+  description     String?
+  startBid        Float?
+  buyNowBid       Float?
+  minBidIncrement Float?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
