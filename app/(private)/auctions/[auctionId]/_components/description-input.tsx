@@ -46,13 +46,14 @@ const DescriptionInput = ({ initialDescription, auctionId }: DescriptionInputPro
   const onSubmit = async (data: FieldValues) => {
     let { description } = data;
     if (description === '<p><br></p>') {
-      description = null;
+      description = '';
     }
 
     try {
       await mutateAsync({
         description,
       });
+
       toast.success('The description has been successfully updated', {
         style: {
           textAlign: 'center',
