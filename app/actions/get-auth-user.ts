@@ -1,4 +1,5 @@
 import { getSession } from './get-session';
+import prismaDb from '@/lib/prismadb';
 
 export default async function getAuthUser() {
   try {
@@ -7,7 +8,7 @@ export default async function getAuthUser() {
       return null;
     }
 
-    const currentUser = await prismaDb?.user.findUnique({
+    const currentUser = await prismaDb.user.findUnique({
       where: {
         email: session.user.email as string,
       },
