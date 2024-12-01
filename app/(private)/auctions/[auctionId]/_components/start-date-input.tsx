@@ -15,7 +15,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { auctionDateSchema, AuctionDateSchema } from '../_shared/auction-date-schema';
+import { auctionDateSchema, AuctionDateSchema } from '../_shared/schemas/auction-date-schema';
 import { getDatePickerDateFormat, getDatePickerTimeFormat } from '@/app/utils/get-date-picker-format';
 
 dayjs.extend(utc);

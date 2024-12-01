@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Gavel } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
-import { titleSchema } from '../_shared/title-schema';
+import { titleSchema } from '../_shared/schemas/title-schema';
 import toast from 'react-hot-toast';
 import { useCreateAuction } from '@/app/queries/auction';
 import Spinner from '@/components/spinner';
