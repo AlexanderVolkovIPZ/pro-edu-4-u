@@ -1,6 +1,5 @@
 'use client';
 
-import { useUpdateAuction } from '@/app/queries/auction';
 import Editor from '@/components/editor';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Pencil, PencilOff } from 'lucide-react';
 import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
 import { z } from 'zod';
 
 const MAX_SYMBOLS_COUNT = 2000;
@@ -26,16 +24,24 @@ const descriptionSchema = z.object({
 
 type DescriptionInputProps = {
   initialDescription: string;
-  auctionId: string;
+  isPending?: boolean;
+  onSubmit: (title: string) => Promise<unknown>;
+  onSuccess?: () => void;
+  onError?: () => void;
 };
 
-const DescriptionInput = ({ initialDescription, auctionId }: DescriptionInputProps) => {
+const DescriptionInput = ({
+  initialDescription,
+  isPending = false,
+  onSubmit: onDescriptionSubmit,
+  onSuccess,
+  onError,
+}: DescriptionInputProps) => {
   const [isOpened, setIsOpened] = useState(false);
   const { handleSubmit, setValue, watch, reset } = useForm({
     resolver: zodResolver(descriptionSchema),
     mode: 'onBlur',
   });
-  const { mutateAsync, isPending } = useUpdateAuction(auctionId);
 
   const onChange = (data: string) => {
     setValue('description', data, {
@@ -50,18 +56,12 @@ const DescriptionInput = ({ initialDescription, auctionId }: DescriptionInputPro
     }
 
     try {
-      await mutateAsync({
-        description,
-      });
-
-      toast.success('The description has been successfully updated', {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      await onDescriptionSubmit(description.trim());
       setIsOpened(false);
+
+      if (onSuccess) onSuccess();
     } catch {
-      toast.error('Something went wrong');
+      if (onError) onError();
     }
   };
 
