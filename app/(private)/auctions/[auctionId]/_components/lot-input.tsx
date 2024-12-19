@@ -9,11 +9,11 @@ import { CircleMinus, CirclePlus } from 'lucide-react';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../../_shared/title-schema';
+import { titleSchema } from '../../_shared/schemas/title-schema';
 import { useCreateLot, useReorderLots } from '@/app/queries/lot';
 import LotList from './lot-list';
 import { useRouter } from 'next/navigation';
-import { AuctionData } from '../_shared/types';
+import { AuctionData } from '@/app/utils/type';
 
 type LotInputProps = {
   auctionData: AuctionData;
@@ -87,8 +87,8 @@ const LotInput = ({ auctionData }: LotInputProps) => {
           value={watch('title')}
         />
       ) : (
-        <div>
-          {auctionData.lot?.length && (
+        <>
+          {auctionData.lot.length > 0 ? (
             <LotList
               auctionData={auctionData}
               reorderMutateAsync={async ({ lotId, newPosition }) => {
@@ -99,8 +99,10 @@ const LotInput = ({ auctionData }: LotInputProps) => {
                 });
               }}
             />
+          ) : (
+            <p className='text-slate-500 overflow-hidden text-ellipsis italic'>No lots yet</p>
           )}
-        </div>
+        </>
       )}
       {isOpened && (
         <Button
