@@ -12,7 +12,8 @@ import {
 import { Grip, SquarePen } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { AuctionData } from '../_shared/types';
+import { useRouter } from 'next/navigation';
+import { AuctionData } from '@/app/utils/type';
 
 type LotListProps = {
   auctionData: AuctionData;
@@ -21,6 +22,7 @@ type LotListProps = {
 
 const LotList = ({ auctionData, reorderMutateAsync }: LotListProps) => {
   const [lots, setLots] = useState(auctionData.lot);
+  const router = useRouter();
 
   useEffect(() => {
     setLots(auctionData.lot);
@@ -73,7 +75,10 @@ const LotList = ({ auctionData, reorderMutateAsync }: LotListProps) => {
                       </div>
                       <div className='text-gray-400'>{title}</div>
                     </div>
-                    <SquarePen className='w-5 h-5 cursor-pointer hover:scale-110 transition' />
+                    <SquarePen
+                      className='w-5 h-5 cursor-pointer hover:scale-110 transition'
+                      onClick={() => router.push(`/auctions/${auctionData.id}/lots/${id}`)}
+                    />
                   </div>
                 )}
               </Draggable>
