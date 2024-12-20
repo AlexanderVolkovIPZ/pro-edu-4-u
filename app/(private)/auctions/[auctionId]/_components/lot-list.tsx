@@ -13,7 +13,7 @@ import { Grip, SquarePen } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { AuctionData } from '@/app/utils/type';
+import { AuctionData } from '@/app/types';
 
 type LotListProps = {
   auctionData: AuctionData;

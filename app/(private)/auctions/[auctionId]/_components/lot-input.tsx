@@ -13,7 +13,7 @@ import { titleSchema } from '../../_shared/schemas/title-schema';
 import { useCreateLot, useReorderLots } from '@/app/queries/lot';
 import LotList from './lot-list';
 import { useRouter } from 'next/navigation';
-import { AuctionData } from '@/app/utils/type';
+import { AuctionData } from '@/app/types';
 
 type LotInputProps = {
   auctionData: AuctionData;

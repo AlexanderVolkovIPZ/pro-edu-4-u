@@ -1,5 +1,5 @@
 import getAuthUser from '@/app/actions/get-auth-user';
-import { ReorderPhotoType } from '@/app/utils/type';
+import { ReorderPhotoType } from '@/app/types';
 import { NextResponse } from 'next/server';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {

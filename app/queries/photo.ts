@@ -3,7 +3,7 @@ import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { LOT } from './query-keys';
-import { CreatePhotoType, DeletePhotoType, ReorderPhotoType } from '../utils/type';
+import { CreatePhotoType, DeletePhotoType, ReorderPhotoType } from '../types';
 
 export function useCreatePhoto(auctionId: string, lotId: string): UseMutationResult<Photo[], Error, CreatePhotoType> {
   return useMutation<Photo[], Error, CreatePhotoType>({

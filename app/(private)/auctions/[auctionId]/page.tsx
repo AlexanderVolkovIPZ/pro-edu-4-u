@@ -13,7 +13,7 @@ import LotInput from './_components/lot-input';
 import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
 import { BookType } from 'lucide-react';
-import { AuctionData } from '@/app/utils/type';
+import { AuctionData } from '@/app/types';
 
 type AuctionIdPageParams = {
   auctionId: string;

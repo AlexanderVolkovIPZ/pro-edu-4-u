@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import { CreatePhotoType, DeletePhotoType } from '@/app/utils/type';
+import { CreatePhotoType, DeletePhotoType } from '@/app/types';
 import { Photo } from '@prisma/client';
 import { NextResponse } from 'next/server';
 

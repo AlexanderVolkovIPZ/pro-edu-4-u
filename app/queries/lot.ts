@@ -6,7 +6,7 @@ import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
 import { AUCTION, LOT } from './query-keys';
-import { AuctionData } from '../utils/type';
+import { AuctionData } from '../types';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   auctionId: string
