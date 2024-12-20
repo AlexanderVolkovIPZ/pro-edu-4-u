@@ -39,9 +39,8 @@ const CreateAuctionPage = () => {
           textAlign: 'center',
         },
       });
-
-      reset();
       router.push(`/auctions/${id}`);
+      reset();
     } catch {
       toast.error('Something went wrong');
     }
