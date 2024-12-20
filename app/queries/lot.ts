@@ -1,12 +1,12 @@
 'use client';
 
-import { Lot } from '@prisma/client';
+import { Lot, Photo, Video } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import axios, { AxiosResponse } from 'axios';
-import { AuctionData } from '../(private)/auctions/[auctionId]/_shared/types';
+import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
 import { AUCTION, LOT } from './query-keys';
+import { AuctionData } from '../utils/type';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   auctionId: string
@@ -22,30 +22,33 @@ export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   });
 }
 
-export function useUpdateLot<T extends Lot>(
+export function useUpdateLot<T extends Partial<Lot>>(
   auctionId: string,
   lotId: string
-): UseMutationResult<AxiosResponse<T>, Error, T> {
-  return useMutation<AxiosResponse<T>, Error, T>({
+): UseMutationResult<Lot, Error, T> {
+  return useMutation<Lot, Error, T>({
     mutationFn: async (data: T) => {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`,
         data
       );
-      return response;
+      return response.data;
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [LOT, lotId] });
+      queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
     },
   });
 }
 
-export function useLot<T>(lotId: string): UseQueryResult<AxiosResponse<T>, Error> {
-  return useQuery<AxiosResponse<T>, Error>({
-    queryKey: [LOT, lotId],
+export function useLot<T extends Lot & { photo: Photo[]; video: Video[] }>(
+  auctionId: string,
+  lotId: string
+): UseQueryResult<T, Error> {
+  return useQuery<T, Error, T>({
+    queryKey: [LOT, auctionId, lotId],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/lot/${lotId}`);
-      return response;
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`);
+      return response.data;
     },
   });
 }
