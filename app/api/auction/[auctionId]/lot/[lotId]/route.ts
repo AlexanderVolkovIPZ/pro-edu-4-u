@@ -2,49 +2,65 @@ import getAuthUser from '@/app/actions/get-auth-user';
 import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
 
-export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
+export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   const authUser = await getAuthUser();
   if (!authUser) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
   try {
-    const auction = await prismaDb.auction.findFirst({
+    const lot = await prismaDb.lot.findFirst({
       where: {
-        id: params.auctionId,
+        id: params.lotId,
+        auctionId: params.auctionId,
+      },
+      include: {
+        photo: {
+          orderBy: {
+            position: 'asc',
+          },
+        },
+        video: {
+          orderBy: {
+            position: 'asc',
+          },
+        },
       },
     });
 
-    return NextResponse.json(auction);
+    return NextResponse.json(lot);
   } catch (error) {
     console.error('GET_LOT_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string } }) {
+export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   const authUser = await getAuthUser();
   if (!authUser) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
   const body = await request.json();
-  const { title, description, startDate, endDate } = body;
+  const { title, position, description, startBid, buyNowBid, minBidIncrement } = body;
 
   try {
-    const auction = await prismaDb.auction.update({
+    const lot = await prismaDb.lot.update({
       data: {
         title,
+        position,
         description,
-        startDate,
-        endDate,
+        startBid,
+        buyNowBid,
+        minBidIncrement,
       },
       where: {
-        id: params.auctionId,
+        id: params.lotId,
+        auctionId: params.auctionId,
       },
     });
 
-    return NextResponse.json(auction);
+    return NextResponse.json(lot);
   } catch (error) {
     console.error('UPDATE_LOT_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
