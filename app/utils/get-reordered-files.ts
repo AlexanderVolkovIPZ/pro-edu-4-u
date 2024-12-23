@@ -1,12 +1,14 @@
-import { UploadedImage } from '@/components/image-uploader';
-
-type ReorderedFilesProps = {
+type ReorderedFilesProps<T> = {
   id: string;
-  files: UploadedImage[];
+  files: T[];
   newPosition: number;
 };
 
-export default function getReorderedFiles({ id, newPosition, files }: ReorderedFilesProps): UploadedImage[] {
+export default function getReorderedFiles<T extends { id: string; position: number }>({
+  id,
+  newPosition,
+  files,
+}: ReorderedFilesProps<T>): T[] {
   const draggableFile = files.find((file) => file.id === id)!;
   const oldLotPosition = draggableFile.position;
   const isHigherPosition = newPosition > oldLotPosition;
