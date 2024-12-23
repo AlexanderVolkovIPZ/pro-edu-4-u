@@ -267,12 +267,12 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
                                 </>
                               )}
                               <CldImage
-                                width={200}
-                                height={200}
+                                width={64}
+                                height={64}
                                 src={previewUrl}
                                 alt={`Preview ${file.name}`}
                                 quality={100}
-                                className='w-full h-full object-cover rounded-lg  duration-300  hover:scale-[1.06]'
+                                className='w-full h-full object-cover rounded-lg duration-300 hover:scale-[1.06]'
                               />
                             </div>
 
@@ -286,9 +286,7 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
                             </Button>
                           </div>
                         </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{position}</p>
-                        </TooltipContent>
+                        <TooltipContent>{file.name}</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   )}
