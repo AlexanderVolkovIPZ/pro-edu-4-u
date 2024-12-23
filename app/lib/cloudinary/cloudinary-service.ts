@@ -1,4 +1,4 @@
-import { v2 as cloudinary, UploadApiOptions } from 'cloudinary';
+import { v2 as cloudinary, DeliveryType, ResourceType, UploadApiOptions } from 'cloudinary';
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -17,9 +17,16 @@ export const uploadToCloudinary = async (file: string, options?: UploadApiOption
   }
 };
 
-export const deleteFromCloudinary = async (publicId: string) => {
+export const deleteFromCloudinary = async (
+  publicId: string,
+  options?: {
+    resource_type?: ResourceType;
+    type?: DeliveryType;
+    invalidate?: boolean;
+  }
+) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(publicId, options);
 
     if (result.result === 'ok') {
       return { success: true, message: `File with public_id ${publicId} deleted successfully` };
