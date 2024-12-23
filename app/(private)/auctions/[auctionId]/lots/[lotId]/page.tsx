@@ -180,7 +180,17 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                     maxFiles: 20,
                   }}
                 />
-                <VideoUploader />
+                <VideoUploader
+                  auctionId={params.auctionId}
+                  lotId={params.lotId}
+                  videos={data?.video || []}
+                  dropzoneOptions={{
+                    accept: {
+                      'video/*': ['.mp4', '.webm', '.ogg'],
+                    },
+                    multiple: true,
+                  }}
+                />
               </div>
             </>
           ) : (
