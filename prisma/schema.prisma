@@ -107,6 +107,7 @@ model Video {
   name      String
   pseudonym String?
   url       String
+  publicId  String
   position  Int
   lotId     String  @db.ObjectId
 
