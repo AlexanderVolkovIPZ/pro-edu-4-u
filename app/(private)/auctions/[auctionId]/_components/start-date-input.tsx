@@ -17,6 +17,7 @@ import { FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { auctionDateSchema, AuctionDateSchema } from '../_shared/schemas/auction-date-schema';
 import { getDatePickerDateFormat, getDatePickerTimeFormat } from '@/app/utils/get-date-picker-format';
+import { CalendarPlus2 } from 'lucide-react';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -95,7 +96,7 @@ const StartDateInput = ({ initialStartDate, initialEndDate, auctionId }: StartDa
       </div>
       {isOpened ? (
         <>
-          <div>
+          <div className='relative'>
             <DatePicker
               selected={watch('startDate') || selectedDate}
               onChange={(date) => setValue('startDate', date as Date)}
@@ -106,6 +107,7 @@ const StartDateInput = ({ initialStartDate, initialEndDate, auctionId }: StartDa
               minDate={new Date()}
               maxDate={dayjs(new Date()).add(1, 'year').toDate()}
               className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-slate-400'
+              wrapperClassName='w-full'
               renderCustomHeader={({
                 date,
                 decreaseMonth,
@@ -134,8 +136,10 @@ const StartDateInput = ({ initialStartDate, initialEndDate, auctionId }: StartDa
                 </div>
               )}
             />
-            {errors.startDate && <p className='text-red-600'>{errors.startDate.message}</p>}
+            <CalendarPlus2 className='w-5 h-5 absolute top-1/2 right-2 -translate-y-1/2' />
           </div>
+
+          {errors.startDate && <p className='text-red-600'>{errors.startDate.message}</p>}
 
           <Button className='mt-3 relative' type='button' onClick={handleSubmit(onSubmit)} disabled={isPending}>
             Save

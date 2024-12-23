@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { Pencil, PencilOff } from 'lucide-react';
+import { CalendarX, Pencil, PencilOff } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -95,7 +95,7 @@ const EndDateInput = ({ initialStartDate, initialEndDate, auctionId }: EndDateIn
       </div>
       {isOpened ? (
         <>
-          <div>
+          <div className='relative'>
             <DatePicker
               selected={watch('endDate') || selectedDate}
               onChange={(date) => setValue('endDate', date as Date)}
@@ -106,6 +106,7 @@ const EndDateInput = ({ initialStartDate, initialEndDate, auctionId }: EndDateIn
               minDate={new Date()}
               maxDate={dayjs(new Date()).add(1, 'year').toDate()}
               className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-slate-400'
+              wrapperClassName='w-full'
               renderCustomHeader={({
                 date,
                 decreaseMonth,
@@ -134,8 +135,10 @@ const EndDateInput = ({ initialStartDate, initialEndDate, auctionId }: EndDateIn
                 </div>
               )}
             />
-            {errors.endDate && <p className='text-red-600'>{errors.endDate.message}</p>}
+            <CalendarX className='w-5 h-5 absolute top-1/2 right-2 -translate-y-1/2' />
           </div>
+
+          {errors.endDate && <p className='text-red-600'>{errors.endDate.message}</p>}
 
           <Button className='mt-3 relative' type='button' onClick={handleSubmit(onSubmit)} disabled={isPending}>
             Save
