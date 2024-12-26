@@ -1,4 +1,4 @@
-import { Auction, Lot, Photo, Video } from '@prisma/client';
+import { Auction, AuctionCategory, Lot, Photo, Video } from '@prisma/client';
 
 export type CreatePhotoType = {
   id: Photo['id'];
@@ -30,9 +30,14 @@ export type ReorderVideoType = {
   position: number;
 };
 
-export type AuctionData = Pick<Auction, 'id' | 'title'> & {
+export type AuctionDataType = Pick<Auction, 'id' | 'title'> & {
   startDate: string;
   endDate: string;
   description: string;
   lot: Lot[];
+};
+
+export type CreateAuctionCategoriesType = {
+  auctionId: AuctionCategory['auctionId'];
+  categoryIds: AuctionCategory['categoryId'][];
 };
