@@ -35,7 +35,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
   return (
     <Container>
       <div className='mx-auto bg-white'>
-        <Header />
+        <Header auctionLink={`/auctions/${params.auctionId}`} />
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6'>
           {isFetched ? (
             <>
