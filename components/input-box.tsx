@@ -55,9 +55,9 @@ const InputBox = <T extends number | string>({
 
     try {
       await onPriceSubmit(data[fieldName]);
-      setIsOpened(false);
 
       if (onSuccess) onSuccess();
+      setIsOpened(false);
     } catch {
       if (onError) onError();
     } finally {
