@@ -13,10 +13,10 @@ import { titleSchema } from '../../_shared/schemas/title-schema';
 import { useCreateLot, useReorderLots } from '@/app/queries/lot';
 import LotList from './lot-list';
 import { useRouter } from 'next/navigation';
-import { AuctionData } from '@/app/types';
+import { AuctionDataType } from '@/app/types';
 
 type LotInputProps = {
-  auctionData: AuctionData;
+  auctionData: AuctionDataType;
 };
 
 const LotInput = ({ auctionData }: LotInputProps) => {

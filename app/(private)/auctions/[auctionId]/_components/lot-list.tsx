@@ -13,10 +13,10 @@ import { Grip, SquarePen } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { AuctionData } from '@/app/types';
+import { AuctionDataType } from '@/app/types';
 
 type LotListProps = {
-  auctionData: AuctionData;
+  auctionData: AuctionDataType;
   reorderMutateAsync: ({ lotId, newPosition }: { lotId: string; newPosition: number }) => Promise<void>;
 };
 
