@@ -205,7 +205,7 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
       if (currentlyPlaying !== null) {
         videoRefs.current[currentlyPlaying]?.pause();
       }
-      console.log('REFS', videoRefs.current);
+
       videoRefs.current[index]?.play();
       setCurrentlyPlaying(index);
     }
