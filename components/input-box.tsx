@@ -19,7 +19,7 @@ type InputBoxProps<T extends number | string> = {
   isLoading?: boolean;
   inputProps?: InputProps;
   icon?: LucideIcon;
-  onSubmit: (value: T) => Promise<unknown>;
+  onSubmit: (value: T) => void;
   onSuccess?: () => void;
   onError?: () => void;
   setIsLoading?: (isLoading: boolean) => void;

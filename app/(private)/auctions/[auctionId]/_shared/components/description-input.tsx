@@ -25,7 +25,7 @@ const descriptionSchema = z.object({
 type DescriptionInputProps = {
   initialDescription: string;
   isPending?: boolean;
-  onSubmit: (title: string) => Promise<unknown>;
+  onSubmit: (title: string) => void;
   onSuccess?: () => void;
   onError?: () => void;
 };
