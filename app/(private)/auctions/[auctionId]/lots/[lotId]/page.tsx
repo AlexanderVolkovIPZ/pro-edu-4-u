@@ -22,10 +22,12 @@ type LotIdPageParams = {
 };
 
 const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
-  const [isTitleUpdating, setIsTitleUpdating] = useState(false);
-  const [isStartBidUpdating, setIsStartBidUpdating] = useState(false);
-  const [isMinBidIncrementUpdating, setIsMinBidIncrementUpdating] = useState(false);
-  const [isBuyNowBidUpdating, setIsBuyNowBidUpdating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState({
+    isTitleUpdating: false,
+    isStartBidUpdating: false,
+    isMinBidIncrementUpdating: false,
+    isBuyNowBidUpdating: false,
+  });
 
   const { data, isFetched } = useLot(params.auctionId, params.lotId);
   const { mutateAsync, isPending } = useUpdateLot(params.auctionId, params.lotId);
@@ -42,12 +44,17 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   initialValue={data?.title || ''}
                   title='Title'
                   fieldName='title'
-                  isLoading={isTitleUpdating}
-                  setIsLoading={setIsTitleUpdating}
+                  isLoading={isUpdating.isTitleUpdating}
+                  setIsLoading={(isLoading) =>
+                    setIsUpdating((prev) => ({
+                      ...prev,
+                      isTitleUpdating: isLoading,
+                    }))
+                  }
                   registerOptions={{ required: true }}
                   icon={BookType}
                   inputProps={{
-                    placeholder: 'Enter start bid',
+                    placeholder: 'Enter lot title',
                     required: true,
                   }}
                   schema={titleSchema}
@@ -87,8 +94,13 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   title='Start bid'
                   fieldName='startBid'
                   icon={LucideDollarSign}
-                  isLoading={isStartBidUpdating}
-                  setIsLoading={setIsStartBidUpdating}
+                  isLoading={isUpdating.isStartBidUpdating}
+                  setIsLoading={(isLoading) =>
+                    setIsUpdating((prev) => ({
+                      ...prev,
+                      isStartBidUpdating: isLoading,
+                    }))
+                  }
                   registerOptions={{ valueAsNumber: true }}
                   inputProps={{
                     placeholder: 'Enter start bid',
@@ -115,8 +127,13 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   title='Minimum bid increment'
                   fieldName='minBidIncrement'
                   icon={LucideDollarSign}
-                  isLoading={isMinBidIncrementUpdating}
-                  setIsLoading={setIsMinBidIncrementUpdating}
+                  isLoading={isUpdating.isMinBidIncrementUpdating}
+                  setIsLoading={(isLoading) =>
+                    setIsUpdating((prev) => ({
+                      ...prev,
+                      isMinBidIncrementUpdating: isLoading,
+                    }))
+                  }
                   registerOptions={{ valueAsNumber: true }}
                   inputProps={{
                     placeholder: 'Enter minimum bid increment',
@@ -143,8 +160,13 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   title='Buy now bid'
                   fieldName='buyNowBid'
                   icon={LucideDollarSign}
-                  isLoading={isBuyNowBidUpdating}
-                  setIsLoading={setIsBuyNowBidUpdating}
+                  isLoading={isUpdating.isBuyNowBidUpdating}
+                  setIsLoading={(isLoading) =>
+                    setIsUpdating((prev) => ({
+                      ...prev,
+                      isBuyNowBidUpdating: isLoading,
+                    }))
+                  }
                   registerOptions={{ valueAsNumber: true }}
                   inputProps={{
                     placeholder: 'Enter minimum buy now bid',
