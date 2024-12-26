@@ -19,6 +19,7 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
             position: 'asc',
           },
         },
+        auctionCategory: true,
       },
     });
 
