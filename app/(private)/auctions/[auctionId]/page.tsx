@@ -13,14 +13,18 @@ import LotInput from './_components/lot-input';
 import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
 import { BookType } from 'lucide-react';
-import { AuctionData } from '@/app/types';
+import { AuctionDataType } from '@/app/types';
+
+import { useCategory } from '@/app/queries/category';
+import CategoryInput from './_shared/components/category-input';
+import { useAuctionCategories, useCreateAuctionCategories } from '@/app/queries/auction-category';
 
 type AuctionIdPageParams = {
   auctionId: string;
 };
 
 const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
-  const [auction, setAuction] = useState<AuctionData>({
+  const [auction, setAuction] = useState<AuctionDataType>({
     id: params.auctionId,
     title: '',
     description: '',
@@ -28,11 +32,18 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
     endDate: '',
     lot: [],
   });
-  const { data, isFetched } = useAuction<AuctionData>(params.auctionId);
-  const { mutateAsync, isPending } = useUpdateAuction(params.auctionId);
+
+  const { data, isFetched: isAuctionFetched } = useAuction<AuctionDataType>(params.auctionId);
+  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
+  const { data: auctionCategoriesData, isFetched: isAuctionCategoriesFetched } = useAuctionCategories(params.auctionId);
+  const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
+  const { mutateAsync: createAuctionCategories, isPending: isCreateAuctionCategoriesPending } =
+    useCreateAuctionCategories();
+
+  const isFetched = isAuctionFetched && isCategoriesFetched && isAuctionCategoriesFetched;
 
   useEffect(() => {
-    if (isFetched && data) {
+    if (isAuctionFetched && data) {
       setAuction({
         id: data.id,
         title: data.title,
@@ -42,7 +53,7 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
         lot: data.lot,
       });
     }
-  }, [data, isFetched]);
+  }, [data, isAuctionFetched]);
 
   return (
     <Container>
@@ -57,14 +68,14 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                   title='Title'
                   fieldName='title'
                   schema={titleSchema}
-                  isLoading={isPending}
+                  isLoading={isUpdateAuctionPending}
                   icon={BookType}
                   registerOptions={{ required: true }}
                   inputProps={{
                     required: true,
                   }}
                   onSubmit={async (title) => {
-                    await mutateAsync({ title });
+                    await updateAuction({ title });
                   }}
                   onSuccess={() => {
                     toast.success('The title has been successfully updated', {
@@ -79,9 +90,9 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                 />
                 <DescriptionInput
                   initialDescription={auction.description}
-                  isPending={isPending}
+                  isPending={isUpdateAuctionPending}
                   onSubmit={async (description) => {
-                    await mutateAsync({ description });
+                    await updateAuction({ description });
                   }}
                   onSuccess={() => {
                     toast.success('The description has been successfully updated', {
@@ -100,12 +111,33 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                 <StartDateInput
                   initialStartDate={auction.startDate}
                   initialEndDate={auction.endDate}
-                  auctionId={params.auctionId}
+                  auctionId={auction.id}
                 />
                 <EndDateInput
                   initialStartDate={auction.startDate}
                   initialEndDate={auction.endDate}
-                  auctionId={params.auctionId}
+                  auctionId={auction.id}
+                />
+                <CategoryInput
+                  initialCategories={categoriesData}
+                  auctionId={auction.id}
+                  initialAuctionCategoryIds={auctionCategoriesData?.map(
+                    (auctionCategory) => auctionCategory.categoryId
+                  )}
+                  isLoading={isCreateAuctionCategoriesPending}
+                  onSubmit={async (data) => {
+                    await createAuctionCategories(data);
+                  }}
+                  onSuccess={() => {
+                    toast.success('The categories has been successfully updated', {
+                      style: {
+                        textAlign: 'center',
+                      },
+                    });
+                  }}
+                  onError={() => {
+                    toast.error('Something went wrong');
+                  }}
                 />
               </div>
             </>
@@ -114,12 +146,11 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
               <div className='flex flex-col gap-y-6'>
                 <Skeleton className='h-24' />
                 <Skeleton className='h-24' />
+                <Skeleton className='h-24' />
               </div>
               <div className='flex flex-col gap-y-6'>
                 <Skeleton className='h-24' />
                 <Skeleton className='h-24' />
-              </div>
-              <div className='flex flex-col gap-y-6'>
                 <Skeleton className='h-24' />
               </div>
             </>
