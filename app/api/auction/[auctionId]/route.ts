@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { Auction } from '@prisma/client';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
   const authUser = await getAuthUser();
@@ -17,6 +18,9 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
         lot: {
           orderBy: {
             position: 'asc',
+          },
+          include: {
+            photo: true,
           },
         },
         auctionCategory: true,
@@ -37,8 +41,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
   }
 
   const body = await request.json();
-  const { title, description, startDate, endDate } = body;
-
+  const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
   try {
     const auction = await prismaDb.auction.update({
       data: {
@@ -46,6 +49,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
         description,
         startDate,
         endDate,
+        isPublished,
       },
       where: {
         id: params.auctionId,
