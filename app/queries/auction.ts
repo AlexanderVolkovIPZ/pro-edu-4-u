@@ -2,7 +2,7 @@
 
 import { Auction } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { AUCTION } from './query-keys';
 
@@ -44,14 +44,14 @@ export function useAuction<T>(auctionId: string): UseQueryResult<T, Error> {
   });
 }
 
-export function useAuctionByFilter<T extends Auction>(filters: Partial<T>): UseQueryResult<AxiosResponse<T>, Error> {
-  return useQuery<AxiosResponse<T>, Error>({
-    queryKey: [AUCTION, filters],
+export function useAuctionsByFilter<T extends Auction>(filters?: Partial<Auction>): UseQueryResult<T[], Error> {
+  return useQuery<T[], Error>({
+    queryKey: [AUCTION],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
+      const response = await axios.get<T[]>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
         params: filters,
       });
-      return response;
+      return response.data;
     },
   });
 }
