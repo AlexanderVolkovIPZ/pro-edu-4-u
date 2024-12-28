@@ -14,6 +14,7 @@ type CategoryInputProps = {
   initialCategories?: Category[];
   initialAuctionCategoryIds?: AuctionCategory['id'][];
   isLoading?: boolean;
+  showRequiredFieldIcon?: boolean;
   onSubmit: ({ auctionId, categoryIds }: { auctionId: string; categoryIds: string[] }) => void;
   onSuccess?: () => void;
   onError?: () => void;
@@ -24,6 +25,7 @@ const CategoryInput = ({
   initialCategories = [],
   initialAuctionCategoryIds = [],
   isLoading = false,
+  showRequiredFieldIcon = false,
   onSubmit,
   onSuccess,
   onError,
@@ -55,8 +57,9 @@ const CategoryInput = ({
   return (
     <div className='px-4 py-3 rounded-lg border-slate-300 border-[1.4px]'>
       <div className='flex items-center justify-between'>
-        <label htmlFor='title' className='block text-base font-semibold text-gray-700'>
+        <label htmlFor='title' className='block text-base font-semibold text-gray-700 relative'>
           Categories
+          {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
           className='cursor-pointer hover:bg-transparent hover:scale-105 transition p-0'

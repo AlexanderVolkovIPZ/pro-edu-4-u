@@ -20,9 +20,10 @@ type LotInputProps = {
     startDate: string;
     endDate: string;
   };
+  showRequiredFieldIcon?: boolean;
 };
 
-const LotInput = ({ auctionData }: LotInputProps) => {
+const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps) => {
   const router = useRouter();
   const [isOpened, setIsOpened] = useState(false);
   const {
@@ -65,8 +66,9 @@ const LotInput = ({ auctionData }: LotInputProps) => {
         </div>
       )}
       <div className='flex items-center justify-between'>
-        <label htmlFor='title' className='block text-base font-semibold text-gray-700'>
+        <label htmlFor='title' className='block text-base font-semibold text-gray-700 relative'>
           Auction Lots
+          {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
           className='cursor-pointer hover:bg-transparent hover:scale-105 transition p-0'

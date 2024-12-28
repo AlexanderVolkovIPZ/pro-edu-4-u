@@ -25,9 +25,15 @@ type EndDateInputProps = {
   initialEndDate?: string;
   initialStartDate?: string;
   auctionId: string;
+  showRequiredFieldIcon?: boolean;
 };
 
-const EndDateInput = ({ initialStartDate, initialEndDate, auctionId }: EndDateInputProps) => {
+const EndDateInput = ({
+  initialStartDate,
+  initialEndDate,
+  auctionId,
+  showRequiredFieldIcon = false,
+}: EndDateInputProps) => {
   const { timeZone, locale } = useContext(AccountContext);
   const [isOpened, setIsOpened] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -81,8 +87,9 @@ const EndDateInput = ({ initialStartDate, initialEndDate, auctionId }: EndDateIn
   return (
     <div className='px-4 py-3 rounded-lg border-slate-300 border-[1.4px]'>
       <div className='flex items-center justify-between'>
-        <label htmlFor='endDate' className='block text-base font-semibold text-gray-700'>
+        <label htmlFor='endDate' className='block text-base font-semibold text-gray-700 relative'>
           End date
+          {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
           className='cursor-pointer hover:bg-transparent hover:scale-105 transition p-0'

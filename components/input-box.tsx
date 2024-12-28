@@ -19,6 +19,7 @@ type InputBoxProps<T extends number | string> = {
   isLoading?: boolean;
   inputProps?: InputProps;
   icon?: LucideIcon;
+  showRequiredFieldIcon?: boolean;
   onSubmit: (value: T) => void;
   onSuccess?: () => void;
   onError?: () => void;
@@ -34,6 +35,7 @@ const InputBox = <T extends number | string>({
   isLoading = false,
   inputProps,
   icon: Icon,
+  showRequiredFieldIcon = false,
   onSubmit: onPriceSubmit,
   onSuccess,
   onError,
@@ -68,8 +70,9 @@ const InputBox = <T extends number | string>({
   return (
     <div className='px-4 py-3  rounded-lg border-slate-300 border-[1.4px]'>
       <div className='flex items-center justify-between'>
-        <label htmlFor={fieldName} className='block text-base font-semibold text-gray-700'>
+        <label htmlFor={fieldName} className='block text-base font-semibold text-gray-700 relative'>
           {title}
+          {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
           className='cursor-pointer hover:bg-transparent hover:scale-105 transition p-0'
