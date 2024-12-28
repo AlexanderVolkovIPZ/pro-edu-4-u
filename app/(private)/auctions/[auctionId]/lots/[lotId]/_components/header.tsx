@@ -6,10 +6,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const Header = ({ auctionLink }: { auctionLink: string }) => {
+type HeaderProps = {
+  auctionLink: string;
+  setShowAlertDialog: (isShowedAlertDialog: boolean) => void;
+};
+
+const Header = ({ auctionLink, setShowAlertDialog }: HeaderProps) => {
   const router = useRouter();
 
   return (
@@ -26,7 +31,10 @@ const Header = ({ auctionLink }: { auctionLink: string }) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Button variant='outline'>Publish</Button>
+      <Trash2
+        className='w-5 h-5 cursor-pointer hover:scale-110 transition hover:text-rose-600'
+        onClick={() => setShowAlertDialog(true)}
+      />
     </div>
   );
 };

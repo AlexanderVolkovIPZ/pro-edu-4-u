@@ -40,6 +40,15 @@ export function useUpdateLot<T extends Partial<Lot>>(
   });
 }
 
+export function useDeleteLot(auctionId: string, lotId: string): UseMutationResult<Lot, Error, void> {
+  return useMutation<Lot, Error, void>({
+    mutationFn: async () => {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`);
+      return response.data;
+    },
+  });
+}
+
 export function useLot<T extends Lot & { photo: Photo[]; video: Video[] }>(
   auctionId: string,
   lotId: string

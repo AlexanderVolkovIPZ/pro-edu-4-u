@@ -1,6 +1,6 @@
 'use client';
 
-import { useLot, useUpdateLot } from '@/app/queries/lot';
+import { useDeleteLot, useLot, useUpdateLot } from '@/app/queries/lot';
 import Container from '@/components/container';
 import ImageUploader from '@/components/image-uploader';
 import InputBox from '@/components/input-box';
@@ -15,6 +15,8 @@ import Header from './_components/header';
 import { buyNowBidSchema } from './_shared/schemas/buy-now-bid';
 import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
 import { startBidSchema } from './_shared/schemas/start-bid';
+import AlertDialog from '@/components/alert-dialog';
+import { useRouter } from 'next/navigation';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -22,20 +24,47 @@ type LotIdPageParams = {
 };
 
 const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
+  const router = useRouter();
   const [isUpdating, setIsUpdating] = useState({
     isTitleUpdating: false,
     isStartBidUpdating: false,
     isMinBidIncrementUpdating: false,
     isBuyNowBidUpdating: false,
   });
+  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
   const { data, isFetched } = useLot(params.auctionId, params.lotId);
-  const { mutateAsync, isPending } = useUpdateLot(params.auctionId, params.lotId);
+  const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
+  const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
+
+  const onDeleteLot = async () => {
+    try {
+      await deleteLot();
+
+      toast.success('Lot deleted successfully');
+
+      router.push(`/auctions/${params.auctionId}`);
+    } catch {
+      toast.error('Something went wrong');
+    } finally {
+      setIsShowedAlertDialog(false);
+    }
+  };
 
   return (
     <Container>
+      {isShowedAlertDialog &&
+        AlertDialog({
+          title: 'Are you absolutely sure?',
+          description: 'Are you sure you want to delete this lot?',
+          cancelBtnTitle: 'Cancel',
+          actionBtnTitle: 'Continue',
+          setShowAlertDialog: setIsShowedAlertDialog,
+          showAlertDialog: isShowedAlertDialog,
+          onConfirm: onDeleteLot,
+        })}
       <div className='mx-auto bg-white'>
-        <Header auctionLink={`/auctions/${params.auctionId}`} />
+        <Header auctionLink={`/auctions/${params.auctionId}`} setShowAlertDialog={setIsShowedAlertDialog} />
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6'>
           {isFetched ? (
             <>
@@ -45,6 +74,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   title='Title'
                   fieldName='title'
                   isLoading={isUpdating.isTitleUpdating}
+                  showRequiredFieldIcon={true}
                   setIsLoading={(isLoading) =>
                     setIsUpdating((prev) => ({
                       ...prev,
@@ -59,7 +89,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                   schema={titleSchema}
                   onSubmit={async (title) => {
-                    await mutateAsync({ title });
+                    await updateLot({ title });
                   }}
                   onSuccess={() => {
                     toast.success('The title has been successfully updated', {
@@ -76,7 +106,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   initialDescription={data?.description || ''}
                   isPending={isPending}
                   onSubmit={async (description) => {
-                    await mutateAsync({ description });
+                    await updateLot({ description });
                   }}
                   onSuccess={() => {
                     toast.success('The description has been successfully updated', {
@@ -95,6 +125,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   fieldName='startBid'
                   icon={LucideDollarSign}
                   isLoading={isUpdating.isStartBidUpdating}
+                  showRequiredFieldIcon={true}
                   setIsLoading={(isLoading) =>
                     setIsUpdating((prev) => ({
                       ...prev,
@@ -109,7 +140,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                   schema={startBidSchema}
                   onSubmit={async (startBid) => {
-                    await mutateAsync({ startBid });
+                    await updateLot({ startBid });
                   }}
                   onSuccess={() => {
                     toast.success('The start bid has been successfully updated', {
@@ -128,6 +159,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   fieldName='minBidIncrement'
                   icon={LucideDollarSign}
                   isLoading={isUpdating.isMinBidIncrementUpdating}
+                  showRequiredFieldIcon={true}
                   setIsLoading={(isLoading) =>
                     setIsUpdating((prev) => ({
                       ...prev,
@@ -142,7 +174,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                   schema={minBidIncrementSchema}
                   onSubmit={async (minBidIncrement) => {
-                    await mutateAsync({ minBidIncrement });
+                    await updateLot({ minBidIncrement });
                   }}
                   onSuccess={() => {
                     toast.success('The minimum bid increment has been successfully updated', {
@@ -175,7 +207,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                   schema={buyNowBidSchema}
                   onSubmit={async (buyNowBid) => {
-                    await mutateAsync({ buyNowBid });
+                    await updateLot({ buyNowBid });
                   }}
                   onSuccess={() => {
                     toast.success('The buy now bid has been successfully updated', {
