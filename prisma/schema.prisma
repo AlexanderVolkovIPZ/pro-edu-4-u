@@ -54,6 +54,7 @@ model Auction {
   creatorId   String    @db.ObjectId
   title       String
   description String?
+  isPublished Boolean   @default(false)
   status      Status    @default(UPCOMING)
   startDate   DateTime?
   endDate     DateTime?
