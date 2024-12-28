@@ -1,5 +1,5 @@
 import Footer from '@/app/(private)/_components/footer';
-import Header from '@/app/(private)/_components/header';
+import AppHeader from '@/app/(private)/_components/app-header';
 import Sidebar from '@/app/(private)/_components/sidebar';
 import getAuthUser from '../actions/get-auth-user';
 import { AuthUserProvider } from '../providers/auth-user-provider';
@@ -16,7 +16,7 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
     <AuthUserProvider authUser={authUser}>
       <div className='flex flex-col min-h-screen'>
         <div className='fixed h-20 w-full sm:pl-40 max-w-7xl'>
-          <Header />
+          <AppHeader />
         </div>
         <div className='fixed h-full w-40 hidden sm:block'>
           <Sidebar />
