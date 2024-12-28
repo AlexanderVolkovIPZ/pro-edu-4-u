@@ -34,27 +34,27 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
         </div>
       </div>
 
-      <CardContent className='p-3 grow flex flex-col justify-between'>
-        <h3 className='text-[16px] font-bold text-gray-800 mb-1 group-hover:text-rose-600 transition-colors text-ellipsis overflow-hidden text-nowrap'>
+      <CardContent className='p-3 grow flex flex-col gap-y-1'>
+        <h3 className='text-base font-bold text-gray-800 group-hover:text-rose-600 transition-colors text-ellipsis overflow-hidden text-nowrap'>
           {auction.title}
         </h3>
 
-        <div className='flex items-center text-emerald-600 mb-2'>
+        <div className='flex items-center text-emerald-600'>
           <TrendingUp size={18} className='mr-1' />
           <span className='font-semibold text-lg'>
             ${lowestPrice.toLocaleString()} - ${highestPrice.toLocaleString()}
           </span>
         </div>
 
-        <div className='flex flex-wrap gap-1 mb-2'>
+        <div className='flex flex-wrap gap-1'>
           {auction.auctionCategory.map((auctionCategory) => (
-            <span key={auctionCategory.category.id} className='bg-slate-200 text-slate-700 text-sm rounded px-1'>
+            <span key={auctionCategory.category.id} className='bg-slate-200 text-slate-700 text-xs rounded px-1'>
               {auctionCategory.category.name}
             </span>
           ))}
         </div>
 
-        <div className='flex flex-col items-center justify-center'>
+        <div className='mt-auto flex flex-col items-center justify-center'>
           <div className='flex items-center gap-x-1 '>
             <Clock size={16} className='text-rose-500' />
             <span className='text-sm text-rose-500'>Time Remaining</span>
