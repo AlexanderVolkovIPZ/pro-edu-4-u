@@ -1,13 +1,13 @@
 import { AuctionCategory } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
-import { AUCTION } from './query-keys';
+import { AUCTION_CATEGORY } from './query-keys';
 import { queryClient } from '../providers/query-client-provider';
 import { CreateAuctionCategoriesType } from '../types';
 
 export function useAuctionCategories(auctionId: string): UseQueryResult<AuctionCategory[], Error> {
   return useQuery<AuctionCategory[], Error>({
-    queryKey: ['auction-category'],
+    queryKey: [AUCTION_CATEGORY, auctionId],
     queryFn: async () => {
       const response = await axios.get<AuctionCategory[]>(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction-category?auctionId=${auctionId}`
@@ -17,7 +17,7 @@ export function useAuctionCategories(auctionId: string): UseQueryResult<AuctionC
   });
 }
 
-export function useCreateAuctionCategories<T = CreateAuctionCategoriesType>(): UseMutationResult<
+export function useCreateAuctionCategories<T extends CreateAuctionCategoriesType>(): UseMutationResult<
   AuctionCategory,
   Error,
   T
@@ -27,8 +27,10 @@ export function useCreateAuctionCategories<T = CreateAuctionCategoriesType>(): U
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction-category`, data);
       return response.data;
     },
-    onSettled: (data) => {
-      queryClient.invalidateQueries({ queryKey: [AUCTION, data?.auctionId] });
+    onSettled: (data, error, variables) => {
+      if (variables.auctionId) {
+        queryClient.invalidateQueries({ queryKey: [AUCTION_CATEGORY, variables.auctionId] });
+      }
     },
   });
 }

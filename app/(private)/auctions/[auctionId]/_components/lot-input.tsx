@@ -13,10 +13,13 @@ import { titleSchema } from '../../_shared/schemas/title-schema';
 import { useCreateLot, useReorderLots } from '@/app/queries/lot';
 import LotList from './lot-list';
 import { useRouter } from 'next/navigation';
-import { AuctionDataType } from '@/app/types';
+import { AuctionWithLotsType } from '@/app/types';
 
 type LotInputProps = {
-  auctionData: AuctionDataType;
+  auctionData: Pick<AuctionWithLotsType, 'id' | 'title' | 'description' | 'lot'> & {
+    startDate: string;
+    endDate: string;
+  };
 };
 
 const LotInput = ({ auctionData }: LotInputProps) => {

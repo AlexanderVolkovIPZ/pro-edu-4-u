@@ -30,11 +30,13 @@ export type ReorderVideoType = {
   position: number;
 };
 
-export type AuctionDataType = Pick<Auction, 'id' | 'title'> & {
+export type AuctionWithLotsType = Auction & { lot: Lot[] };
+
+export type AuctionWithLotsWithPhotosType = Auction & {
   startDate: string;
   endDate: string;
   description: string;
-  lot: Lot[];
+  lot: (Lot & { photo: Photo[] })[];
 };
 
 export type CreateAuctionCategoriesType = {
