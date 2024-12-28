@@ -218,15 +218,14 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
           ) : (
             <>
               <div className='flex flex-col gap-y-6'>
-                <Skeleton className='h-24' />
-                <Skeleton className='h-24' />
-                <Skeleton className='h-24' />
-                <Skeleton className='h-24' />
-                <Skeleton className='h-24' />
+                {[...Array(5)].map((_, index) => (
+                  <Skeleton className='h-24' key={index} />
+                ))}
               </div>
               <div className='flex flex-col gap-y-6'>
-                <Skeleton className='h-40' />
-                <Skeleton className='h-40' />
+                {[...Array(2)].map((_, index) => (
+                  <Skeleton className='h-40' key={index} />
+                ))}
               </div>
             </>
           )}
