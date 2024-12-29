@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import CountdownTimer from './countdown-timer';
 import { ImageSlider } from './image-slider';
 
+const MIN_SLIDER_IMAGES = 0;
+const MAX_SLIDER_IMAGES = 5;
+
 type AuctionCardProps = {
   auction: AuctionWithRelationsType;
 };
@@ -15,7 +18,9 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
 
   const lowestPrice = Math.min(...auction.lot.map((lot) => lot.startBid!));
   const highestPrice = Math.max(...auction.lot.map((lot) => lot.startBid!));
-  const images = auction.lot.flatMap((lot) => lot.photo.map((photo) => photo.url)).slice(0, 5);
+  const images = auction.lot
+    .flatMap((lot) => lot.photo.map((photo) => photo.url))
+    .slice(MIN_SLIDER_IMAGES, MAX_SLIDER_IMAGES);
   const uniqueLotCategories = Array.from(
     auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name))
   ).sort((a, b) => a.length - b.length);
