@@ -61,9 +61,8 @@ model Auction {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  auctionCategory AuctionCategory[]
-  lot             Lot[]
-  userAuction     UserAuction[]
+  lot         Lot[]
+  userAuction UserAuction[]
 }
 
 model UserAuction {
@@ -78,23 +77,23 @@ model UserAuction {
 }
 
 model Category {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  createdAt       DateTime          @default(now())
-  auctionCategory AuctionCategory[]
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  createdAt   DateTime      @default(now())
+  lotCategory LotCategory[]
 
   @@unique([name])
 }
 
-model AuctionCategory {
+model LotCategory {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  auctionId  String @db.ObjectId
+  lotId      String @db.ObjectId
   categoryId String @db.ObjectId
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  auction  Auction  @relation(fields: [auctionId], references: [id])
+  lot      Lot      @relation(fields: [lotId], references: [id])
 
-  @@unique([auctionId, categoryId])
+  @@unique([lotId, categoryId])
 }
 
 model Lot {
@@ -109,10 +108,11 @@ model Lot {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  auction Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
-  video   Video[]
-  photo   Photo[]
-  bid     Bid[]
+  auction     Auction       @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  video       Video[]
+  photo       Photo[]
+  bid         Bid[]
+  lotCategory LotCategory[]
 }
 
 model Video {
