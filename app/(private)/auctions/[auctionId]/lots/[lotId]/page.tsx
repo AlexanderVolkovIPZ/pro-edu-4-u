@@ -17,6 +17,9 @@ import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
 import { startBidSchema } from './_shared/schemas/start-bid';
 import AlertDialog from '@/components/alert-dialog';
 import { useRouter } from 'next/navigation';
+import CategoryInput from '../../_shared/components/category-input';
+import { useCategory } from '@/app/queries/category';
+import { useCreateLotCategories, useLotCategories } from '@/app/queries/lot-category';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -33,9 +36,15 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
   });
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
-  const { data, isFetched } = useLot(params.auctionId, params.lotId);
+  const { data, isFetched: isLotFetched } = useLot(params.auctionId, params.lotId);
   const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
   const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
+
+  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
+  const { data: lotCategoriesData, isFetched: isLotCategoriesFetched } = useLotCategories(params.lotId);
+  const { mutateAsync: createLotCategories, isPending: isCreateLotCategoriesPending } = useCreateLotCategories();
+
+  const isFetched = isLotFetched && isCategoriesFetched && isLotCategoriesFetched;
 
   const onDeleteLot = async () => {
     try {
@@ -110,6 +119,26 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                   onSuccess={() => {
                     toast.success('The description has been successfully updated', {
+                      style: {
+                        textAlign: 'center',
+                      },
+                    });
+                  }}
+                  onError={() => {
+                    toast.error('Something went wrong');
+                  }}
+                />
+                <CategoryInput
+                  initialCategories={categoriesData}
+                  lotId={params.lotId}
+                  initialLotCategoryIds={lotCategoriesData?.map((lotCategory) => lotCategory.categoryId)}
+                  isLoading={isCreateLotCategoriesPending}
+                  showRequiredFieldIcon={true}
+                  onSubmit={async (data) => {
+                    await createLotCategories(data);
+                  }}
+                  onSuccess={() => {
+                    toast.success('The categories has been successfully updated', {
                       style: {
                         textAlign: 'center',
                       },
