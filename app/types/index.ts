@@ -1,4 +1,4 @@
-import { Auction, AuctionCategory, Lot, Photo, Video } from '@prisma/client';
+import { Auction, Lot, LotCategory, Photo, Video } from '@prisma/client';
 
 export type CreatePhotoType = {
   id: Photo['id'];
@@ -36,10 +36,10 @@ export type AuctionWithLotsWithPhotosType = Auction & {
   startDate: string;
   endDate: string;
   description: string;
-  lot: (Lot & { photo: Photo[] })[];
+  lot: (Lot & { photo: Photo[]; lotCategory: LotCategory[] })[];
 };
 
-export type CreateAuctionCategoriesType = {
-  auctionId: AuctionCategory['auctionId'];
-  categoryIds: AuctionCategory['categoryId'][];
+export type CreateLotCategoriesType = {
+  lotId: LotCategory['lotId'];
+  categoryIds: LotCategory['categoryId'][];
 };
