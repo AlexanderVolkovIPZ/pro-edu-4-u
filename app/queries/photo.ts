@@ -2,11 +2,14 @@ import { Photo } from '@prisma/client';
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
+import { CreateFileType, DeleteFileType, ReorderFileType } from '../types';
 import { LOT } from './query-keys';
-import { CreatePhotoType, DeletePhotoType, ReorderPhotoType } from '../types';
 
-export function useCreatePhoto(auctionId: string, lotId: string): UseMutationResult<Photo[], Error, CreatePhotoType> {
-  return useMutation<Photo[], Error, CreatePhotoType>({
+export function useCreatePhoto(
+  auctionId: string,
+  lotId: string
+): UseMutationResult<Photo[], Error, CreateFileType<Photo>> {
+  return useMutation<Photo[], Error, CreateFileType<Photo>>({
     mutationFn: async (data) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/photo`,
@@ -20,8 +23,8 @@ export function useCreatePhoto(auctionId: string, lotId: string): UseMutationRes
   });
 }
 
-export function useDeletePhoto(auctionId: string, lotId: string): UseMutationResult<Photo, Error, DeletePhotoType> {
-  return useMutation<Photo, Error, DeletePhotoType>({
+export function useDeletePhoto(auctionId: string, lotId: string): UseMutationResult<Photo, Error, DeleteFileType> {
+  return useMutation<Photo, Error, DeleteFileType>({
     mutationFn: async (data) => {
       const response = await axios.delete<Photo>(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/photo`,
@@ -35,8 +38,8 @@ export function useDeletePhoto(auctionId: string, lotId: string): UseMutationRes
   });
 }
 
-export function useReorderPhoto(auctionId: string, lotId: string): UseMutationResult<Photo[], Error, ReorderPhotoType> {
-  return useMutation<Photo[], Error, ReorderPhotoType>({
+export function useReorderPhoto(auctionId: string, lotId: string): UseMutationResult<Photo[], Error, ReorderFileType> {
+  return useMutation<Photo[], Error, ReorderFileType>({
     mutationFn: async (data) => {
       const response = await axios.patch<Photo[]>(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/photo/reorder`,

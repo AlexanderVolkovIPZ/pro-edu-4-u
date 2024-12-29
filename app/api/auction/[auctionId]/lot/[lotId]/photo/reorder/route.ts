@@ -1,5 +1,5 @@
 import getAuthUser from '@/app/actions/get-auth-user';
-import { ReorderPhotoType } from '@/app/types';
+import { ReorderFileType } from '@/app/types';
 import { NextResponse } from 'next/server';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
@@ -8,7 +8,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const body: ReorderPhotoType = await request.json();
+  const body: ReorderFileType = await request.json();
   const { id, position } = body;
 
   try {

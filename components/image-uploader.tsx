@@ -1,12 +1,10 @@
 'use client';
-import { CldImage } from 'next-cloudinary';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { DropzoneOptions, useDropzone } from 'react-dropzone';
-import { X, Upload, ImageIcon } from 'lucide-react';
+import { useCreatePhoto, useDeletePhoto, useReorderPhoto } from '@/app/queries/photo';
+import { convertToBase64 } from '@/app/utils/convert-to-base64';
+import { generateUUID } from '@/app/utils/generate-uuid';
+import getReorderedFiles from '@/app/utils/get-reordered-files';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import toast from 'react-hot-toast';
 import {
   DragDropContext,
   Draggable,
@@ -15,12 +13,14 @@ import {
   DroppableProvided,
   DropResult,
 } from '@hello-pangea/dnd';
-import { convertToBase64 } from '@/app/utils/convert-to-base64';
-import { useCreatePhoto, useDeletePhoto, useReorderPhoto } from '@/app/queries/photo';
-import { generateUUID } from '@/app/utils/generate-uuid';
-import getReorderedFiles from '@/app/utils/get-reordered-files';
 import { Photo } from '@prisma/client';
+import { ImageIcon, Upload, X } from 'lucide-react';
+import { CldImage } from 'next-cloudinary';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 import Spinner from './spinner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 export type UploadedImage = {
   id: string;
@@ -140,14 +140,14 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
           file: await convertToBase64(file),
           position,
           name: file.name,
-          isImageUploaded,
+          isFileUploaded: isImageUploaded,
           id,
         }))
       );
 
       await createPhoto(data);
 
-      const newImagesLength = data.filter(({ isImageUploaded }) => !isImageUploaded).length;
+      const newImagesLength = data.filter(({ isFileUploaded }) => !isFileUploaded).length;
       toast.success(`Successfully uploaded ${newImagesLength} image${newImagesLength > 1 ? 's' : ''}.`, {
         style: {
           textAlign: 'center',

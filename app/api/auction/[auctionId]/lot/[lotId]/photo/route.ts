@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import { CreatePhotoType, DeletePhotoType } from '@/app/types';
+import { CreateFileType, DeleteFileType } from '@/app/types';
 import { Photo } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -10,12 +10,12 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const body: CreatePhotoType = await request.json();
+  const body: CreateFileType<Photo> = await request.json();
 
   try {
     const uploadedPhotos: Photo[] = [];
-    for (const { file, position, name, isImageUploaded, id } of body) {
-      if (isImageUploaded) {
+    for (const { file, position, name, isFileUploaded, id } of body) {
+      if (isFileUploaded) {
         await prismaDb?.photo.update({
           where: {
             id,
@@ -60,7 +60,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const { id }: DeletePhotoType = await request.json();
+  const { id }: DeleteFileType = await request.json();
 
   try {
     const photo = await prismaDb?.photo.findFirst({
