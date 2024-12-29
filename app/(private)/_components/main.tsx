@@ -3,9 +3,9 @@
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import Container from '@/components/container';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AuctionWithRelationsType } from '../types';
 import AuctionCard from './auction-card';
 import Header from './header';
+import { AuctionWithRelationsType } from '@/app/types';
 
 const Main = () => {
   const { data: auctions, isFetched } = useAuctionsByFilter<AuctionWithRelationsType>({

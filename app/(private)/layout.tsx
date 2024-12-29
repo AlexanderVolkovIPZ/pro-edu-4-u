@@ -1,9 +1,9 @@
-import Footer from '@/app/(private)/_components/footer';
 import AppHeader from '@/app/(private)/_components/app-header';
+import Footer from '@/app/(private)/_components/footer';
 import Sidebar from '@/app/(private)/_components/sidebar';
+import { redirect } from 'next/navigation';
 import getAuthUser from '../actions/get-auth-user';
 import { AuthUserProvider } from '../providers/auth-user-provider';
-import { redirect } from 'next/navigation';
 
 const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
   const authUser = await getAuthUser();

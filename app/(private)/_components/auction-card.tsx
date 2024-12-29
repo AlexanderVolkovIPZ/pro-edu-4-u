@@ -1,8 +1,8 @@
+import { AuctionWithRelationsType } from '@/app/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { AuctionWithRelationsType } from '../types';
 import CountdownTimer from './countdown-timer';
 import { ImageSlider } from './image-slider';
 

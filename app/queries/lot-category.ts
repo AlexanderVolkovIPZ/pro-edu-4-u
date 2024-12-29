@@ -1,9 +1,9 @@
 import { LotCategory } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
-import { LOT_CATEGORY } from './query-keys';
 import { queryClient } from '../providers/query-client-provider';
 import { CreateLotCategoriesType } from '../types';
+import { LOT_CATEGORY } from './query-keys';
 
 export function useLotCategories(lotId: string): UseQueryResult<LotCategory[], Error> {
   return useQuery<LotCategory[], Error>({

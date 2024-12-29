@@ -1,10 +1,9 @@
 'use client';
 
 import Container from '@/components/container';
-
 import { Separator } from '@/components/ui/separator';
-import Tabs from './_components/tabs';
 import Header from './_components/header';
+import Tabs from './_components/tabs';
 
 const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
   return (

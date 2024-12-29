@@ -1,6 +1,8 @@
 'use client';
 
+import { useCreateAuction } from '@/app/queries/auction';
 import Container from '@/components/container';
+import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Gavel } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
-import { titleSchema } from '../_shared/schemas/title-schema';
 import toast from 'react-hot-toast';
-import { useCreateAuction } from '@/app/queries/auction';
-import Spinner from '@/components/spinner';
+import { titleSchema } from '../_shared/schemas/title-schema';
 
 const CreateAuctionPage = () => {
   const { mutateAsync, isPending } = useCreateAuction();

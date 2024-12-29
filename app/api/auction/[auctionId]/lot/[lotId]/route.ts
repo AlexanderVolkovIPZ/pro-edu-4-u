@@ -1,7 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
-import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 import { deleteFromCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
+import prismaDb from '@/lib/prismadb';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   const authUser = await getAuthUser();
