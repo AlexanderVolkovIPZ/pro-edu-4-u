@@ -1,7 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
 import { Auction } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
   const authUser = await getAuthUser();
@@ -21,9 +21,9 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
           },
           include: {
             photo: true,
+            lotCategory: true,
           },
         },
-        auctionCategory: true,
       },
     });
 
