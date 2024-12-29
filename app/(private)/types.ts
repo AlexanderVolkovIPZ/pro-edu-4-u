@@ -1,7 +1,6 @@
-import { Auction, AuctionCategory, Category, Lot, Photo, UserAuction } from '@prisma/client';
+import { Auction, Category, Lot, LotCategory, Photo, UserAuction } from '@prisma/client';
 
 export type AuctionWithRelationsType = Auction & {
-  lot: (Lot & { photo: Photo[] })[];
+  lot: (Lot & { photo: Photo[]; lotCategory: (LotCategory & { category: Category })[] })[];
   userAuction: UserAuction[];
-  auctionCategory: (AuctionCategory & { category: Category })[];
 };
