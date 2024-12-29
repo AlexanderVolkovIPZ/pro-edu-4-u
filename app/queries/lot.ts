@@ -5,8 +5,8 @@ import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanst
 import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
-import { AUCTION, LOT } from './query-keys';
 import { AuctionWithLotsType } from '../types';
+import { AUCTION, LOT } from './query-keys';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   auctionId: string
@@ -62,29 +62,33 @@ export function useLot<T extends Lot & { photo: Photo[]; video: Video[] }>(
   });
 }
 
-type ReorderLotsType = Pick<AuctionWithLotsType, 'id' | 'title' | 'description' | 'lot'> & {
-  startDate: string;
-  endDate: string;
+type ReorderLotsType = {
   draggableId: string;
   newPosition: number;
 };
-export function useReorderLots(auctionId: string): UseMutationResult<Auction, Error, ReorderLotsType> {
-  return useMutation<Auction, Error, ReorderLotsType>({
+
+export function useReorderLots(auctionId: string): UseMutationResult<Lot[], Error, ReorderLotsType> {
+  return useMutation<Lot[], Error, ReorderLotsType>({
     mutationFn: async ({ draggableId, newPosition }: ReorderLotsType) => {
-      const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/reorder`, {
-        id: draggableId,
-        position: newPosition,
-      });
+      const response = await axios.patch<Lot[]>(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/reorder`,
+        {
+          id: draggableId,
+          position: newPosition,
+        }
+      );
       return response.data;
     },
-    onMutate: async ({ draggableId, newPosition, lot }) => {
+    onMutate: async ({ draggableId, newPosition }) => {
       await queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
 
-      const previousAuction = queryClient.getQueryData<Auction>([AUCTION, auctionId]);
+      const previousAuction = queryClient.getQueryData<AuctionWithLotsType>([AUCTION, auctionId]);
+      if (!previousAuction) return;
+
       const lots = getReorderedLots({
         lotId: draggableId,
         newPosition: newPosition,
-        lots: lot,
+        lots: previousAuction.lot,
       });
 
       queryClient.setQueryData([AUCTION, auctionId], (oldQueryData: Auction) => {
