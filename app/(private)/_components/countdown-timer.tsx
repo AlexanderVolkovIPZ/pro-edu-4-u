@@ -47,10 +47,6 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     const key = interval as keyof TimeLeftType;
 
     timerComponents.push(
-      // <span key={interval} className='inline-flex flex-col items-center mx-1'>
-      //   <span className='text-lg font-bold text-gray-800'>{timeLeft[key]}</span>
-      //   <span className='text-xs text-gray-500'>{interval}</span>
-      // </span>
       <span key={interval} className='inline-flex flex-col items-center mx-1'>
         <span className='text-xl font-bold rounded-sm text-slate-700'>
           {timeLeft[key]?.toString().length === 1 ? `0${timeLeft[key]}` : timeLeft[key]}
