@@ -1,25 +1,22 @@
 'use client';
 
+import { useCreateLot, useReorderLots } from '@/app/queries/lot';
+import { AuctionWithLotsType } from '@/app/types';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CircleMinus, CirclePlus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { titleSchema } from '../../_shared/schemas/title-schema';
-import { useCreateLot, useReorderLots } from '@/app/queries/lot';
 import LotList from './lot-list';
-import { useRouter } from 'next/navigation';
-import { AuctionWithLotsType } from '@/app/types';
 
 type LotInputProps = {
-  auctionData: Pick<AuctionWithLotsType, 'id' | 'title' | 'description' | 'lot'> & {
-    startDate: string;
-    endDate: string;
-  };
+  auctionData: Pick<AuctionWithLotsType, 'id' | 'lot'>;
   showRequiredFieldIcon?: boolean;
 };
 
