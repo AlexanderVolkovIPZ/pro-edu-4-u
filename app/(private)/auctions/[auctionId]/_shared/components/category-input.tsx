@@ -5,32 +5,32 @@ import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { AuctionCategory, Category } from '@prisma/client';
+import { Category, LotCategory } from '@prisma/client';
 import { Check, ChevronsUpDown, Pencil, PencilOff, X } from 'lucide-react';
 import { useState } from 'react';
 
 type CategoryInputProps = {
-  auctionId: string;
+  lotId: string;
   initialCategories?: Category[];
-  initialAuctionCategoryIds?: AuctionCategory['id'][];
+  initialLotCategoryIds?: LotCategory['id'][];
   isLoading?: boolean;
   showRequiredFieldIcon?: boolean;
-  onSubmit: ({ auctionId, categoryIds }: { auctionId: string; categoryIds: string[] }) => void;
+  onSubmit: ({ lotId, categoryIds }: { lotId: string; categoryIds: string[] }) => void;
   onSuccess?: () => void;
   onError?: () => void;
 };
 
 const CategoryInput = ({
-  auctionId,
+  lotId,
   initialCategories = [],
-  initialAuctionCategoryIds = [],
+  initialLotCategoryIds = [],
   isLoading = false,
   showRequiredFieldIcon = false,
   onSubmit,
   onSuccess,
   onError,
 }: CategoryInputProps) => {
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(initialAuctionCategoryIds);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(initialLotCategoryIds);
   const [isOpenedInput, setIsOpenedInput] = useState(false);
   const [isOpenedPopover, setIsOpenedPopover] = useState(false);
 
@@ -43,7 +43,7 @@ const CategoryInput = ({
   const onSave = async () => {
     try {
       await onSubmit({
-        auctionId,
+        lotId,
         categoryIds: selectedCategoryIds,
       });
       setIsOpenedInput(false);
