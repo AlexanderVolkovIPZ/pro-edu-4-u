@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { DropzoneOptions, useDropzone } from 'react-dropzone';
-import { X, VideoIcon, Play, Pause, Upload } from 'lucide-react';
+import { useCreateVideo, useDeleteVideo, useReorderVideo } from '@/app/queries/video';
+import { convertToBase64 } from '@/app/utils/convert-to-base64';
+import { generateUUID } from '@/app/utils/generate-uuid';
+import getReorderedFiles from '@/app/utils/get-reordered-files';
 import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
 import {
   DragDropContext,
   Draggable,
@@ -13,11 +13,11 @@ import {
   DroppableProvided,
   DropResult,
 } from '@hello-pangea/dnd';
-import { convertToBase64 } from '@/app/utils/convert-to-base64';
-import { useCreateVideo, useDeleteVideo, useReorderVideo } from '@/app/queries/video';
-import { generateUUID } from '@/app/utils/generate-uuid';
-import getReorderedFiles from '@/app/utils/get-reordered-files';
 import { Video } from '@prisma/client';
+import { Pause, Play, Upload, VideoIcon, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { DropzoneOptions, useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 import Spinner from './spinner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
@@ -141,14 +141,14 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
           file: await convertToBase64(file),
           position,
           name: file.name,
-          isVideoUploaded,
+          isFileUploaded: isVideoUploaded,
           id,
         }))
       );
 
       await createVideo(data);
 
-      const newVideosLength = data.filter(({ isVideoUploaded }) => !isVideoUploaded).length;
+      const newVideosLength = data.filter(({ isFileUploaded }) => !isFileUploaded).length;
       toast.success(`Successfully uploaded ${newVideosLength} video${newVideosLength > 1 ? 's' : ''}.`, {
         style: {
           textAlign: 'center',

@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import { CreateVideoType, DeleteVideoType } from '@/app/types';
+import { CreateFileType, DeleteFileType } from '@/app/types';
 import { Video } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -10,12 +10,12 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const body: CreateVideoType = await request.json();
+  const body: CreateFileType<Video> = await request.json();
 
   try {
     const uploadedVideos: Video[] = [];
-    for (const { file, position, name, isVideoUploaded, id } of body) {
-      if (isVideoUploaded) {
+    for (const { file, position, name, isFileUploaded, id } of body) {
+      if (isFileUploaded) {
         await prismaDb?.video.update({
           where: {
             id,
@@ -61,7 +61,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const { id }: DeleteVideoType = await request.json();
+  const { id }: DeleteFileType = await request.json();
 
   try {
     const video = await prismaDb?.video.findFirst({
