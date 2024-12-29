@@ -1,6 +1,7 @@
 'use client';
 
 import getReorderedLots from '@/app/actions/get-reordered-lots';
+import { AuctionWithLotsType } from '@/app/types';
 import {
   DragDropContext,
   Draggable,
@@ -10,16 +11,12 @@ import {
   DropResult,
 } from '@hello-pangea/dnd';
 import { Grip, SquarePen } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
-import { AuctionWithLotsType } from '@/app/types';
 
 type LotListProps = {
-  auctionData: Pick<AuctionWithLotsType, 'id' | 'title' | 'description' | 'lot'> & {
-    startDate: string;
-    endDate: string;
-  };
+  auctionData: Pick<AuctionWithLotsType, 'id' | 'lot'>;
   reorderMutateAsync: ({ lotId, newPosition }: { lotId: string; newPosition: number }) => Promise<void>;
 };
 
