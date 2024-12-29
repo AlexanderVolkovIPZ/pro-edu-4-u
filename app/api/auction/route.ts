@@ -69,14 +69,14 @@ export async function GET(request: Request) {
         lot: {
           include: {
             photo: true,
+            lotCategory: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
         userAuction: true,
-        auctionCategory: {
-          include: {
-            category: true,
-          },
-        },
       },
     });
 
