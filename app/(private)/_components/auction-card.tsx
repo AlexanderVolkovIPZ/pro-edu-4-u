@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { AuctionWithRelationsType } from '../types';
 import CountdownTimer from './countdown-timer';
 import { ImageSlider } from './image-slider';
@@ -10,9 +11,14 @@ type AuctionCardProps = {
 };
 
 export default function AuctionCard({ auction }: AuctionCardProps) {
+  const router = useRouter();
+
   const lowestPrice = Math.min(...auction.lot.map((lot) => lot.startBid!));
   const highestPrice = Math.max(...auction.lot.map((lot) => lot.startBid!));
   const images = auction.lot.flatMap((lot) => lot.photo.map((photo) => photo.url)).slice(0, 5);
+  const uniqueLotCategories = Array.from(
+    auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name))
+  ).sort((a, b) => a.length - b.length);
   const auctionParticipantsCount = auction.userAuction.length - 1;
 
   return (
@@ -47,9 +53,9 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
         </div>
 
         <div className='flex flex-wrap gap-1'>
-          {auction.auctionCategory.map((auctionCategory) => (
-            <span key={auctionCategory.category.id} className='bg-slate-200 text-slate-700 text-xs rounded px-1'>
-              {auctionCategory.category.name}
+          {uniqueLotCategories.map((category) => (
+            <span key={category} className='bg-slate-200 text-slate-700 text-xs rounded px-1'>
+              {category}
             </span>
           ))}
         </div>
@@ -64,7 +70,10 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
       </CardContent>
 
       <CardFooter className='bg-gray-50 p-4'>
-        <Button className='w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white transition-all duration-300 text-base py-3 shadow-lg hover:shadow-xl transform hover:scale-105'>
+        <Button
+          onClick={() => router.push(`/auctions/${auction.id}/overview`)}
+          className='w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white transition-all duration-300 text-base py-3 shadow-lg hover:shadow-xl transform hover:scale-105'
+        >
           View lots
         </Button>
       </CardFooter>
