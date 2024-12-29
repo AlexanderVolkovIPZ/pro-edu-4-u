@@ -1,43 +1,26 @@
-import { Auction, Lot, LotCategory, Photo, Video } from '@prisma/client';
+import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video } from '@prisma/client';
 
-export type CreatePhotoType = {
-  id: Photo['id'];
-  position: Photo['position'];
-  name: Photo['name'];
+export type CreateFileType<T extends Photo | Video> = {
+  id: T['id'];
+  position: T['position'];
+  name: T['name'];
   file: string;
-  isImageUploaded: boolean;
+  isFileUploaded: boolean;
 }[];
 
-export type DeletePhotoType = { id: string };
+export type DeleteFileType = { id: string };
 
-export type ReorderPhotoType = {
+export type ReorderFileType = {
   id: string;
   position: number;
 };
 
-export type CreateVideoType = {
-  id: Video['id'];
-  position: Video['position'];
-  name: Video['name'];
-  file: string;
-  isVideoUploaded: boolean;
-}[];
-
-export type DeleteVideoType = { id: string };
-
-export type ReorderVideoType = {
-  id: string;
-  position: number;
+export type AuctionWithRelationsType = Auction & {
+  lot: (Lot & { photo: Photo[]; video: Video[]; lotCategory: (LotCategory & { category: Category })[] })[];
+  userAuction: UserAuction[];
 };
 
 export type AuctionWithLotsType = Auction & { lot: Lot[] };
-
-export type AuctionWithLotsWithPhotosType = Auction & {
-  startDate: string;
-  endDate: string;
-  description: string;
-  lot: (Lot & { photo: Photo[]; lotCategory: LotCategory[] })[];
-};
 
 export type CreateLotCategoriesType = {
   lotId: LotCategory['lotId'];
