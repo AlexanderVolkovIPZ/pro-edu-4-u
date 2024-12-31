@@ -21,7 +21,12 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
           },
           include: {
             photo: true,
-            lotCategory: true,
+            video: true,
+            lotCategory: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },

@@ -69,6 +69,7 @@ export async function GET(request: Request) {
         lot: {
           include: {
             photo: true,
+            video: true,
             lotCategory: {
               include: {
                 category: true,
