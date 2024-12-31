@@ -15,8 +15,14 @@ export type ReorderFileType = {
   position: number;
 };
 
+export type LotWithRelationsType = Lot & {
+  photo: Photo[];
+  video: Video[];
+  lotCategory: (LotCategory & { category: Category })[];
+};
+
 export type AuctionWithRelationsType = Auction & {
-  lot: (Lot & { photo: Photo[]; video: Video[]; lotCategory: (LotCategory & { category: Category })[] })[];
+  lot: LotWithRelationsType[];
   userAuction: UserAuction[];
 };
 
