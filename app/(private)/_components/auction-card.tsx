@@ -4,33 +4,36 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CountdownTimer from './countdown-timer';
-import { ImageSlider } from './image-slider';
-
-const MIN_SLIDER_IMAGES = 0;
-const MAX_SLIDER_IMAGES = 5;
+import { Media, MediaSlider } from '@/components/media-slider';
 
 type AuctionCardProps = {
   auction: AuctionWithRelationsType;
 };
 
-export default function AuctionCard({ auction }: AuctionCardProps) {
+const AuctionCard = ({ auction }: AuctionCardProps) => {
   const router = useRouter();
 
   const lowestPrice = Math.min(...auction.lot.map((lot) => lot.startBid!));
   const highestPrice = Math.max(...auction.lot.map((lot) => lot.startBid!));
-  const images = auction.lot
-    .flatMap((lot) => lot.photo.map((photo) => photo.url))
-    .slice(MIN_SLIDER_IMAGES, MAX_SLIDER_IMAGES);
+  const lotMediaContent: Media[] = [
+    ...auction.lot.flatMap((lot) => lot.photo?.map((photo) => ({ type: 'image' as const, src: photo.url }))),
+    ...auction.lot.flatMap((lot) => lot.video?.map((video) => ({ type: 'video' as const, src: video.url }))),
+  ];
   const uniqueLotCategories = Array.from(
-    auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name))
+    new Set(auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name)))
   ).sort((a, b) => a.length - b.length);
   const auctionParticipantsCount = auction.userAuction.length - 1;
-
   return (
     <Card className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'>
       <div className='relative'>
-        <ImageSlider images={images} alt={`${auction.title} images`} />
-
+        <MediaSlider
+          media={lotMediaContent}
+          alt='Media content'
+          imageProps={{ width: 300, height: 50 }}
+          videoProps={{ width: 250, height: 50, controls: true }}
+          sliderProps={{ className: 'rounded-t-lg' }}
+          maxCountMediaToRender={6}
+        />
         <div className='absolute top-0 left-0 bg-white px-3 py-1 rounded-br-lg shadow-md'>
           <span className='text-xs font-semibold text-gray-600'>
             {auction.lot.length} {auction.lot.length > 1 ? 'lots' : 'lot'}
@@ -84,4 +87,6 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
       </CardFooter>
     </Card>
   );
-}
+};
+
+export default AuctionCard;
