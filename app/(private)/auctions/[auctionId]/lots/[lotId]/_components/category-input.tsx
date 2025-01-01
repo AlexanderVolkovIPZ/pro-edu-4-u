@@ -10,18 +10,16 @@ import { Check, ChevronsUpDown, Pencil, PencilOff, X } from 'lucide-react';
 import { useState } from 'react';
 
 type CategoryInputProps = {
-  lotId: string;
   initialCategories?: Category[];
   initialLotCategoryIds?: LotCategory['id'][];
   isLoading?: boolean;
   showRequiredFieldIcon?: boolean;
-  onSubmit: ({ lotId, categoryIds }: { lotId: string; categoryIds: string[] }) => void;
+  onSubmit: ({ categoryIds }: { categoryIds: string[] }) => void;
   onSuccess?: () => void;
   onError?: () => void;
 };
 
 const CategoryInput = ({
-  lotId,
   initialCategories = [],
   initialLotCategoryIds = [],
   isLoading = false,
@@ -43,7 +41,6 @@ const CategoryInput = ({
   const onSave = async () => {
     try {
       await onSubmit({
-        lotId,
         categoryIds: selectedCategoryIds,
       });
       setIsOpenedInput(false);
