@@ -1,25 +1,27 @@
 'use client';
 
+import { useCategory } from '@/app/queries/category';
 import { useDeleteLot, useLot, useUpdateLot } from '@/app/queries/lot';
+import { useCreateLotCategories } from '@/app/queries/lot-category';
+import { useCreateLotDetails } from '@/app/queries/lot-detail';
+import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
 import ImageUploader from '@/components/image-uploader';
 import InputBox from '@/components/input-box';
 import { Skeleton } from '@/components/ui/skeleton';
 import VideoUploader from '@/components/video-uploader';
 import { BookType, LucideDollarSign } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { titleSchema } from '../../../_shared/schemas/title-schema';
 import DescriptionInput from '../../_shared/components/description-input';
+import CategoryInput from './_components/category-input';
+import DetailInput from './_components/detail-input';
 import Header from './_components/header';
 import { buyNowBidSchema } from './_shared/schemas/buy-now-bid';
 import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
 import { startBidSchema } from './_shared/schemas/start-bid';
-import AlertDialog from '@/components/alert-dialog';
-import { useRouter } from 'next/navigation';
-import CategoryInput from '../../_shared/components/category-input';
-import { useCategory } from '@/app/queries/category';
-import { useCreateLotCategories, useLotCategories } from '@/app/queries/lot-category';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -33,18 +35,23 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
     isStartBidUpdating: false,
     isMinBidIncrementUpdating: false,
     isBuyNowBidUpdating: false,
+    isCreateLotDetailsUpdating: false,
   });
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
-  const { data, isFetched: isLotFetched } = useLot(params.auctionId, params.lotId);
+  const { data: lotData, isFetched: isLotFetched } = useLot(params.auctionId, params.lotId);
+  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
+
+  const { mutateAsync: createLotCategories, isPending: isCreateLotCategoriesPending } = useCreateLotCategories(
+    params.auctionId,
+    params.lotId
+  );
+  const { mutateAsync: createLotDetails } = useCreateLotDetails(params.auctionId, params.lotId);
+
   const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
   const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
 
-  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
-  const { data: lotCategoriesData, isFetched: isLotCategoriesFetched } = useLotCategories(params.lotId);
-  const { mutateAsync: createLotCategories, isPending: isCreateLotCategoriesPending } = useCreateLotCategories();
-
-  const isFetched = isLotFetched && isCategoriesFetched && isLotCategoriesFetched;
+  const isFetched = isLotFetched && isCategoriesFetched;
 
   const onDeleteLot = async () => {
     try {
@@ -79,7 +86,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
             <>
               <div className='flex flex-col gap-y-6'>
                 <InputBox
-                  initialValue={data?.title || ''}
+                  initialValue={lotData?.title ?? ''}
                   title='Title'
                   fieldName='title'
                   isLoading={isUpdating.isTitleUpdating}
@@ -112,7 +119,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <DescriptionInput
-                  initialDescription={data?.description || ''}
+                  initialDescription={lotData?.description ?? ''}
                   isPending={isPending}
                   onSubmit={async (description) => {
                     await updateLot({ description });
@@ -130,8 +137,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 />
                 <CategoryInput
                   initialCategories={categoriesData}
-                  lotId={params.lotId}
-                  initialLotCategoryIds={lotCategoriesData?.map((lotCategory) => lotCategory.categoryId)}
+                  initialLotCategoryIds={lotData?.lotCategory?.map((lotCategory) => lotCategory.categoryId)}
                   isLoading={isCreateLotCategoriesPending}
                   showRequiredFieldIcon={true}
                   onSubmit={async (data) => {
@@ -148,8 +154,36 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                     toast.error('Something went wrong');
                   }}
                 />
+                <DetailInput
+                  title='Details (with using AI to select icons)'
+                  isLoading={isUpdating.isCreateLotDetailsUpdating}
+                  setIsLoading={(isLoading) =>
+                    setIsUpdating((prev) => ({
+                      ...prev,
+                      isCreateLotDetailsUpdating: isLoading,
+                    }))
+                  }
+                  initialFields={lotData?.lotDetail.map((lotDetail) => ({
+                    id: lotDetail.id,
+                    name: lotDetail.fieldName,
+                    value: lotDetail.fieldValue,
+                  }))}
+                  onSubmit={async (fields) => {
+                    await createLotDetails(fields);
+                  }}
+                  onSuccess={() => {
+                    toast.success('The lot details has been successfully updated', {
+                      style: {
+                        textAlign: 'center',
+                      },
+                    });
+                  }}
+                  onError={() => {
+                    toast.error('Something went wrong');
+                  }}
+                />
                 <InputBox
-                  initialValue={data?.startBid || 0}
+                  initialValue={lotData?.startBid ?? 0}
                   title='Start bid'
                   fieldName='startBid'
                   icon={LucideDollarSign}
@@ -183,7 +217,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <InputBox
-                  initialValue={data?.minBidIncrement || 0}
+                  initialValue={lotData?.minBidIncrement ?? 0}
                   title='Minimum bid increment'
                   fieldName='minBidIncrement'
                   icon={LucideDollarSign}
@@ -217,7 +251,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <InputBox
-                  initialValue={data?.buyNowBid || 0}
+                  initialValue={lotData?.buyNowBid ?? 0}
                   title='Buy now bid'
                   fieldName='buyNowBid'
                   icon={LucideDollarSign}
@@ -254,7 +288,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 <ImageUploader
                   auctionId={params.auctionId}
                   lotId={params.lotId}
-                  images={data?.photo || []}
+                  images={lotData?.photo ?? []}
                   dropzoneOptions={{
                     accept: {
                       'image/*': ['.jpeg', '.jpg', '.png', '.gif'],
@@ -266,7 +300,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 <VideoUploader
                   auctionId={params.auctionId}
                   lotId={params.lotId}
-                  videos={data?.video || []}
+                  videos={lotData?.video ?? []}
                   dropzoneOptions={{
                     accept: {
                       'video/*': ['.mp4', '.webm', '.ogg'],
