@@ -1,11 +1,11 @@
 'use client';
 
-import { Auction, Lot, Photo, Video } from '@prisma/client';
+import { Auction, Lot } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
-import { AuctionWithLotsType } from '../types';
+import { AuctionWithLotsType, LotWithRelationsType } from '../types';
 import { AUCTION, LOT } from './query-keys';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
@@ -49,10 +49,7 @@ export function useDeleteLot(auctionId: string, lotId: string): UseMutationResul
   });
 }
 
-export function useLot<T extends Lot & { photo: Photo[]; video: Video[] }>(
-  auctionId: string,
-  lotId: string
-): UseQueryResult<T, Error> {
+export function useLot<T extends LotWithRelationsType>(auctionId: string, lotId: string): UseQueryResult<T, Error> {
   return useQuery<T, Error, T>({
     queryKey: [LOT, auctionId, lotId],
     queryFn: async () => {
