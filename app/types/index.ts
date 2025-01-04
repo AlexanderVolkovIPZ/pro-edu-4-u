@@ -1,4 +1,4 @@
-import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video } from '@prisma/client';
+import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video, LotDetail } from '@prisma/client';
 
 export type CreateFileType<T extends Photo | Video> = {
   id: T['id'];
@@ -19,6 +19,7 @@ export type LotWithRelationsType = Lot & {
   photo: Photo[];
   video: Video[];
   lotCategory: (LotCategory & { category: Category })[];
+  lotDetail: LotDetail[];
 };
 
 export type AuctionWithRelationsType = Auction & {
@@ -29,6 +30,7 @@ export type AuctionWithRelationsType = Auction & {
 export type AuctionWithLotsType = Auction & { lot: Lot[] };
 
 export type CreateLotCategoriesType = {
-  lotId: LotCategory['lotId'];
   categoryIds: LotCategory['categoryId'][];
 };
+
+export type CreateLotDetailsType = Pick<LotDetail, 'fieldName' | 'fieldValue' | 'iconName'>[];
