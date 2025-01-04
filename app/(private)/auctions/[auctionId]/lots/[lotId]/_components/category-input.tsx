@@ -125,7 +125,7 @@ const CategoryInput = ({
       <div className={cn('flex flex-wrap gap-2', selectedCategoryIds.length > 0 && isOpenedInput && 'mt-3')}>
         {selectedCategoryIds.length > 0 &&
           selectedCategoryIds.map((categoryId) => {
-            const category = initialCategories.find((cat) => cat.id === categoryId);
+            const category = initialCategories?.find((cat) => cat.id === categoryId);
             return (
               category && (
                 <div key={category.id} className='flex items-center bg-slate-200 text-slate-700 rounded px-2'>
