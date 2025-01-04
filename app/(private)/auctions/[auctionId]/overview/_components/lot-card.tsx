@@ -74,7 +74,7 @@ export function LotCard({ lot, auctionId }: LotCardProps) {
 
         <div className='flex flex-shrink-0 gap-x-2 max-[950px]:mt-2 max-[950px]:self-end'>
           <Button asChild size='sm'>
-            <Link href={`/auctions/${auctionId}/lots/${lot.id}`}>
+            <Link href={`/auctions/${auctionId}/lots/${lot.id}/overview`}>
               <Eye className='h-4 w-4 mr-2' />
               View
             </Link>
