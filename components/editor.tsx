@@ -1,7 +1,9 @@
 'use client';
 
-import ReactQuill, { ReactQuillProps } from 'react-quill';
+import dynamic from 'next/dynamic';
+import { ReactQuillProps } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 const Editor = ({ value, onChange, ...props }: ReactQuillProps) => {
   return (
