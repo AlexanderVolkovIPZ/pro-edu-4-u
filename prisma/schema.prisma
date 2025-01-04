@@ -96,6 +96,16 @@ model LotCategory {
   @@unique([lotId, categoryId])
 }
 
+model LotDetail {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  lotId      String @db.ObjectId
+  fieldName  String
+  fieldValue String
+  iconName   String
+
+  lot Lot @relation(fields: [lotId], references: [id])
+}
+
 model Lot {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   auctionId       String   @db.ObjectId
@@ -113,6 +123,7 @@ model Lot {
   photo       Photo[]
   bid         Bid[]
   lotCategory LotCategory[]
+  lotDetail   LotDetail[]
 }
 
 model Video {
