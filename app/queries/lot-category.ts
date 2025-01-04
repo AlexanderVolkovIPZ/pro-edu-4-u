@@ -3,30 +3,35 @@ import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanst
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { CreateLotCategoriesType } from '../types';
-import { LOT_CATEGORY } from './query-keys';
+import { LOT, LOT_CATEGORY } from './query-keys';
 
-export function useLotCategories(lotId: string): UseQueryResult<LotCategory[], Error> {
+export function useLotCategories(auctionId: string, lotId: string): UseQueryResult<LotCategory[], Error> {
   return useQuery<LotCategory[], Error>({
     queryKey: [LOT_CATEGORY, lotId],
     queryFn: async () => {
       const response = await axios.get<LotCategory[]>(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/lot-category?lotId=${lotId}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/lot-category`
       );
       return response.data;
     },
   });
 }
 
-export function useCreateLotCategories<T extends CreateLotCategoriesType>(): UseMutationResult<LotCategory, Error, T> {
-  return useMutation<LotCategory, Error, T>({
+export function useCreateLotCategories(
+  auctionId: string,
+  lotId: string
+): UseMutationResult<LotCategory, Error, CreateLotCategoriesType> {
+  return useMutation<LotCategory, Error, CreateLotCategoriesType>({
     mutationFn: async (data) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/lot-category`, data);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/lot-category`,
+        data
+      );
       return response.data;
     },
-    onSettled: (data, error, variables) => {
-      if (variables.lotId) {
-        queryClient.invalidateQueries({ queryKey: [LOT_CATEGORY, variables.lotId] });
-      }
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [LOT_CATEGORY, lotId] });
+      queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
     },
   });
 }
