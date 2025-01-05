@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type CountdownTimerProps = {
   targetDate: Date;
@@ -14,9 +14,7 @@ type TimeLeftType = {
 };
 
 const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeftType>(calculateTimeLeft());
-
-  function calculateTimeLeft() {
+  const calculateTimeLeft = useCallback(() => {
     const difference = +new Date(targetDate) - +new Date();
     let timeLeft = {};
 
@@ -30,15 +28,17 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     }
 
     return timeLeft;
-  }
+  }, [targetDate]);
+
+  const [timeLeft, setTimeLeft] = useState<TimeLeftType>(calculateTimeLeft());
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const interval = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    return () => clearTimeout(timer);
-  });
+    return () => clearInterval(interval);
+  }, [calculateTimeLeft]);
 
   const timerComponents: JSX.Element[] = [];
 
