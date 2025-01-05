@@ -132,12 +132,10 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
               <div className='flex flex-col gap-y-6'>
                 <StartDateInput
                   initialStartDate={auctionData?.startDate}
-                  initialEndDate={auctionData?.endDate}
                   auctionId={params.auctionId}
                   showRequiredFieldIcon={true}
                 />
                 <EndDateInput
-                  initialStartDate={auctionData?.startDate}
                   initialEndDate={auctionData?.endDate}
                   auctionId={params.auctionId}
                   showRequiredFieldIcon={true}
