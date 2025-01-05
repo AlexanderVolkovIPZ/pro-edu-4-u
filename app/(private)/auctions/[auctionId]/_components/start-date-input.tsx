@@ -22,25 +22,18 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 type StartDateInputProps = {
-  initialEndDate?: string;
   initialStartDate?: string;
   auctionId: string;
   showRequiredFieldIcon?: boolean;
 };
 
-const StartDateInput = ({
-  initialStartDate,
-  initialEndDate,
-  auctionId,
-  showRequiredFieldIcon = false,
-}: StartDateInputProps) => {
+const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = false }: StartDateInputProps) => {
   const { timeZone, locale } = useContext(AccountContext);
   const [isOpened, setIsOpened] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const { mutateAsync, isPending } = useUpdateAuction(auctionId);
 
-  const endDate = initialEndDate ? dayjs(initialEndDate).toDate() : undefined;
   const {
     handleSubmit,
     setValue,
@@ -50,7 +43,6 @@ const StartDateInput = ({
     resolver: zodResolver(auctionDateSchema),
     defaultValues: {
       startDate: selectedDate,
-      endDate: endDate,
     },
   });
 
@@ -88,7 +80,7 @@ const StartDateInput = ({
     <div className='px-4 py-3 rounded-lg border-slate-300 border-[1.4px]'>
       <div className='flex items-center justify-between'>
         <label htmlFor='startDate' className='block text-base font-semibold text-gray-700 relative'>
-          Start date
+          Start Date
           {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
