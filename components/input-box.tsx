@@ -10,11 +10,11 @@ import { useState } from 'react';
 import { FieldError, FieldValues, RegisterOptions, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-type InputBoxProps<T extends number | string> = {
+type InputBoxProps<T extends number | string | null> = {
   initialValue: T;
   title: string;
   fieldName: string;
-  schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;
+  schema?: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;
   registerOptions?: RegisterOptions;
   isLoading?: boolean;
   inputProps?: InputProps;
@@ -26,7 +26,7 @@ type InputBoxProps<T extends number | string> = {
   setIsLoading?: (isLoading: boolean) => void;
 };
 
-const InputBox = <T extends number | string>({
+const InputBox = <T extends number | string | null>({
   initialValue,
   title,
   fieldName,
@@ -49,7 +49,7 @@ const InputBox = <T extends number | string>({
     formState: { errors },
     watch,
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema ?? z.object({})),
   });
 
   const onSubmit = async (data: FieldValues) => {
@@ -90,11 +90,10 @@ const InputBox = <T extends number | string>({
         <div className='relative'>
           <Input
             id={fieldName}
-            required
             {...inputProps}
             {...register(fieldName, registerOptions)}
             error={errors[fieldName] as FieldError}
-            value={watch(fieldName) || initialValue}
+            value={watch(fieldName) ?? initialValue}
           />
           {Icon && <Icon className='w-5 h-5 absolute top-1/2 right-2 -translate-y-1/2' />}
         </div>
