@@ -183,7 +183,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <InputBox
-                  initialValue={lotData?.startBid ?? 0}
+                  initialValue={lotData?.startBid ?? null}
                   title='Start bid'
                   fieldName='startBid'
                   icon={LucideDollarSign}
@@ -200,6 +200,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                     placeholder: 'Enter start bid',
                     type: 'number',
                     step: 1,
+                    min: 0,
                   }}
                   schema={startBidSchema}
                   onSubmit={async (startBid) => {
@@ -217,7 +218,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <InputBox
-                  initialValue={lotData?.minBidIncrement ?? 0}
+                  initialValue={lotData?.minBidIncrement ?? null}
                   title='Minimum bid increment'
                   fieldName='minBidIncrement'
                   icon={LucideDollarSign}
@@ -234,6 +235,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                     placeholder: 'Enter minimum bid increment',
                     type: 'number',
                     step: 1,
+                    min: 0,
                   }}
                   schema={minBidIncrementSchema}
                   onSubmit={async (minBidIncrement) => {
@@ -251,7 +253,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
                 <InputBox
-                  initialValue={lotData?.buyNowBid ?? 0}
+                  initialValue={lotData?.buyNowBid ?? null}
                   title='Buy now bid'
                   fieldName='buyNowBid'
                   icon={LucideDollarSign}
@@ -267,6 +269,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                     placeholder: 'Enter minimum buy now bid',
                     type: 'number',
                     step: 1,
+                    min: 0,
                   }}
                   schema={buyNowBidSchema}
                   onSubmit={async (buyNowBid) => {
