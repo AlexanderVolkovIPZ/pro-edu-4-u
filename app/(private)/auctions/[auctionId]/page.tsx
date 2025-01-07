@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuction, useUpdateAuction } from '@/app/queries/auction';
+import { AuctionWithRelationsType } from '@/app/types';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
 import InputBox from '@/components/input-box';
@@ -14,7 +15,6 @@ import Header from './_components/header';
 import LotInput from './_components/lot-input';
 import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
-import { AuctionWithLotsWithPhotosType } from './types';
 
 type AuctionIdPageParams = {
   auctionId: string;
@@ -23,9 +23,7 @@ type AuctionIdPageParams = {
 const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
-  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<
-    Omit<AuctionWithLotsWithPhotosType, 'startDate' | 'endDate'> & { startDate: string; endDate: string }
-  >(params.auctionId);
+  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(params.auctionId);
   const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
 
   const isAllRequiredFieldsFilled = [
@@ -73,10 +71,10 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
             setIsShowedAlertDialog(true);
           }}
         />
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'>
           {isAuctionFetched ? (
             <>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 <InputBox
                   initialValue={auctionData?.title || ''}
                   title='Title'
@@ -129,7 +127,7 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                 />
               </div>
 
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 <StartDateInput
                   initialStartDate={auctionData?.startDate}
                   auctionId={params.auctionId}
@@ -144,12 +142,12 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
             </>
           ) : (
             <>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 {[...Array(3)].map((_, index) => (
                   <Skeleton className='h-24' key={index} />
                 ))}
               </div>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 {[...Array(2)].map((_, index) => (
                   <Skeleton className='h-24' key={index} />
                 ))}
