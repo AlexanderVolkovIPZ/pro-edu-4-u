@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 type CountdownTimerProps = {
-  targetDate: Date;
+  targetDate: string;
 };
 
 type TimeLeftType = {
