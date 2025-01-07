@@ -81,10 +81,10 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
         })}
       <div className='mx-auto bg-white'>
         <Header auctionLink={`/auctions/${params.auctionId}`} setShowAlertDialog={setIsShowedAlertDialog} />
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'>
           {isFetched ? (
             <>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 <InputBox
                   initialValue={lotData?.title ?? ''}
                   title='Title'
@@ -287,7 +287,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   }}
                 />
               </div>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 <ImageUploader
                   auctionId={params.auctionId}
                   lotId={params.lotId}
@@ -315,12 +315,12 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
             </>
           ) : (
             <>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 {[...Array(5)].map((_, index) => (
                   <Skeleton className='h-24' key={index} />
                 ))}
               </div>
-              <div className='flex flex-col gap-y-6'>
+              <div className='flex flex-col gap-y-4'>
                 {[...Array(2)].map((_, index) => (
                   <Skeleton className='h-40' key={index} />
                 ))}
