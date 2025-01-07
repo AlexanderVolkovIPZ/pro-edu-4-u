@@ -219,7 +219,7 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
   };
 
   return (
-    <div className='w-full max-w-md mx-auto space-y-3'>
+    <div className='w-full mx-auto space-y-3'>
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
