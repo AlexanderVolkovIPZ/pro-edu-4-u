@@ -4,6 +4,7 @@ import { Auction } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
+import { AuctionWithStringDates } from '../types';
 import { AUCTION } from './query-keys';
 
 export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutationResult<Auction, Error, T> {
@@ -34,7 +35,7 @@ export function useUpdateAuction<
   });
 }
 
-export function useAuction<T>(auctionId: string): UseQueryResult<T, Error> {
+export function useAuction<T extends AuctionWithStringDates>(auctionId: string): UseQueryResult<T, Error> {
   return useQuery<T, Error>({
     queryKey: [AUCTION, auctionId],
     queryFn: async () => {
@@ -44,7 +45,9 @@ export function useAuction<T>(auctionId: string): UseQueryResult<T, Error> {
   });
 }
 
-export function useAuctionsByFilter<T extends Auction>(filters?: Partial<Auction>): UseQueryResult<T[], Error> {
+export function useAuctionsByFilter<T extends AuctionWithStringDates>(
+  filters?: Partial<AuctionWithStringDates>
+): UseQueryResult<T[], Error> {
   return useQuery<T[], Error>({
     queryKey: [AUCTION],
     queryFn: async () => {
