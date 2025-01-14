@@ -1,8 +1,12 @@
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
+import { GetServerSessionParams } from './_shared/types';
 
-export const getSession = async () => {
-  const session = await getServerSession(authOptions);
+export async function getSession(...args: GetServerSessionParams) {
+  if (args.length === 2) {
+    const [req, res] = args;
+    return getServerSession(req, res, authOptions);
+  }
 
-  return session;
-};
+  return getServerSession(authOptions);
+}
