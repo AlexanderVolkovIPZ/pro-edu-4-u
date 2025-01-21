@@ -49,7 +49,7 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     timerComponents.push(
       <span key={interval} className='inline-flex flex-col items-center mx-1'>
         <span className='text-xl font-bold rounded-sm text-slate-700'>
-          {timeLeft[key]?.toString().length === 1 ? `0${timeLeft[key]}` : timeLeft[key]}
+          {timeLeft[key]?.toString().padStart(2, '0')}
         </span>
         <span className='text-[8px] text-slate-500 uppercase'>{interval}</span>
       </span>
@@ -58,7 +58,7 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
   return (
     <div className='flex justify-center items-center gap-x-1'>
-      {timerComponents.length ? timerComponents : <span className='text-green-600 font-bold'>Auction has started</span>}
+      {timerComponents.length ? timerComponents : <span className='text-teal-600 font-bold'>Auction has started</span>}
     </div>
   );
 };

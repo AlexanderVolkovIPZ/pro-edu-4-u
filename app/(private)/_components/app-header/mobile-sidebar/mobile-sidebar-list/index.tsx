@@ -1,4 +1,4 @@
-import { sidebarList } from '../_shared/sidebar-list';
+import { sidebarList } from '@/app/(private)/_shared/sidebar-list';
 import MobileSidebarItem from './mobile-sidebar-item';
 
 const MobileSidebarList = () => {
