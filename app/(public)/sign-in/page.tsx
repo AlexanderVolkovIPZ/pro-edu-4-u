@@ -1,10 +1,10 @@
-import SignIn from '@/app/(public)/sign-in/_components/sign-in';
 import Container from '@/components/container';
+import SignInForm from './_components/sign-in-form';
 
 export default function SignInPage() {
   return (
     <Container>
-      <SignIn />
+      <SignInForm />
     </Container>
   );
 }

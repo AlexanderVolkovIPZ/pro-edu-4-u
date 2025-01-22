@@ -1,4 +1,4 @@
-import { menuLinksList } from '@/app/(public)/_shared/menu-links-list';
+import { menuLinksList } from '@/app/(public)/_shared/lists/menu-links-list';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MenuIcon } from 'lucide-react';

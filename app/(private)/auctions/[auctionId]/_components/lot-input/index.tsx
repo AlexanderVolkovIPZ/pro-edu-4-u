@@ -12,8 +12,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../../_shared/schemas/title-schema';
-import LotList from './lot-list';
+import { titleSchema } from '../../../_shared/schemas/title-schema';
+import LotList from '../lot-list';
 
 type LotInputProps = {
   auctionData: Pick<AuctionWithLotsType, 'id' | 'lot'>;

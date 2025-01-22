@@ -1,7 +1,7 @@
 'use client';
 
-import { confirmPasswordSchema } from '@/app/_shared/schemes/confirm-password-schema';
-import { passwordSchema } from '@/app/_shared/schemes/password-schema';
+import { confirmPasswordSchema } from '@/app/_shared/schemas/confirm-password-schema';
+import { passwordSchema } from '@/app/_shared/schemas/password-schema';
 import { useChangePassword } from '@/app/queries/auth-user';
 import AlertDialog from '@/components/alert-dialog';
 import Spinner from '@/components/spinner';

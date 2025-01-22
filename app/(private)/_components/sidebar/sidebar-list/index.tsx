@@ -1,6 +1,6 @@
 'use client';
 
-import { sidebarList } from '@/app/(private)/_shared/sidebar-list';
+import { sidebarList } from '@/app/(private)/_shared/lists/sidebar-list';
 import SidebarItem from './sidebar-item';
 
 const SidebarList = () => {

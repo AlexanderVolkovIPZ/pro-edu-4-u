@@ -1,6 +1,9 @@
 'use client';
 
-import { emailSchema } from '@/app/_shared/schemes/email-schema';
+import { confirmPasswordSchema } from '@/app/_shared/schemas/confirm-password-schema';
+import { emailSchema } from '@/app/_shared/schemas/email-schema';
+import { passwordSchema } from '@/app/_shared/schemas/password-schema';
+import { useCreateUser } from '@/app/queries/auth-user';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,18 +11,19 @@ import { Label } from '@/components/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn, SignInOptions } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-import { z } from 'zod';
 
-const signInSchema = z.object({
-  ...emailSchema.shape,
-  password: z.string().min(1, 'Password is required'),
-});
+const signUpSchema = emailSchema
+  .merge(passwordSchema)
+  .merge(confirmPasswordSchema)
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 const authOptions: SignInOptions = {
   redirect: true,
@@ -32,8 +36,7 @@ type LoadingType = {
   credentials: boolean;
 };
 
-export default function SignIn() {
-  const router = useRouter();
+const SignUp = () => {
   const [isLoading, setIsLoading] = useState<LoadingType>({
     google: false,
     github: false,
@@ -43,10 +46,12 @@ export default function SignIn() {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FieldValues>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(signUpSchema),
     mode: 'onBlur',
   });
+  const { mutateAsync } = useCreateUser();
 
   const onSubmit = async (data: FieldValues) => {
     if (isLoading.credentials || isLoading.github || isLoading.google) return;
@@ -55,20 +60,28 @@ export default function SignIn() {
         ...prevState,
         credentials: true,
       }));
+      const { email, password } = data;
 
-      const response = await signIn('credentials', {
-        ...data,
-        redirect: false,
+      await mutateAsync({
+        email,
+        password,
       });
-
-      if (response?.ok) {
-        toast.success('Authentication successful');
-        router.push('/');
-      }
-
-      if (response?.error) {
-        toast.error('Invalid credentials');
-      }
+      reset({
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
+      toast.success(
+        () => (
+          <div>
+            <div className='text-center font-bold'>Registration Successful!</div>
+            <div className='text-center'>Please check your email to confirm your account.</div>
+          </div>
+        ),
+        {
+          duration: 5000,
+        }
+      );
     } catch {
       toast.error('Something went wrong');
     } finally {
@@ -82,8 +95,8 @@ export default function SignIn() {
   return (
     <div className='mx-auto w-full max-w-[322px] space-y-4 rounded-lg bg-card p-6 shadow-lg'>
       <div className='space-y-2 text-center'>
-        <h2 className='text-2xl font-bold'>Sign In</h2>
-        <p className='text-muted-foreground'>Enter your email and password to sign in</p>
+        <h2 className='text-2xl font-bold'>Sign Up</h2>
+        <p className='text-muted-foreground'>Create a new account or get started</p>
       </div>
       <div className='space-y-6'>
         <div className='space-y-2'>
@@ -105,10 +118,22 @@ export default function SignIn() {
             placeholder='Enter a secure password'
             required
             {...register('password', { required: true })}
+            error={errors['password'] as FieldError}
+          />
+        </div>
+        <div className='space-y-2'>
+          <Label htmlFor='confirm-password' title='Confirm Password' />
+          <Input
+            id='confirm-password'
+            type='password'
+            placeholder='Confirm your password'
+            required
+            {...register('confirmPassword', { required: true })}
+            error={errors['confirmPassword'] as FieldError}
           />
         </div>
         <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
-          {isLoading.credentials ? <Spinner /> : 'Sign In'}
+          {isLoading.credentials ? <Spinner /> : 'Sign Up'}
         </Button>
       </div>
       <div className='relative'>
@@ -129,8 +154,8 @@ export default function SignIn() {
               ...prevState,
               github: true,
             }));
-
             const result = await signIn('github', authOptions);
+
             if (result?.error) {
               toast.error('Authentication failed');
             }
@@ -160,6 +185,7 @@ export default function SignIn() {
             }));
 
             const result = await signIn('google', authOptions);
+
             if (result?.error) {
               toast.error('Authentication failed');
             }
@@ -180,15 +206,17 @@ export default function SignIn() {
         </Button>
       </div>
       <div className='text-center text-sm text-muted-foreground'>
-        Don&#39;t have an account?
+        Already have an account?
         <Link
-          href='/sign-up'
+          href='/sign-in'
           className='font-medium underline underline-offset-4 ml-1 hover:text-slate-700'
           prefetch={false}
         >
-          Sign up
+          Sign in
         </Link>
       </div>
     </div>
   );
-}
+};
+
+export default SignUp;

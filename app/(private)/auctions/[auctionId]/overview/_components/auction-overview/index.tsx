@@ -6,7 +6,7 @@ import Container from '@/components/container';
 import { Skeleton } from '@/components/ui/skeleton';
 import AuctionDetails from './auction-details';
 import Header from './header';
-import LotsList from './lots-list';
+import LotsList from './lot-list';
 
 type AuctionOverviewProps = {
   auctionId: string;
