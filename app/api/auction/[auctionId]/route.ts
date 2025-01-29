@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
   const authUser = await getAuthUser();
+
   if (!authUser) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
@@ -20,6 +21,16 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
             position: 'asc',
           },
           include: {
+            bid: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
             photo: true,
             video: true,
             lotDetail: true,
