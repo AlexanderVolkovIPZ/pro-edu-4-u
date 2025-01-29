@@ -115,6 +115,7 @@ model Lot {
   startBid        Float?
   buyNowBid       Float?
   minBidIncrement Float?
+  isSold          Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -154,12 +155,14 @@ model Bid {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   lotId     String   @db.ObjectId
   bidderId  String   @db.ObjectId
-  bidAmount Float
+  amount    Float
   isWinner  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
   user User @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+
+  @@unique([lotId, amount])
 }
 
 enum Status {
