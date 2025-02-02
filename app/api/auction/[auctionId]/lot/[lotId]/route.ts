@@ -49,7 +49,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
   }
 
   const body = await request.json();
-  const { title, position, description, startBid, buyNowBid, minBidIncrement } = body;
+  const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
 
   try {
     const lot = await prismaDb.lot.update({
@@ -60,6 +60,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
         startBid,
         buyNowBid,
         minBidIncrement,
+        isSold,
       },
       where: {
         id: params.lotId,
