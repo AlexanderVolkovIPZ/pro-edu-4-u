@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { AccountProvider } from './providers/account-provider';
 import LayoutContainer from '@/components/layout-container';
+import { SocketProvider } from './providers/socket-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,11 +23,13 @@ export default async function RootLayout({
     <QueryClientProvider>
       <html lang='en'>
         <body className={`${inter.className}`}>
-          <AccountProvider>
-            <LayoutContainer>
-              <ToastProvider>{children}</ToastProvider>
-            </LayoutContainer>
-          </AccountProvider>
+          <SocketProvider>
+            <AccountProvider>
+              <ToastProvider>
+                <LayoutContainer>{children}</LayoutContainer>
+              </ToastProvider>
+            </AccountProvider>
+          </SocketProvider>
         </body>
       </html>
     </QueryClientProvider>
