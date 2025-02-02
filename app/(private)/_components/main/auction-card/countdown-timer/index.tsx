@@ -58,7 +58,7 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
 
   return (
     <div className='flex justify-center items-center gap-x-1'>
-      {timerComponents.length ? timerComponents : <span className='text-teal-600 font-bold'>Auction has started</span>}
+      {timerComponents.length ? timerComponents : <span className='text-green-600 font-bold'>Auction has started</span>}
     </div>
   );
 };

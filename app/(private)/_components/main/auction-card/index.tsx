@@ -49,11 +49,11 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
       </div>
 
       <CardContent className='p-3 grow flex flex-col gap-y-1'>
-        <h3 className='text-base font-bold text-gray-800 group-hover:text-rose-600 transition-colors text-ellipsis overflow-hidden text-nowrap'>
+        <h3 className='text-base font-bold text-slate-800 group-hover:text-rose-600 transition-colors text-ellipsis overflow-hidden text-nowrap'>
           {auction.title}
         </h3>
 
-        <div className='flex items-center text-emerald-600'>
+        <div className='flex items-center text-green-600'>
           <TrendingUp size={18} className='mr-1' />
           <span className='font-semibold text-lg'>
             ${lowestPrice.toLocaleString()} - ${highestPrice.toLocaleString()}
