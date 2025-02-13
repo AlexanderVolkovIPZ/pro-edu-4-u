@@ -70,11 +70,11 @@ model Auction {
 }
 
 model UserAuction {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  auctionId String   @db.ObjectId
-  isOwner   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String      @db.ObjectId
+  auctionId String      @db.ObjectId
+  role      AuctionRole @default(OWNER)
+  createdAt DateTime    @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   auction Auction @relation(fields: [auctionId], references: [id], onUpdate: Cascade)
@@ -173,4 +173,8 @@ enum Status {
   UPCOMING
   IN_PROGRESS
   COMPLETED
+}
+
+enum AuctionRole {
+  OWNER
 }

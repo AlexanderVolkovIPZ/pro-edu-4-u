@@ -15,7 +15,6 @@ Table User {
   account Account [not null]
   bid Bid [not null]
   userAuction UserAuction [not null]
-  UserLot UserLot [not null]
 }
 
 Table Account {
@@ -58,20 +57,10 @@ Table UserAuction {
   id String [pk]
   userId String [not null]
   auctionId String [not null]
-  isOwner Boolean [not null, default: false]
+  role AuctionRole [not null, default: 'OWNER']
   createdAt DateTime [default: `now()`, not null]
   user User [not null]
   auction Auction [not null]
-}
-
-Table UserLot {
-  id String [pk]
-  userId String [not null]
-  lotId String [not null]
-  autoBidIncrement Float
-  isAutoBidModeEnabled Boolean [not null, default: false]
-  user User [not null]
-  lot Lot [not null]
 }
 
 Table Category {
@@ -120,7 +109,6 @@ Table Lot {
   bid Bid [not null]
   lotCategory LotCategory [not null]
   lotDetail LotDetail [not null]
-  UserLot UserLot [not null]
 }
 
 Table Video {
@@ -166,15 +154,15 @@ Enum Status {
   COMPLETED
 }
 
+Enum AuctionRole {
+  OWNER
+}
+
 Ref: Account.userId > User.id [delete: Cascade]
 
 Ref: UserAuction.userId > User.id [delete: Cascade]
 
 Ref: UserAuction.auctionId > Auction.id
-
-Ref: UserLot.userId > User.id [delete: Cascade]
-
-Ref: UserLot.lotId > Lot.id
 
 Ref: LotCategory.categoryId > Category.id [delete: Cascade]
 
