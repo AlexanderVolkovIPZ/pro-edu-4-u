@@ -1,43 +1,42 @@
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bid } from '@prisma/client';
-import { ClipboardList, Clock, User } from 'lucide-react';
+'use client';
 
-type BidInfo = Pick<Bid, 'amount' | 'id'> & {
-  bidderId: string;
-  createdAt: string;
-  bidderName: string;
-};
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ClipboardList, Clock } from 'lucide-react';
+import { BidInfo } from '../_shared/types';
 
 const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
   return (
-    <div className='pt-1'>
-      <h3 className='font-semibold mb-3 flex items-center gap-2'>
+    <div className='w-full bg-white'>
+      <h3 className='flex items-center gap-2 text-xl font-semibold mb-4'>
+        <ClipboardList className='h-5 w-5' />
         Bid History
-        <ClipboardList />
       </h3>
-
-      <ScrollArea className='h-[200px] rounded-md border p-4'>
+      <ScrollArea className='h-[300px] pr-4'>
         {bids.length > 0 ? (
-          <div className='space-y-4'>
+          <div>
             {bids.map((bid) => (
-              <div key={bid.amount} className='flex justify-between items-center text-sm'>
-                <div className='flex items-center gap-2'>
-                  <User className='w-4 h-4 text-muted-foreground' />
-                  <span>{bid.bidderName}</span>
-                </div>
-
-                <div className='flex items-center gap-4'>
-                  <span className='font-medium'>${bid.amount}</span>
-                  <div className='flex items-center text-muted-foreground'>
-                    <Clock className='w-4 h-4 mr-1' />
-                    {new Date(bid.createdAt).toTimeString().split(' ')[0]}
+              <div key={bid.id} className='flex items-center justify-between py-3 border-b last:border-b-0'>
+                <div className='flex items-center gap-3'>
+                  <Avatar className='h-8 w-8'>
+                    <AvatarFallback>{bid.bidderName[0].toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className='text-sm font-medium'>{bid.bidderName}</p>
+                    <p className='text-xs text-muted-foreground'>
+                      <Clock className='mr-1 inline-block h-3 w-3' />
+                      {new Date(bid.createdAt).toLocaleString()}
+                    </p>
                   </div>
                 </div>
+                <span className='text-lg font-semibold'>${bid.amount.toLocaleString()}</span>
               </div>
             ))}
           </div>
         ) : (
-          <div className='text-center text-muted-foreground py-8'>No bids yet</div>
+          <div className='flex h-full items-center justify-center'>
+            <p className='text-center text-muted-foreground'>No bids yet</p>
+          </div>
         )}
       </ScrollArea>
     </div>
