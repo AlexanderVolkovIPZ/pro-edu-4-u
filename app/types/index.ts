@@ -1,4 +1,4 @@
-import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video, LotDetail } from '@prisma/client';
+import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video, LotDetail, Bid, User } from '@prisma/client';
 
 export type CreateFileType<T extends Photo | Video> = {
   id: T['id'];
@@ -16,6 +16,9 @@ export type ReorderFileType = {
 };
 
 export type LotWithRelationsType = Lot & {
+  bid: (Bid & {
+    user: Pick<User, 'id' | 'name'>;
+  })[];
   photo: Photo[];
   video: Video[];
   lotCategory: (LotCategory & { category: Category })[];
