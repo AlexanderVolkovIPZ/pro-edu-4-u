@@ -2,3 +2,6 @@ export const AUCTION = 'auction';
 export const LOT_CATEGORY = 'lot_category';
 export const LOT_DETAIL = 'lot_detail';
 export const LOT = 'lot';
+export const BID = 'bid';
+export const USER_LOT = 'user_lot';
+export const USER_AUCTION = 'user_auction';
