@@ -1,6 +1,5 @@
 import { Slider } from '@/components/ui/slider';
-
-const BID_INCREMENT_STORAGE_KEY = 'bidIncrementValue';
+import { BID_INCREMENT_STORAGE_KEY } from '../_shared/constants';
 
 export const BidIncrementSlider = ({
   minBidIncrement,
