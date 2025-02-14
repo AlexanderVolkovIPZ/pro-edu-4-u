@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Gavel, Tags, FileText } from 'lucide-react';
-import { LotOverviewInfo } from '../types';
+import { LotOverviewInfo } from '../_shared/types';
 
 const OverviewInfo = ({ startBid, buyNowBid, minBidIncrement, description, categories }: LotOverviewInfo) => {
   return (
