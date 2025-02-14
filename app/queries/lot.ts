@@ -36,6 +36,7 @@ export function useUpdateLot<T extends Partial<Lot>>(
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
+      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
     },
   });
 }
@@ -54,6 +55,16 @@ export function useLot<T extends LotWithRelationsType>(auctionId: string, lotId:
     queryKey: [LOT, auctionId, lotId],
     queryFn: async () => {
       const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`);
+      return response.data;
+    },
+  });
+}
+
+export function useLots<T extends LotWithRelationsType[]>(auctionId: string): UseQueryResult<T, Error> {
+  return useQuery<T, Error, T>({
+    queryKey: [LOT, auctionId],
+    queryFn: async () => {
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot`);
       return response.data;
     },
   });
