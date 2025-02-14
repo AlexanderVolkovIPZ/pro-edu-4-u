@@ -32,6 +32,16 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
             category: true,
           },
         },
+        bid: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
