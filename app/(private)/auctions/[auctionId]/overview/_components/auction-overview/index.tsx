@@ -3,6 +3,7 @@
 import { useAuction } from '@/app/queries/auction';
 import { AuctionWithRelationsType } from '@/app/types';
 import Container from '@/components/container';
+import NotFound from '@/components/not-found';
 import { Skeleton } from '@/components/ui/skeleton';
 import AuctionDetails from './auction-details';
 import Header from './header';
@@ -13,13 +14,21 @@ type AuctionOverviewProps = {
 };
 
 const AuctionOverview = ({ auctionId }: AuctionOverviewProps) => {
-  const { data: auction, isFetched } = useAuction<AuctionWithRelationsType>(auctionId);
+  const { data: auction, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(auctionId);
+
+  if (isAuctionFetched && !auction) {
+    return (
+      <Container>
+        <NotFound />
+      </Container>
+    );
+  }
 
   return (
     <Container>
       <Header />
       <main className='mt-2'>
-        {isFetched ? (
+        {isAuctionFetched ? (
           <>
             <AuctionDetails auction={auction} />
             <LotsList auction={auction} />
