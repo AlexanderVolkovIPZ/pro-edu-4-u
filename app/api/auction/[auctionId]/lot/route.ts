@@ -52,3 +52,41 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
+
+export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
+  const authUser = await getAuthUser();
+  if (!authUser) {
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
+
+  try {
+    const lots = await prismaDb.lot.findMany({
+      where: {
+        auctionId: params.auctionId,
+      },
+      include: {
+        photo: {
+          orderBy: {
+            position: 'asc',
+          },
+        },
+        video: {
+          orderBy: {
+            position: 'asc',
+          },
+        },
+        lotDetail: true,
+        lotCategory: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(lots);
+  } catch (error) {
+    console.error('GET_LOTS_ERROR -> ', error);
+    return new NextResponse('Internal server error', { status: 500 });
+  }
+}
