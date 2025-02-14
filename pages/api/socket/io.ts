@@ -43,13 +43,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
 
     io.on('connection', async (socket) => {
       try {
-        // const authUser = await getAuthUser([req, res]);
-        // if (!authUser) {
-        //   socket.emit('error', 401, 'You are not authorized to connect');
-        //   socket.disconnect();
-        //   return;
-        // }
-
         socket.on('newBid', async ({ lotId, amount, userId }) => {
           try {
             const createdBid = await prismaDb?.bid.create({
