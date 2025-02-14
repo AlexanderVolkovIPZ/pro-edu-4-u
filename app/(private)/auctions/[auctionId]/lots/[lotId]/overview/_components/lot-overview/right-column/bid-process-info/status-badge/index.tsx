@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
-
-type LotStatus = 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED';
+import { LotStatus } from '../../_shared/types';
 
 const STATUS_MESSAGES = {
   UPCOMING: 'Bidding process starting soon',
