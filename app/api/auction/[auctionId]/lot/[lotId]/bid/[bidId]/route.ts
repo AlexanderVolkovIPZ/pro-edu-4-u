@@ -30,7 +30,7 @@ export async function PATCH(
 
     return NextResponse.json(bid);
   } catch (error) {
-    console.error('UPDATE_LOT_ERROR -> ', error);
+    console.error('UPDATE_BID_ID_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
