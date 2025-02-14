@@ -27,7 +27,6 @@ export async function POST(request: Request) {
       data: {
         userId: authUser.id,
         auctionId: auction.id,
-        isOwner: true,
       },
     });
 
