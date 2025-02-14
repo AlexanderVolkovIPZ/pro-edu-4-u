@@ -42,6 +42,8 @@ export function useAuction<T extends AuctionWithStringDates>(auctionId: string):
       const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
       return response.data;
     },
+    staleTime: 1000 * 60,
+    enabled: !!auctionId,
   });
 }
 
