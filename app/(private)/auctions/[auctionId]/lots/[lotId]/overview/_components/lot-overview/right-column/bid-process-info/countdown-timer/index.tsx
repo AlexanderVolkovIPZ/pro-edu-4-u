@@ -19,7 +19,7 @@ const CountdownTimer = ({ lotTimeLeft, progress }: CountdownTimerProps) => {
 
   return (
     <div className='flex flex-col items-center space-y-2'>
-      <div className='w-full h-2 bg-gray-200 rounded-full overflow-hidden'>
+      <div className='w-full h-2 bg-slate-200 rounded-full overflow-hidden'>
         <div className='h-full bg-blue-500 transition-all duration-50 ease-linear' style={{ width: `${progress}%` }} />
       </div>
       <div className='text-sm font-medium'>
