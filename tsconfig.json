@@ -28,6 +28,12 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "app/(private)/auctions/[auctionId]/lots/[lotId]/overview/_components/lot-overview/right-column/bid-process-info/countdown-timer"
+  ],
   "exclude": ["node_modules"]
 }
