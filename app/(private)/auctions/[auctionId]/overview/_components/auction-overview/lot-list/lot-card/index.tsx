@@ -1,6 +1,6 @@
 import { TimeLeftType, useLotDate } from '@/app/hooks/use-lot-date';
-import useLotStatus from '@/app/hooks/use-lot-status';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
+import getLotStatus from '@/app/utils/get-lot-status';
 import { Media, MediaSlider } from '@/components/media-slider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,14 +26,18 @@ export function LotCard({
     ...lot.photo.map((photo) => ({ type: 'image' as const, src: photo.url })),
     ...lot.video.map((video) => ({ type: 'video' as const, src: video.url })),
   ];
-  const { timeStartLeft, startDate, endDate } = useLotDate({
+  const {
+    timeStartLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 },
+    startDate,
+    endDate,
+  } = useLotDate({
     auctionStartDate,
     auctionEndDate,
     position: lot.position,
     lotsCount,
   });
 
-  const lotStatus = useLotStatus({ lotStartDate: startDate, lotEndDate: endDate });
+  const lotStatus = getLotStatus(startDate, endDate, lot.isSold);
 
   const timerComponents: JSX.Element[] = [];
 
@@ -74,10 +78,10 @@ export function LotCard({
               <h3 className='text-lg font-semibold truncate'>{lot.title}</h3>
               <div className='flex gap-2'>
                 <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
-                  {lotStatus[0].toUpperCase().concat(lotStatus.slice(1))}
+                  {lotStatus}
                 </Badge>
                 <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
-                  Lot #{lot.position}
+                  LOT #{lot.position}
                 </Badge>
               </div>
             </div>
@@ -91,7 +95,7 @@ export function LotCard({
 
             <div className='flex flex-wrap items-center justify-start gap-x-3 text-sm mb-2'>
               <div className='flex items-center'>
-                <DollarSign className='h-4 w-4 text-teal-600 mr-1' />
+                <DollarSign className='h-4 w-4 text-green-600 mr-1' />
                 <span className='font-semibold'>${lot.startBid}</span>
               </div>
               <div className='flex items-center'>
