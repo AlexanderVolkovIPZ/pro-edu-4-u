@@ -5,7 +5,6 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
   const authUser = await getAuthUser();
-
   if (!authUser) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
