@@ -62,6 +62,8 @@ const BidProcessInfo = ({
 
   const [status, setStatus] = useState(defaultStatus);
   const [inputValue, setInputValue] = useState(calculateNextBid());
+  const isLotInProgress = status === 'IN_PROGRESS';
+  const isLotUpcoming = status === 'UPCOMING';
 
   const bidToSend = Math.max(inputValue, calculateNextBid());
 
@@ -155,7 +157,7 @@ const BidProcessInfo = ({
   return (
     <div className='space-y-3'>
       <StatusBadge status={status} />
-      {status !== 'COMPLETED' && (
+      {isLotInProgress && (
         <>
           <CountdownTimer lotTimeLeft={lotTimeLeft} progress={progressValue} />
           <div className='space-y-4'>
@@ -224,8 +226,7 @@ const BidProcessInfo = ({
           </div>
         </>
       )}
-
-      <BidHistory bids={bids} />
+      {!isLotUpcoming && <BidHistory bids={bids} />}
     </div>
   );
 };
