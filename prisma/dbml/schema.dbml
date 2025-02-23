@@ -4,6 +4,7 @@
 
 Table User {
   id String [pk]
+  stripeCustomerId String
   name String
   email String [unique]
   emailVerified DateTime
@@ -15,6 +16,7 @@ Table User {
   account Account [not null]
   bid Bid [not null]
   userAuction UserAuction [not null]
+  shipping Shipping [not null]
 }
 
 Table Account {
@@ -109,6 +111,7 @@ Table Lot {
   bid Bid [not null]
   lotCategory LotCategory [not null]
   lotDetail LotDetail [not null]
+  shipping Shipping [not null]
 }
 
 Table Video {
@@ -139,13 +142,41 @@ Table Bid {
   bidderId String [not null]
   amount Float [not null]
   isWinner Boolean [not null, default: false]
+  isPaid Boolean [not null, default: false]
   createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
   lot Lot [not null]
   user User [not null]
 
   indexes {
     (lotId, amount) [unique]
   }
+}
+
+Table Shipping {
+  id String [pk]
+  lotId String [not null]
+  userId String [not null]
+  address String [not null]
+  city String [not null]
+  postalCode String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  phone String [not null]
+  email String [not null]
+  status ShippingStatus [default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  lot Lot [not null]
+  user User [not null]
+}
+
+Enum ShippingStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
 }
 
 Enum Status {
@@ -179,3 +210,7 @@ Ref: Photo.lotId > Lot.id [delete: Cascade]
 Ref: Bid.lotId > Lot.id [delete: Cascade]
 
 Ref: Bid.bidderId > User.id [delete: Cascade]
+
+Ref: Shipping.lotId > Lot.id [delete: Cascade]
+
+Ref: Shipping.userId > User.id [delete: Cascade]
