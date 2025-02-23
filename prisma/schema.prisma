@@ -18,19 +18,21 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  stripeCustomerId String?
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             String    @default("user")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   account     Account[]
   bid         Bid[]
   userAuction UserAuction[]
+  shipping    Shipping[]
 }
 
 model Account {
@@ -129,6 +131,7 @@ model Lot {
   bid         Bid[]
   lotCategory LotCategory[]
   lotDetail   LotDetail[]
+  shipping    Shipping[]
 }
 
 model Video {
@@ -161,12 +164,41 @@ model Bid {
   bidderId  String   @db.ObjectId
   amount    Float
   isWinner  Boolean  @default(false)
+  isPaid    Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
   user User @relation(fields: [bidderId], references: [id], onDelete: Cascade)
 
   @@unique([lotId, amount])
+}
+
+model Shipping {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  lotId      String          @db.ObjectId
+  userId     String          @db.ObjectId
+  address    String
+  city       String
+  postalCode String
+  firstName  String
+  lastName   String
+  phone      String
+  email      String
+  status     ShippingStatus? @default(PENDING)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ShippingStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
 }
 
 enum Status {
