@@ -1,6 +1,8 @@
-import { Bid } from '@prisma/client';
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { Auction, Bid } from '@prisma/client';
+import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
+import { BID } from './query-keys';
+import { LotWithRelationsType } from '../types';
 
 export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
   auctionId: string,
@@ -20,9 +22,27 @@ export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
       );
       return response.data;
     },
+  });
+}
 
-    onSettled: () => {
-      //   queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
+export function useBidsByFilter<
+  T extends (Bid & {
+    lot: LotWithRelationsType & {
+      auction: Auction;
+    };
+  })[],
+>(
+  filters?: Partial<Omit<Bid, 'createdAt'> & { createdAt: string }>,
+  options?: Omit<UseQueryOptions<T, Error>, 'queryKey'>
+): UseQueryResult<T, Error> {
+  return useQuery<T, Error>({
+    queryKey: [BID, filters],
+    queryFn: async () => {
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/bid`, {
+        params: filters,
+      });
+      return response.data;
     },
+    ...options,
   });
 }
