@@ -23,12 +23,31 @@ export function useUpdateAuction<
       endDate: string;
     }
   >,
->(auctionId: string): UseMutationResult<Auction, Error, T> {
-  return useMutation<Auction, Error, T>({
+>(auctionId: string): UseMutationResult<Auction, Error, T, { previousAuction?: Auction }> {
+  return useMutation<Auction, Error, T, { previousAuction: Auction }>({
     mutationFn: async (data: T) => {
       const response = await axios.patch<Auction>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`, data);
       return response.data;
     },
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
+
+      const previousAuction = queryClient.getQueryData<Auction>([AUCTION, auctionId]);
+      if (!previousAuction) return;
+
+      queryClient.setQueryData<Auction | undefined>([AUCTION, auctionId], (oldAuction) =>
+        oldAuction ? { ...oldAuction, ...newData } : undefined
+      );
+
+      return { previousAuction };
+    },
+
+    onError: (_error, _newData, context) => {
+      if (context?.previousAuction) {
+        queryClient.setQueryData([AUCTION, auctionId], context.previousAuction);
+      }
+    },
+
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
     },
