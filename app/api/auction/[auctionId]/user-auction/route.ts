@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   };
   const { id, auctionId, userId, createdAt } = params;
   const role = searchParams.role as AuctionRole | undefined;
-  console.log('WE-ARE-HERE', role);
+
   try {
     const auctions = await prismaDb?.userAuction.findMany({
       where: {
