@@ -5,19 +5,62 @@ import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanst
 import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
-import { AuctionWithLotsType, LotWithRelationsType } from '../types';
+import { AuctionWithLotsType, AuctionWithRelationsType, LotWithRelationsType } from '../types';
 import { AUCTION, LOT } from './query-keys';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   auctionId: string
-): UseMutationResult<Lot, Error, T> {
-  return useMutation<Lot, Error, T>({
+): UseMutationResult<Lot, Error, T, { previousAuction?: AuctionWithRelationsType }> {
+  return useMutation<Lot, Error, T, { previousAuction?: AuctionWithRelationsType }>({
     mutationFn: async (data: T) => {
       const response = await axios.post<Lot>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot`, data);
       return response.data;
     },
-    onSettled: (data) => {
-      queryClient.invalidateQueries({ queryKey: [AUCTION, data?.auctionId] });
+
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
+
+      const previousAuction = queryClient.getQueryData<AuctionWithRelationsType>([AUCTION, auctionId]);
+      if (!previousAuction) return;
+
+      const previousLots = previousAuction?.lot;
+      const previousLotsMaxPosition = previousLots?.reduce((max, lot) => Math.max(max, lot.position), 0) ?? 1;
+
+      const tempLot: LotWithRelationsType = {
+        id: 'temp-id',
+        auctionId: newData.auctionId,
+        title: newData.title,
+        position: previousLotsMaxPosition,
+        description: null,
+        startBid: null,
+        buyNowBid: null,
+        minBidIncrement: null,
+        isSold: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        bid: [],
+        lotCategory: [],
+        lotDetail: [],
+        photo: [],
+        video: [],
+      };
+
+      queryClient.setQueryData<AuctionWithRelationsType>([AUCTION, auctionId], {
+        ...previousAuction,
+        lot: [...previousLots, tempLot],
+      });
+
+      return { previousAuction };
+    },
+
+    onError: (_error, _newData, context) => {
+      if (context?.previousAuction !== undefined) {
+        queryClient.setQueryData([AUCTION, auctionId], context.previousAuction);
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
     },
   });
 }
@@ -25,8 +68,8 @@ export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
 export function useUpdateLot<T extends Partial<Lot>>(
   auctionId: string,
   lotId: string
-): UseMutationResult<Lot, Error, T> {
-  return useMutation<Lot, Error, T>({
+): UseMutationResult<Lot, Error, T, { previousLot: Lot }> {
+  return useMutation<Lot, Error, T, { previousLot: Lot }>({
     mutationFn: async (data: T) => {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`,
@@ -34,9 +77,25 @@ export function useUpdateLot<T extends Partial<Lot>>(
       );
       return response.data;
     },
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: [LOT, auctionId, lotId] });
+
+      const previousLot = queryClient.getQueryData<Lot>([LOT, auctionId, lotId]);
+      if (!previousLot) return;
+
+      queryClient.setQueryData<Lot | undefined>([LOT, auctionId, lotId], (oldLot) => {
+        return oldLot ? { ...oldLot, ...newData } : undefined;
+      });
+
+      return { previousLot };
+    },
+    onError: (_error, _newData, context) => {
+      if (context?.previousLot !== undefined) {
+        queryClient.setQueryData([LOT, auctionId, lotId], context.previousLot);
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
-      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
     },
   });
 }
