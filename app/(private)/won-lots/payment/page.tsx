@@ -2,7 +2,7 @@ import Container from '@/components/container';
 import CheckoutPage from './_components/checkout';
 import Header from './_components/header';
 
-const Payment = () => {
+const PaymentPage = () => {
   return (
     <Container>
       <Header />
@@ -11,4 +11,4 @@ const Payment = () => {
   );
 };
 
-export default Payment;
+export default PaymentPage;
