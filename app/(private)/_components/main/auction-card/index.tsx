@@ -1,10 +1,11 @@
 import { AuctionWithRelationsType } from '@/app/types';
+import { Media, MediaSlider } from '@/components/media-slider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CountdownTimer from './countdown-timer';
-import { Media, MediaSlider } from '@/components/media-slider';
+import { getAuctionStatus } from './countdown-timer/_utils/get-auction-status';
 
 type AuctionCardProps = {
   auction: AuctionWithRelationsType;
@@ -23,6 +24,13 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
     new Set(auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name)))
   ).sort((a, b) => a.length - b.length);
   const auctionParticipantsCount = auction.userAuction.length - 1;
+
+  const auctionStatus = getAuctionStatus({
+    startDate: auction.startDate,
+    endDate: auction.endDate,
+    isAllLotsSold: auction.lot.every((lot) => lot.isSold),
+  });
+
   return (
     <Card className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'>
       <div className='relative'>
@@ -73,7 +81,7 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
             <Clock size={16} className='text-rose-500' />
             <span className='text-sm text-rose-500'>Time Remaining</span>
           </div>
-          <CountdownTimer targetDate={auction.startDate!} />
+          <CountdownTimer targetDate={auction.startDate!} status={auctionStatus} />
         </div>
       </CardContent>
 

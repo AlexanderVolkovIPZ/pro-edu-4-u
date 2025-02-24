@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { AuctionStatus } from './_utils/get-auction-status';
 
 type CountdownTimerProps = {
   targetDate: string;
+  status: AuctionStatus;
 };
 
 type TimeLeftType = {
@@ -13,7 +15,7 @@ type TimeLeftType = {
   seconds?: number;
 };
 
-const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
+const CountdownTimer = ({ targetDate, status }: CountdownTimerProps) => {
   const calculateTimeLeft = useCallback(() => {
     const difference = +new Date(targetDate) - +new Date();
     let timeLeft = {};
@@ -56,11 +58,14 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     );
   });
 
-  return (
-    <div className='flex justify-center items-center gap-x-1'>
-      {timerComponents.length ? timerComponents : <span className='text-green-600 font-bold'>Auction has started</span>}
-    </div>
-  );
+  const getAuctionLabel = () => {
+    if (status === 'COMPLETED') return <span className='text-green-600 font-bold'>Auction is completed</span>;
+    if (status === 'IN_PROGRESS') return <span className='text-green-600 font-bold'>Auction is started</span>;
+
+    return timerComponents;
+  };
+
+  return <div className='flex justify-center items-center gap-x-1'>{getAuctionLabel()}</div>;
 };
 
 export default CountdownTimer;
