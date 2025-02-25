@@ -8,24 +8,31 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  stripeCustomerId String?
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             String    @default("user")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  account Account[]
-  bid     Bid[]
+  account     Account[]
+  bid         Bid[]
+  userAuction UserAuction[]
+  shipping    Shipping[]
 }
 
 model Account {
@@ -50,55 +57,81 @@ model Account {
 }
 
 model Auction {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId   String   @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  description String
-  status      Status
-  startDate   DateTime
-  endDate     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  isPublished Boolean   @default(false)
+  status      Status    @default(UPCOMING)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  auctionCategory AuctionCategory[]
-  lot             Lot[]
+  lot         Lot[]
+  userAuction UserAuction[]
+}
+
+model UserAuction {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String      @db.ObjectId
+  auctionId String      @db.ObjectId
+  role      AuctionRole @default(OWNER)
+  createdAt DateTime    @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  auction Auction @relation(fields: [auctionId], references: [id], onUpdate: Cascade)
 }
 
 model Category {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  createdAt       DateTime          @default(now())
-  auctionCategory AuctionCategory[]
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  createdAt   DateTime      @default(now())
+  lotCategory LotCategory[]
 
   @@unique([name])
 }
 
-model AuctionCategory {
+model LotCategory {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  auctionId  String @db.ObjectId
+  lotId      String @db.ObjectId
   categoryId String @db.ObjectId
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  auction  Auction  @relation(fields: [auctionId], references: [id])
+  lot      Lot      @relation(fields: [lotId], references: [id])
 
-  @@unique([auctionId, categoryId])
+  @@unique([lotId, categoryId])
+}
+
+model LotDetail {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  lotId      String @db.ObjectId
+  fieldName  String
+  fieldValue String
+  iconName   String
+
+  lot Lot @relation(fields: [lotId], references: [id])
 }
 
 model Lot {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   auctionId       String   @db.ObjectId
   title           String
-  description     String
-  startBid        Float
-  buyNowBid       Float
-  minBidIncrement Float
+  position        Int
+  description     String?
+  startBid        Float?
+  buyNowBid       Float?
+  minBidIncrement Float?
+  isSold          Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  auction Auction @relation(fields: [auctionId], references: [id], onDelete: Cascade)
-  video   Video[]
-  photo   Photo[]
-  bid     Bid[]
+  auction     Auction       @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  video       Video[]
+  photo       Photo[]
+  bid         Bid[]
+  lotCategory LotCategory[]
+  lotDetail   LotDetail[]
+  shipping    Shipping[]
 }
 
 model Video {
@@ -106,6 +139,7 @@ model Video {
   name      String
   pseudonym String?
   url       String
+  publicId  String
   position  Int
   lotId     String  @db.ObjectId
 
@@ -117,6 +151,7 @@ model Photo {
   name      String
   pseudonym String?
   url       String
+  publicId  String
   position  Int
   lotId     String  @db.ObjectId
 
@@ -127,16 +162,51 @@ model Bid {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   lotId     String   @db.ObjectId
   bidderId  String   @db.ObjectId
-  bidAmount Float
+  amount    Float
   isWinner  Boolean  @default(false)
+  isPaid    Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
   user User @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+
+  @@unique([lotId, amount])
+}
+
+model Shipping {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  lotId      String          @db.ObjectId
+  userId     String          @db.ObjectId
+  address    String
+  city       String
+  postalCode String
+  firstName  String
+  lastName   String
+  phone      String
+  email      String
+  status     ShippingStatus? @default(PENDING)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ShippingStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
 }
 
 enum Status {
   UPCOMING
   IN_PROGRESS
   COMPLETED
+}
+
+enum AuctionRole {
+  OWNER
 }

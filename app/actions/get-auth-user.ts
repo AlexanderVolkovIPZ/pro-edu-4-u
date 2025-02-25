@@ -1,13 +1,16 @@
+import { GetServerSessionParams } from './_shared/types';
 import { getSession } from './get-session';
+import prismaDb from '@/lib/prismadb';
 
-export default async function getAuthUser() {
+export default async function getAuthUser(args?: GetServerSessionParams) {
   try {
-    const session = await getSession();
+    const session = await getSession(...(args ?? []));
+
     if (!session?.user?.email) {
       return null;
     }
 
-    const currentUser = await prismaDb?.user.findUnique({
+    const currentUser = await prismaDb.user.findUnique({
       where: {
         email: session.user.email as string,
       },

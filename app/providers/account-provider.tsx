@@ -1,34 +1,43 @@
 'use client';
 import { createContext, useEffect, useState } from 'react';
 
-type Mode = 'teacher' | 'student';
+const DEFAULT_LOCALE = 'en';
+const DEFAULT_TIME_ZONE = 'Europe/Kyiv';
+export const SUPPORTED_LOCALES = ['en-US', 'uk-UA', 'fr-FR', 'de-DE', 'es-ES', 'it-IT', 'pl-PL', 'zn-CN', 'ja-JP'];
+
 type AccountContextType = {
-  mode: Mode;
-  setMode: (mode: Mode) => void;
-};
-
-const getInitialMode = (): Mode => {
-  if (typeof window === 'undefined') {
-    return 'student';
-  }
-
-  const storedMode = localStorage.getItem('mode') as Mode;
-  return ['teacher', 'student'].includes(storedMode) ? storedMode : 'student';
+  locale: string;
+  setLocale: (locale: string) => void;
+  timeZone: string;
+  setTimeZone: (timeZone: string) => void;
 };
 
 export const AccountContext = createContext<AccountContextType>({
-  mode: 'student',
-  setMode: () => {},
+  locale: DEFAULT_LOCALE,
+  setLocale: () => {},
+  timeZone: DEFAULT_TIME_ZONE,
+  setTimeZone: () => {},
 });
 
 export const AccountProvider = ({ children }: { children: React.ReactNode }) => {
-  const [mode, setMode] = useState<Mode>(getInitialMode);
+  const [locale, setLocale] = useState(DEFAULT_LOCALE);
+  const [timeZone, setTimeZone] = useState(DEFAULT_TIME_ZONE);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mode', mode);
+    if (typeof window !== 'undefined' && navigator.languages) {
+      const matchedLocale = navigator.languages.find((locale) => SUPPORTED_LOCALES.includes(locale)) || DEFAULT_LOCALE;
+      setLocale(matchedLocale);
     }
-  }, [mode]);
+  }, []);
 
-  return <AccountContext.Provider value={{ mode, setMode }}>{children}</AccountContext.Provider>;
+  useEffect(() => {
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (userTimeZone) {
+      setTimeZone(userTimeZone);
+    }
+  }, []);
+
+  return (
+    <AccountContext.Provider value={{ locale, setLocale, timeZone, setTimeZone }}>{children}</AccountContext.Provider>
+  );
 };

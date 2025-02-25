@@ -1,10 +1,10 @@
 import Container from '@/components/container';
-import SignUp from '@/app/(public)/sign-up/_components/sign-up';
+import SignUpForm from './_components/sign-up-form';
 
 export default function SignUpPage() {
   return (
     <Container>
-      <SignUp />
+      <SignUpForm />
     </Container>
   );
 }

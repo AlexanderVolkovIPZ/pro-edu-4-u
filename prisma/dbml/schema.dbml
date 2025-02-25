@@ -1,0 +1,216 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  stripeCustomerId String
+  name String
+  email String [unique]
+  emailVerified DateTime
+  image String
+  password String
+  role String [not null, default: 'user']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  account Account [not null]
+  bid Bid [not null]
+  userAuction UserAuction [not null]
+  shipping Shipping [not null]
+}
+
+Table Account {
+  id String [pk]
+  userId String [not null]
+  type String [not null]
+  provider String [not null]
+  providerAccountId String [not null]
+  refresh_token String
+  access_token String
+  expires_at Int
+  token_type String
+  scope String
+  id_token String
+  session_state String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user User [not null]
+
+  indexes {
+    (provider, providerAccountId) [unique]
+  }
+}
+
+Table Auction {
+  id String [pk]
+  title String [not null]
+  description String
+  isPublished Boolean [not null, default: false]
+  status Status [not null, default: 'UPCOMING']
+  startDate DateTime
+  endDate DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  lot Lot [not null]
+  userAuction UserAuction [not null]
+}
+
+Table UserAuction {
+  id String [pk]
+  userId String [not null]
+  auctionId String [not null]
+  role AuctionRole [not null, default: 'OWNER']
+  createdAt DateTime [default: `now()`, not null]
+  user User [not null]
+  auction Auction [not null]
+}
+
+Table Category {
+  id String [pk]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  lotCategory LotCategory [not null]
+}
+
+Table LotCategory {
+  id String [pk]
+  lotId String [not null]
+  categoryId String [not null]
+  category Category [not null]
+  lot Lot [not null]
+
+  indexes {
+    (lotId, categoryId) [unique]
+  }
+}
+
+Table LotDetail {
+  id String [pk]
+  lotId String [not null]
+  fieldName String [not null]
+  fieldValue String [not null]
+  iconName String [not null]
+  lot Lot [not null]
+}
+
+Table Lot {
+  id String [pk]
+  auctionId String [not null]
+  title String [not null]
+  position Int [not null]
+  description String
+  startBid Float
+  buyNowBid Float
+  minBidIncrement Float
+  isSold Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  auction Auction [not null]
+  video Video [not null]
+  photo Photo [not null]
+  bid Bid [not null]
+  lotCategory LotCategory [not null]
+  lotDetail LotDetail [not null]
+  shipping Shipping [not null]
+}
+
+Table Video {
+  id String [pk]
+  name String [not null]
+  pseudonym String
+  url String [not null]
+  publicId String [not null]
+  position Int [not null]
+  lotId String [not null]
+  lot Lot [not null]
+}
+
+Table Photo {
+  id String [pk]
+  name String [not null]
+  pseudonym String
+  url String [not null]
+  publicId String [not null]
+  position Int [not null]
+  lotId String [not null]
+  lot Lot [not null]
+}
+
+Table Bid {
+  id String [pk]
+  lotId String [not null]
+  bidderId String [not null]
+  amount Float [not null]
+  isWinner Boolean [not null, default: false]
+  isPaid Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  lot Lot [not null]
+  user User [not null]
+
+  indexes {
+    (lotId, amount) [unique]
+  }
+}
+
+Table Shipping {
+  id String [pk]
+  lotId String [not null]
+  userId String [not null]
+  address String [not null]
+  city String [not null]
+  postalCode String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  phone String [not null]
+  email String [not null]
+  status ShippingStatus [default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  lot Lot [not null]
+  user User [not null]
+}
+
+Enum ShippingStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+Enum Status {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+}
+
+Enum AuctionRole {
+  OWNER
+}
+
+Ref: Account.userId > User.id [delete: Cascade]
+
+Ref: UserAuction.userId > User.id [delete: Cascade]
+
+Ref: UserAuction.auctionId > Auction.id
+
+Ref: LotCategory.categoryId > Category.id [delete: Cascade]
+
+Ref: LotCategory.lotId > Lot.id
+
+Ref: LotDetail.lotId > Lot.id
+
+Ref: Lot.auctionId > Auction.id [delete: Cascade]
+
+Ref: Video.lotId > Lot.id [delete: Cascade]
+
+Ref: Photo.lotId > Lot.id [delete: Cascade]
+
+Ref: Bid.lotId > Lot.id [delete: Cascade]
+
+Ref: Bid.bidderId > User.id [delete: Cascade]
+
+Ref: Shipping.lotId > Lot.id [delete: Cascade]
+
+Ref: Shipping.userId > User.id [delete: Cascade]

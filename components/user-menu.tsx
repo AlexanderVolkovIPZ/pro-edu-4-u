@@ -1,9 +1,9 @@
-import { CircleUser, LogOut, Menu, Settings } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import Avatar from './avatar';
 import { Separator } from '@/components/ui/separator';
-import UserItemMenu from './user-item-menu';
+import { CircleUser, LogOut, Menu, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import Avatar from './avatar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import UserItemMenu from './user-item-menu';
 
 type UserMenuProps = {
   url?: string | null;

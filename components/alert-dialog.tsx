@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
 import {
-  AlertDialog as SystemAlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -8,6 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialog as SystemAlertDialog,
 } from './ui/alert-dialog';
 
 type AlertDialogProps = {
