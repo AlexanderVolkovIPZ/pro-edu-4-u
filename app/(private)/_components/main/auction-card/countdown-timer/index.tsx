@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { AuctionStatus } from './_utils/get-auction-status';
+import { AuctionStatus } from '../../../../../utils/get-auction-status';
 
 type CountdownTimerProps = {
   targetDate: string;
