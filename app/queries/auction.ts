@@ -1,7 +1,7 @@
 'use client';
 
 import { Auction } from '@prisma/client';
-import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { AuctionWithStringDates } from '../types';
@@ -66,16 +66,34 @@ export function useAuction<T extends AuctionWithStringDates>(auctionId: string):
   });
 }
 
-export function useAuctionsByFilter<T extends AuctionWithStringDates>(
-  filters?: Partial<AuctionWithStringDates>
-): UseQueryResult<T[], Error> {
-  return useQuery<T[], Error>({
-    queryKey: [AUCTION],
+type QueryData<T> = { auctions: T[]; total: number; totalPages: number; page: number; limit: number };
+
+export function useAuctionsByFilter<T extends AuctionWithStringDates>({
+  filters,
+  options,
+}: {
+  filters?: Partial<AuctionWithStringDates> & {
+    page?: number;
+    limit?: number;
+  };
+  options?: Omit<UseQueryOptions<QueryData<T>, Error>, 'queryKey'>;
+}): UseQueryResult<QueryData<T>, Error> {
+  return useQuery({
+    queryKey: [AUCTION, JSON.stringify(filters)],
     queryFn: async () => {
-      const response = await axios.get<T[]>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
-        params: filters,
+      const response = await axios.get<{
+        auctions: T[];
+        total: number;
+        totalPages: number;
+        page: number;
+        limit: number;
+      }>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
+        params: {
+          ...filters,
+        },
       });
       return response.data;
     },
+    ...options,
   });
 }
