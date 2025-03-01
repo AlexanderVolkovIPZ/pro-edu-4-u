@@ -38,31 +38,40 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const url = new URL(request.url);
-  const searchParams = Object.fromEntries(url.searchParams.entries());
-
-  const params: Partial<Auction> = {
-    ...searchParams,
-    isPublished: searchParams.isPublished === 'true' ? true : searchParams.isPublished === 'false' ? false : undefined,
-  };
-  const { id, title, description, startDate, endDate, createdAt, updatedAt, isPublished } = params;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const searchParams = Object.fromEntries(url.searchParams.entries());
+
+    const params: Partial<Auction> & { page?: number; limit?: number } = {
+      ...searchParams,
+
+      isPublished:
+        searchParams.isPublished === 'true' ? true : searchParams.isPublished === 'false' ? false : undefined,
+    };
+    const { id, title, description, startDate, endDate, createdAt, updatedAt, isPublished, page, limit } = params;
+
+    const filters = {
+      ...(id && { id }),
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(startDate && { startDate }),
+      ...(endDate && { endDate }),
+      ...(createdAt && { createdAt }),
+      ...(updatedAt && { updatedAt }),
+      ...(typeof isPublished === 'boolean' && { isPublished }),
+    };
+
+    const totalCount = await prismaDb.auction.count({ where: { ...filters } });
+    const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
+
     const auctions = await prismaDb.auction.findMany({
       where: {
-        ...(id && { id }),
-        ...(title && { title }),
-        ...(description && { description }),
-        ...(startDate && { startDate }),
-        ...(endDate && { endDate }),
-        ...(createdAt && { createdAt }),
-        ...(updatedAt && { updatedAt }),
-        ...(typeof isPublished === 'boolean' && { isPublished }),
+        ...filters,
       },
       include: {
         lot: {
@@ -74,13 +83,31 @@ export async function GET(request: Request) {
                 category: true,
               },
             },
+            _count: {
+              select: {
+                bid: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            lot: true,
           },
         },
         userAuction: true,
       },
+      ...(limit && { take: Number(limit) }),
+      ...(page && limit && { skip: (Number(page) - 1) * Number(limit) }),
     });
 
-    return NextResponse.json(auctions);
+    return NextResponse.json({
+      auctions,
+      total: totalCount,
+      totalPages,
+      page: page || 1,
+      limit: limit || totalCount,
+    });
   } catch (error) {
     console.error('GET_AUCTIONS_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
