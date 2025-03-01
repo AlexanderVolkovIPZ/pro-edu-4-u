@@ -8,8 +8,10 @@ import Header from './header';
 import { AuctionWithRelationsType } from '@/app/types';
 
 const Main = () => {
-  const { data: auctions, isFetched } = useAuctionsByFilter<AuctionWithRelationsType>({
-    isPublished: true,
+  const { data: { auctions = [] } = {}, isFetched } = useAuctionsByFilter<AuctionWithRelationsType>({
+    filters: {
+      isPublished: true,
+    },
   });
 
   return (
@@ -17,7 +19,7 @@ const Main = () => {
       <Header />
       <main className='flex flex-wrap gap-3 lg:gap-4 mt-2'>
         {isFetched ? (
-          auctions?.map((auction) => <AuctionCard auction={auction} key={auction.id} />)
+          auctions.map((auction) => <AuctionCard auction={auction} key={auction.id} />)
         ) : (
           <>
             {[...Array(8)].map((_, index) => (
