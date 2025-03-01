@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CountdownTimer from './countdown-timer';
-import { getAuctionStatus } from './countdown-timer/_utils/get-auction-status';
+import { getAuctionStatus } from '../../../../utils/get-auction-status';
 
 type AuctionCardProps = {
   auction: AuctionWithRelationsType;
