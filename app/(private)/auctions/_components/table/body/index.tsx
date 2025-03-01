@@ -89,28 +89,20 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
       {isLoading
         ? renderSkeletonRows()
         : auctions.map((auction) => (
-            <TableRow key={auction.id} className='hover:bg-gray-50 group'>
-              <TableCell className='px-6 py-4 whitespace-nowrap'>
-                <div className='flex items-center'>
-                  <div className='text-sm font-medium text-gray-900'>{auction.title}</div>
-                </div>
-              </TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+            <TableRow key={auction.id} className='hover:bg-gray-50 text-sm'>
+              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
+              <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
+              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>
                 {formatDate(auction.startDate)}
               </TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                {formatDate(auction.endDate)}
+              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.endDate)}</TableCell>
+              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>
+                {auction.lotCount}
               </TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap'>
-                <div className='text-sm font-medium text-gray-900'>{auction.lotCount}</div>
+              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>
+                {auction.bidCount}
               </TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap'>
-                <div className={`text-sm font-medium ${auction.bidCount > 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
-                  {auction.bidCount}
-                </div>
-              </TableCell>
-              <TableCell className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
+              <TableCell className='px-6 py-2 whitespace-nowrap text-right'>
                 <Button variant='link' size='icon' onClick={() => router.push(`/auctions/${auction.id}`)}>
                   <Pencil className='h-5 w-5 hover:scale-[1.2] hover:text-rose-500 transition-all' />
                 </Button>
