@@ -10,7 +10,7 @@ const Header = () => {
 
   return (
     <CardHeader className='p-0'>
-      <div className='flex justify-between items-center'>
+      <div className='flex justify-between items-center gap-x-2'>
         <CardTitle>Auction Management</CardTitle>
         <Button onClick={() => router.push('/auctions/create')}>
           <PlusCircle className='mr-2 h-4 w-4' /> New Auction
