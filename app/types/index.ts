@@ -25,9 +25,10 @@ export type LotWithRelationsType = Lot & {
   lotDetail: LotDetail[];
 };
 
-export type AuctionWithStringDates = Omit<Auction, 'startDate' | 'endDate'> & {
+export type AuctionWithStringDates = Omit<Auction, 'startDate' | 'endDate' | 'createdAt'> & {
   startDate: string;
   endDate: string;
+  createdAt: string;
 };
 
 export type AuctionWithRelationsType = AuctionWithStringDates & {
