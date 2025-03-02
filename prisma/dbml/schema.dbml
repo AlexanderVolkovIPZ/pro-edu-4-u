@@ -193,13 +193,13 @@ Ref: Account.userId > User.id [delete: Cascade]
 
 Ref: UserAuction.userId > User.id [delete: Cascade]
 
-Ref: UserAuction.auctionId > Auction.id
+Ref: UserAuction.auctionId > Auction.id [delete: Cascade]
 
 Ref: LotCategory.categoryId > Category.id [delete: Cascade]
 
-Ref: LotCategory.lotId > Lot.id
+Ref: LotCategory.lotId > Lot.id [delete: Cascade]
 
-Ref: LotDetail.lotId > Lot.id
+Ref: LotDetail.lotId > Lot.id [delete: Cascade]
 
 Ref: Lot.auctionId > Auction.id [delete: Cascade]
 
