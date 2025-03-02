@@ -88,7 +88,7 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
       <CardFooter className='bg-gray-50 p-4'>
         <Button
           onClick={() => router.push(`/auctions/${auction.id}/overview`)}
-          className='w-full px-6 py-1 bg-gradient-to-r from-violet-400 to-rose-500 hover:from-violet-400 hover:to-rose-400 text-white font-medium rounded-md transition-all duration-200 shadow-md hover:shadow-lg'
+          className='w-full px-6 py-1 bg-gradient-to-r from-violet-400 to-rose-400 hover:from-violet-500 hover:to-rose-400 text-white font-medium rounded-md transition-all duration-200 shadow-md hover:shadow-lg'
         >
           View Lots
         </Button>
