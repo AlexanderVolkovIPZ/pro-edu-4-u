@@ -97,6 +97,9 @@ export async function GET(request: Request) {
         },
         userAuction: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
       ...(limit && { take: Number(limit) }),
       ...(page && limit && { skip: (Number(page) - 1) * Number(limit) }),
     });
