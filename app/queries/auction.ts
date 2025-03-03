@@ -1,7 +1,14 @@
 'use client';
 
 import { Auction } from '@prisma/client';
-import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult,
+  useQuery,
+  UseQueryOptions,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
 import { AuctionWithStringDates } from '../types';
@@ -93,6 +100,43 @@ export function useAuctionsByFilter<T extends AuctionWithStringDates>({
         },
       });
       return response.data;
+    },
+    ...options,
+  });
+}
+
+export function useDeleteAuction({
+  options,
+}: {
+  options?: Omit<
+    UseMutationOptions<Auction, Error, string, { previousAuctions?: QueryData<AuctionWithStringDates> }>,
+    'mutationFn'
+  >;
+}): UseMutationResult<Auction, Error, string, { previousAuctions?: QueryData<AuctionWithStringDates> }> {
+  return useMutation<Auction, Error, string, { previousAuctions?: QueryData<AuctionWithStringDates> }>({
+    mutationFn: async (auctionId) => {
+      const response = await axios.delete<Auction>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
+      return response.data;
+    },
+    onMutate: async (auctionId) => {
+      await queryClient.cancelQueries({ queryKey: [AUCTION] });
+
+      const previousAuctions = queryClient.getQueryData<QueryData<AuctionWithStringDates>>([AUCTION]);
+      queryClient.setQueryData<AuctionWithStringDates[]>([AUCTION], (oldAuctions) =>
+        oldAuctions ? oldAuctions.filter((auction) => auction.id !== auctionId) : []
+      );
+
+      return { previousAuctions };
+    },
+
+    onError: (_error, _variables, context) => {
+      if (context?.previousAuctions) {
+        queryClient.setQueryData([AUCTION], context.previousAuctions);
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION] });
     },
     ...options,
   });
