@@ -22,7 +22,7 @@ const ActionCell = ({ auctionId }: ActionCellProps) => {
   const [open, setOpen] = useState(false);
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
-  const { mutateAsync: deleteAuction, isPending: isDeleting } = useDeleteAuction({});
+  const { mutateAsync: deleteAuction } = useDeleteAuction({});
 
   const onDelete = async () => {
     try {
