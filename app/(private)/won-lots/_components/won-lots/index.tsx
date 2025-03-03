@@ -8,8 +8,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useContext } from 'react';
-import EmptyBasket from './empty-basket';
 import LotCard from './lot-card';
+import EmptyPage from '@/components/empty-page';
+import { ShoppingBasket } from 'lucide-react';
 
 const WonLots = () => {
   const authUser = useContext(AuthUserContext);
@@ -27,7 +28,15 @@ const WonLots = () => {
   );
 
   if (!isFetchingBids && !bidsData?.length) {
-    return <EmptyBasket />;
+    return (
+      <EmptyPage
+        icon={ShoppingBasket}
+        title='Your Basket is Empty'
+        description='Looks like you haven’t added anything yet.'
+        buttonTitle='Go to Auctions'
+        onClick={() => router.push('/')}
+      />
+    );
   }
 
   const countItems = bidsData?.length || 0;
