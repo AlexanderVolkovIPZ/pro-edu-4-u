@@ -20,6 +20,9 @@ export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutatio
       const response = await axios.post<Auction>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, data);
       return response.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION] });
+    },
   });
 }
 
