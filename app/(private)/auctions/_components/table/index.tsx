@@ -5,8 +5,10 @@ import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
 import { getAuctionStatus } from '@/app/utils/get-auction-status';
 import { CardContent } from '@/components/ui/card';
 import { Table as TableComponent } from '@/components/ui/table';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import EmptyPage from '../../../../../components/empty-page';
 import { useSortAuctions } from '../_hooks/use-sort-auctions';
 import Body from './body';
 import Footer from './footer';
@@ -21,17 +23,17 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 };
 
 const Table = () => {
+  const router = useRouter();
   const [page, setPage] = useState(1);
-  const { data: { auctions = [], total = 0, totalPages = 0 } = {}, isLoading: isLoadingData } =
-    useAuctionsByFilter<ExtendedAuction>({
-      filters: {
-        page,
-        limit: 5,
-      },
-      options: {
-        staleTime: 1000 * 60 * 10,
-      },
-    });
+  const { data: { auctions = [], total = 0, totalPages = 0 } = {}, isFetching } = useAuctionsByFilter<ExtendedAuction>({
+    filters: {
+      page,
+      limit: 5,
+    },
+    options: {
+      staleTime: 1000 * 60 * 10,
+    },
+  });
 
   const auctionsToDisplay =
     auctions?.map((auction) => ({
@@ -78,13 +80,24 @@ const Table = () => {
     );
   };
 
+  if (!isFetching && !auctions.length)
+    return (
+      <EmptyPage
+        icon={Annoyed}
+        title='Your Table is Empty'
+        description='Looks like you haven’t created an auction yet.'
+        buttonTitle='Go to Auctions Create page'
+        onClick={() => router.push('/auctions/create')}
+      />
+    );
+
   return (
     <CardContent className='p-0 mt-4'>
       <div className='bg-white rounded-lg overflow-hidden border'>
         <TableComponent className='min-w-full divide-y divide-gray-200'>
           <Header onSort={onSort} renderSortIcon={renderSortIcon} />
-          <Body isLoading={isLoadingData} auctions={sortedAuctions} />
-          <Footer page={page} totalPages={totalPages} totalCount={total} setPage={setPage} isLoading={isLoadingData} />
+          <Body isLoading={isFetching} auctions={sortedAuctions} />
+          <Footer page={page} totalPages={totalPages} totalCount={total} setPage={setPage} isLoading={isFetching} />
         </TableComponent>
       </div>
     </CardContent>
