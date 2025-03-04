@@ -31,7 +31,7 @@ const Table = () => {
       limit: 5,
     },
     options: {
-      staleTime: 1000 * 60 * 10,
+      staleTime: 1000 * 60 * 3,
     },
   });
 
