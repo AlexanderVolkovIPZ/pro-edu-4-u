@@ -100,11 +100,38 @@ export function useUpdateLot<T extends Partial<Lot>>(
   });
 }
 
-export function useDeleteLot(auctionId: string, lotId: string): UseMutationResult<Lot, Error, void> {
-  return useMutation<Lot, Error, void>({
+export function useDeleteLot(
+  auctionId: string,
+  lotId: string
+): UseMutationResult<Lot, Error, void, { prevAuction?: AuctionWithRelationsType }> {
+  return useMutation<Lot, Error, void, { prevAuction?: AuctionWithRelationsType }>({
     mutationFn: async () => {
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`);
+      const response = await axios.delete<Lot>(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`
+      );
       return response.data;
+    },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
+
+      const prevAuction = queryClient.getQueryData<AuctionWithRelationsType>([AUCTION, auctionId]);
+      if (!prevAuction) return { prevAuction: undefined };
+
+      queryClient.setQueryData([AUCTION, auctionId], {
+        ...prevAuction,
+        lot: prevAuction.lot.filter((l) => l.id !== lotId),
+      });
+
+      return { prevAuction };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevAuction) {
+        queryClient.setQueryData([AUCTION, auctionId], context.prevAuction);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
+      queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
     },
   });
 }

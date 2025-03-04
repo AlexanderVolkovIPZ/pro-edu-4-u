@@ -1,19 +1,14 @@
-'use client';
-
 import Container from '@/components/container';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import Header from './_components/header';
+import Table from './_components/table';
 
-const CoursesPage = () => {
-  const router = useRouter();
+const AuctionsPage = () => {
   return (
     <Container>
-      <div className='flex items-center justify-between'>
-        <Button onClick={() => router.push('/auctions/create')}>Create new auction</Button>
-        <div>Pagination</div>
-      </div>
+      <Header />
+      <Table />
     </Container>
   );
 };
 
-export default CoursesPage;
+export default AuctionsPage;

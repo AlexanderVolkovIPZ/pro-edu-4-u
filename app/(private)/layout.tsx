@@ -1,5 +1,4 @@
 import AppHeader from '@/app/(private)/_components/app-header';
-import Footer from '@/app/(private)/_components/footer';
 import Sidebar from '@/app/(private)/_components/sidebar';
 import { redirect } from 'next/navigation';
 import getAuthUser from '../actions/get-auth-user';
@@ -22,9 +21,6 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
           <Sidebar />
         </div>
         <div className='flex-1 mt-20 sm:ml-40'>{children}</div>
-        <div className='ml-40'>
-          <Footer />
-        </div>
       </div>
     </AuthUserProvider>
   );

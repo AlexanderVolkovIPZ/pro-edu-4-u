@@ -1,5 +1,6 @@
 'use client';
 
+import { sidebarList } from '@/app/(private)/_shared/lists/sidebar-list';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -13,7 +14,11 @@ type SidebarItemProps = {
 
 const SidebarItem = ({ link, name, icon: Icon }: SidebarItemProps) => {
   const pathName = usePathname();
-  const isActive = pathName === link || pathName?.startsWith(`${link}/`);
+  const firstPart = '/' + pathName?.split('/')[1];
+
+  const matchedItem = sidebarList.find(({ link }) => firstPart === link || pathName?.startsWith(`${link}/`));
+  const activeItem = matchedItem || sidebarList[0];
+  const isActive = activeItem.link === link;
 
   return (
     <Link

@@ -51,7 +51,7 @@ model Account {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -78,8 +78,8 @@ model UserAuction {
   role      AuctionRole @default(OWNER)
   createdAt DateTime    @default(now())
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  auction Auction @relation(fields: [auctionId], references: [id], onUpdate: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  auction Auction @relation(fields: [auctionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Category {
@@ -96,8 +96,8 @@ model LotCategory {
   lotId      String @db.ObjectId
   categoryId String @db.ObjectId
 
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  lot      Lot      @relation(fields: [lotId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  lot      Lot      @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([lotId, categoryId])
 }
@@ -109,7 +109,7 @@ model LotDetail {
   fieldValue String
   iconName   String
 
-  lot Lot @relation(fields: [lotId], references: [id])
+  lot Lot @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Lot {
@@ -125,7 +125,7 @@ model Lot {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  auction     Auction       @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  auction     Auction       @relation(fields: [auctionId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   video       Video[]
   photo       Photo[]
   bid         Bid[]
@@ -143,7 +143,7 @@ model Video {
   position  Int
   lotId     String  @db.ObjectId
 
-  lot Lot @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  lot Lot @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Photo {
@@ -155,7 +155,7 @@ model Photo {
   position  Int
   lotId     String  @db.ObjectId
 
-  lot Lot @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  lot Lot @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Bid {
@@ -168,8 +168,8 @@ model Bid {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  lot  Lot  @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [bidderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@unique([lotId, amount])
 }
@@ -189,8 +189,8 @@ model Shipping {
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
-  lot  Lot  @relation(fields: [lotId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lot  Lot  @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 enum ShippingStatus {

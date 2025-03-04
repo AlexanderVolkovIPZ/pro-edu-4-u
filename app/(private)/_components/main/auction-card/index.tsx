@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CountdownTimer from './countdown-timer';
-import { getAuctionStatus } from './countdown-timer/_utils/get-auction-status';
+import { getAuctionStatus } from '../../../../utils/get-auction-status';
 
 type AuctionCardProps = {
   auction: AuctionWithRelationsType;
@@ -88,9 +88,9 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
       <CardFooter className='bg-gray-50 p-4'>
         <Button
           onClick={() => router.push(`/auctions/${auction.id}/overview`)}
-          className='w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white transition-all duration-300 text-base py-3 shadow-lg hover:shadow-xl transform hover:scale-105'
+          className='w-full px-6 py-1 bg-gradient-to-r from-violet-400 to-rose-400 hover:from-violet-500 hover:to-rose-400 text-white font-medium rounded-md transition-all duration-200 shadow-md hover:shadow-lg'
         >
-          View lots
+          View Lots
         </Button>
       </CardFooter>
     </Card>
