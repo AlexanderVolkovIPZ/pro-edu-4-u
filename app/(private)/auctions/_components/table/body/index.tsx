@@ -21,10 +21,9 @@ type TableBodyProps = {
 const Body = ({ isLoading, auctions }: TableBodyProps) => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      ACTIVE: { class: 'bg-green-100 text-green-800', label: 'Active' },
-      UPCOMING: { class: 'bg-blue-100 text-blue-800', label: 'Upcoming' },
-      CLOSED: { class: 'bg-gray-100 text-gray-800', label: 'Closed' },
-      DRAFT: { class: 'bg-amber-100 text-amber-800', label: 'Draft' },
+      IN_PROGRESS: { class: 'bg-green-100 text-green-800', label: 'IN PROGRESS' },
+      UPCOMING: { class: 'bg-blue-100 text-blue-800', label: 'UPCOMING' },
+      COMPLETED: { class: 'bg-gray-100 text-gray-800', label: 'COMPLETED' },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || {
@@ -80,27 +79,23 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
         </TableRow>
       ));
 
+  const renderAuctionRows = () => {
+    return auctions.map((auction) => (
+      <TableRow key={auction.id} className='hover:bg-gray-50 text-sm'>
+        <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.startDate)}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.endDate)}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.lotCount}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.bidCount}</TableCell>
+        <ActionCell auctionId={auction.id} key={auction.id} />
+      </TableRow>
+    ));
+  };
+
   return (
     <TableBodyComponent className='bg-white divide-y divide-gray-200'>
-      {isLoading
-        ? renderSkeletonRows()
-        : auctions.map((auction) => (
-            <TableRow key={auction.id} className='hover:bg-gray-50 text-sm'>
-              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
-              <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
-              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>
-                {formatDate(auction.startDate)}
-              </TableCell>
-              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.endDate)}</TableCell>
-              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>
-                {auction.lotCount}
-              </TableCell>
-              <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>
-                {auction.bidCount}
-              </TableCell>
-              <ActionCell auctionId={auction.id} key={auction.id} />
-            </TableRow>
-          ))}
+      {isLoading ? renderSkeletonRows() : renderAuctionRows()}
     </TableBodyComponent>
   );
 };
