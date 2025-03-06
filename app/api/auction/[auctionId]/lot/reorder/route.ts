@@ -3,15 +3,15 @@ import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body = await request.json();
-  const { id, position: newLotPosition } = body;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, position: newLotPosition } = body;
+
     const lot = await prismaDb?.lot.findUnique({
       where: {
         id,

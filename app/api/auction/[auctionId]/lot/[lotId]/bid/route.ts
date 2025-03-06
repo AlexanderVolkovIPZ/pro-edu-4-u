@@ -3,20 +3,20 @@ import { Bid } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { lotId } = params;
-
-  if (!lotId) {
-    return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-  }
-
-  const data: Bid = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { lotId } = params;
+
+    if (!lotId) {
+      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
+    }
+
+    const data: Bid = await request.json();
+
     const bid = await prismaDb?.bid.create({
       data,
     });
@@ -29,18 +29,18 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 }
 
 export async function GET(request: Request, { params }: { params: { bidId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { bidId } = params;
-
-  if (!bidId) {
-    return new NextResponse('BidId is required and cannot be empty', { status: 400 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { bidId } = params;
+
+    if (!bidId) {
+      return new NextResponse('BidId is required and cannot be empty', { status: 400 });
+    }
+
     const bid = await prismaDb?.bid.findFirst({
       where: {
         id: bidId,

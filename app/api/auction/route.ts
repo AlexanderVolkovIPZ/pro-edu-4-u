@@ -4,19 +4,19 @@ import { Auction } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body = await request.json();
-  const { title } = body;
-
-  if (!title) {
-    return new NextResponse('Title is required and cannot be empty', { status: 400 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { title } = body;
+
+    if (!title) {
+      return new NextResponse('Title is required and cannot be empty', { status: 400 });
+    }
+
     const auction = await prismaDb.auction.create({
       data: {
         title,

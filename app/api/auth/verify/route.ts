@@ -7,10 +7,10 @@ import { NextResponse } from 'next/server';
 dayjs.extend(utc);
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get('token');
-
   try {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
+
     const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string) as { userId: string };
     await prismaDb.user.update({
       where: { id: decoded.userId },

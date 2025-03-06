@@ -4,12 +4,12 @@ import prismaDb from '@/lib/prismadb';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
     const lot = await prismaDb.lot.findFirst({
       where: {
         id: params.lotId,
@@ -53,15 +53,15 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
 }
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body = await request.json();
-  const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
+
     const lot = await prismaDb.lot.update({
       data: {
         title,
@@ -86,12 +86,12 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 }
 
 export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
     const photos = await prismaDb.photo.findMany({ where: { lotId: params.lotId } });
     const videos = await prismaDb.video.findMany({ where: { lotId: params.lotId } });
 

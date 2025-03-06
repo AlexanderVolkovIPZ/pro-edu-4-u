@@ -5,14 +5,14 @@ import { Video } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body: CreateFileType<Video> = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body: CreateFileType<Video> = await request.json();
+
     const uploadedVideos: Video[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
@@ -56,14 +56,14 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 }
 
 export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { id }: DeleteFileType = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { id }: DeleteFileType = await request.json();
+
     const video = await prismaDb?.video.findFirst({
       where: {
         id,

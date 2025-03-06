@@ -5,14 +5,14 @@ import { Photo } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body: CreateFileType<Photo> = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body: CreateFileType<Photo> = await request.json();
+
     const uploadedPhotos: Photo[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
@@ -55,14 +55,14 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 }
 
 export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { id }: DeleteFileType = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { id }: DeleteFileType = await request.json();
+
     const photo = await prismaDb?.photo.findFirst({
       where: {
         id,

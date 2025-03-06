@@ -3,15 +3,15 @@ import { ReorderFileType } from '@/app/types';
 import { NextResponse } from 'next/server';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body: ReorderFileType = await request.json();
-  const { id, position } = body;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body: ReorderFileType = await request.json();
+    const { id, position } = body;
+
     const video = await prismaDb?.video.findFirst({
       where: {
         id,

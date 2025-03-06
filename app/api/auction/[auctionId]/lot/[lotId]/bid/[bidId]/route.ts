@@ -6,15 +6,15 @@ export async function PATCH(
   request: Request,
   { params }: { params: { auctionId: string; lotId: string; bidId: string } }
 ) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body: Omit<Bid, 'id' | 'createdAt'> = await request.json();
-  const { amount, bidderId, isWinner, lotId } = body;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body: Omit<Bid, 'id' | 'createdAt'> = await request.json();
+    const { amount, bidderId, isWinner, lotId } = body;
+
     const bid = await prismaDb?.bid.update({
       data: {
         amount,
