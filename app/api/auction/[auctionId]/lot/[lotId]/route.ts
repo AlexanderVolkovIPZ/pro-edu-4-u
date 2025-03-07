@@ -1,7 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
 import prismaDb from '@/lib/prismadb';
-import { UserRole } from '@prisma/client';
+import { AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
@@ -97,7 +97,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
-        role: 'OWNER',
+        role: AuctionRole.OWNER,
       },
     });
 

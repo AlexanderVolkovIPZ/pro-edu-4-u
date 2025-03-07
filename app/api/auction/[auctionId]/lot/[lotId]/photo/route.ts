@@ -1,7 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
 import { CreateFileType, DeleteFileType } from '@/app/types';
-import { Photo } from '@prisma/client';
+import { AuctionRole, Photo, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
@@ -59,6 +59,19 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
     const authUser = await getAuthUser();
     if (!authUser) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb?.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const { id }: DeleteFileType = await request.json();

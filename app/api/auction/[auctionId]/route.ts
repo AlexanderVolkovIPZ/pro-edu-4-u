@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction, UserRole } from '@prisma/client';
+import { Auction, AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
@@ -61,7 +61,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
-        role: 'OWNER',
+        role: AuctionRole.OWNER,
       },
     });
 
@@ -114,7 +114,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
-        role: 'OWNER',
+        role: AuctionRole.OWNER,
       },
     });
 
