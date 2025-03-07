@@ -29,6 +29,7 @@ const Table = () => {
     filters: {
       page,
       limit: 5,
+      loadForCurrentUser: true,
     },
     options: {
       staleTime: 1000 * 60 * 3,

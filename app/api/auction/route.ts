@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction } from '@prisma/client';
+import { Auction, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -47,16 +47,35 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const searchParams = Object.fromEntries(url.searchParams.entries());
 
-    const params: Partial<Auction> & { page?: number; limit?: number } = {
+    const params: Partial<Auction> & { page?: number; limit?: number; loadForCurrentUser?: boolean } = {
       ...searchParams,
 
       isPublished:
         searchParams.isPublished === 'true' ? true : searchParams.isPublished === 'false' ? false : undefined,
     };
-    const { id, title, description, startDate, endDate, createdAt, updatedAt, isPublished, page, limit } = params;
+    const {
+      title,
+      description,
+      startDate,
+      endDate,
+      createdAt,
+      updatedAt,
+      isPublished,
+      page,
+      limit,
+      loadForCurrentUser,
+    } = params;
+
+    const userAuctions = await prismaDb.userAuction.findMany({
+      where:
+        loadForCurrentUser && authUser.role !== UserRole.ADMIN
+          ? {
+              userId: authUser.id,
+            }
+          : {},
+    });
 
     const filters = {
-      ...(id && { id }),
       ...(title && { title }),
       ...(description && { description }),
       ...(startDate && { startDate }),
@@ -64,6 +83,9 @@ export async function GET(request: Request) {
       ...(createdAt && { createdAt }),
       ...(updatedAt && { updatedAt }),
       ...(typeof isPublished === 'boolean' && { isPublished }),
+      id: {
+        in: userAuctions.map((userAuction) => userAuction.auctionId),
+      },
     };
 
     const totalCount = await prismaDb.auction.count({ where: { ...filters } });

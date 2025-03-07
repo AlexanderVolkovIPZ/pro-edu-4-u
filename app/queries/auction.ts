@@ -85,6 +85,7 @@ export function useAuctionsByFilter<T extends AuctionWithStringDates>({
   filters?: Partial<AuctionWithStringDates> & {
     page?: number;
     limit?: number;
+    loadForCurrentUser?: boolean;
   };
   options?: Omit<UseQueryOptions<QueryData<T>, Error>, 'queryKey'>;
 }): UseQueryResult<QueryData<T>, Error> {
