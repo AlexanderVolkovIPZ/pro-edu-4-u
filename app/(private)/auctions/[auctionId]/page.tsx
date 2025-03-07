@@ -18,6 +18,7 @@ import Header from './_components/header';
 import LotInput from './_components/lot-input';
 import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
+import { AuctionRole } from '@prisma/client';
 
 type AuctionIdPageParams = {
   auctionId: string;
@@ -33,7 +34,7 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
     {
       auctionId: params.auctionId,
       userId: authUser?.id,
-      role: 'OWNER',
+      role: AuctionRole.OWNER,
     },
     {
       enabled: !!authUser?.id && !!params.auctionId,

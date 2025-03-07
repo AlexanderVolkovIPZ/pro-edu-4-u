@@ -25,6 +25,7 @@ import Header from './_components/header';
 import { buyNowBidSchema } from './_shared/schemas/buy-now-bid';
 import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
 import { startBidSchema } from './_shared/schemas/start-bid';
+import { AuctionRole } from '@prisma/client';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -56,7 +57,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
     {
       auctionId: params.auctionId,
       userId: authUser?.id,
-      role: 'OWNER',
+      role: AuctionRole.OWNER,
     },
     {
       enabled: !!authUser?.id && !!params.auctionId,
