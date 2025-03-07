@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction } from '@prisma/client';
+import { Auction, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
@@ -57,6 +57,19 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const userAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: 'OWNER',
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
+
     const body = await request.json();
     const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
 
@@ -105,8 +118,9 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       },
     });
 
-    if (!userAuction) {
-      return new NextResponse('You are not the owner of this auction', { status: 401 });
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const deletedAction = await prismaDb.auction.delete({
