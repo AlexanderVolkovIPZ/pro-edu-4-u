@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
 import prismaDb from '@/lib/prismadb';
+import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
@@ -90,6 +91,19 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
     const authUser = await getAuthUser();
     if (!authUser) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: 'OWNER',
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const photos = await prismaDb.photo.findMany({ where: { lotId: params.lotId } });
