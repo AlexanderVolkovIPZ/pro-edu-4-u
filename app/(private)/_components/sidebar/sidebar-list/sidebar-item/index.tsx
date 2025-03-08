@@ -1,10 +1,12 @@
 'use client';
 
-import { sidebarList } from '@/app/(private)/_shared/lists/sidebar-list';
+import { adminSidebarList, userSidebarList } from '@/app/(private)/_shared/lists/sidebar-list';
+import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useContext } from 'react';
 
 type SidebarItemProps = {
   link: string;
@@ -13,9 +15,10 @@ type SidebarItemProps = {
 };
 
 const SidebarItem = ({ link, name, icon: Icon }: SidebarItemProps) => {
+  const authUser = useContext(AuthUserContext);
   const pathName = usePathname();
   const firstPart = '/' + pathName?.split('/')[1];
-
+  const sidebarList = authUser?.role === 'ADMIN' ? adminSidebarList : userSidebarList;
   const matchedItem = sidebarList.find(({ link }) => firstPart === link || pathName?.startsWith(`${link}/`));
   const activeItem = matchedItem || sidebarList[0];
   const isActive = activeItem.link === link;
