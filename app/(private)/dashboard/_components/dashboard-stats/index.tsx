@@ -49,9 +49,8 @@ export default function DashboardStats() {
       <div className='flex flex-row flex-wrap gap-4 align-middle justify-between'>
         {Object.entries(statsAdminData.statInfo).map(([key, value], index) => {
           return (
-            <div className='grow'>
+            <div className='grow' key={key}>
               <Card
-                key={key}
                 index={index}
                 title={`Total ${capitalize(key)} Growth`}
                 growth={value.growth}
