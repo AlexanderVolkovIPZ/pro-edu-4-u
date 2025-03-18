@@ -9,11 +9,7 @@ type UserInfoType = {
   emailVerified: string;
 }[];
 
-type SortAuctionType = {
-  users: UserInfoType;
-};
-
-export const useSortUsers = ({ users }: SortAuctionType) => {
+export const useSortUsers = ({ users }: { users: UserInfoType }) => {
   const [sortBy, setSortBy] = useState(['createdAt']);
   const [sortDirection, setSortDirection] = useState<Record<string, 'asc' | 'desc'>>({
     name: 'desc',
