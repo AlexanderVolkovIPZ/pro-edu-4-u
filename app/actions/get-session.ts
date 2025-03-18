@@ -1,6 +1,6 @@
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
-import { GetServerSessionParams } from './_shared/types';
+import { GetServerSessionParams } from '../types';
 
 export async function getSession(...args: GetServerSessionParams) {
   if (args.length === 2) {
