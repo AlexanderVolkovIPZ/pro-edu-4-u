@@ -50,6 +50,8 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             Verified At {renderSortIcon('verifiedAt')}
           </div>
         </TableHead>
+
+        <TableHead scope='col' className='px-6 py-3 text-left' />
       </TableRow>
     </TableHeader>
   );
