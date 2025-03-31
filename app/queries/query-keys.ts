@@ -7,3 +7,5 @@ export const USER_LOT = 'user_lot';
 export const USER_AUCTION = 'user_auction';
 export const STATS_ADMIN = 'stats_admin';
 export const USER = 'user';
+export const SHIPPING = 'shipping';
+export const ORDER = 'order';
