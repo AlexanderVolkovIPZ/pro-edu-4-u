@@ -12,6 +12,11 @@ export const userSidebarList = [
     icon: LayoutList,
   },
   {
+    link: '/orders',
+    name: 'Orders',
+    icon: Truck,
+  },
+  {
     link: '/analytics ',
     name: 'Analytics ',
     icon: ChartNoAxesCombined,
@@ -45,8 +50,8 @@ export const adminSidebarList = [
     icon: LayoutList,
   },
   {
-    link: '/shipping',
-    name: 'Shipping',
+    link: '/orders',
+    name: 'Orders',
     icon: Truck,
   },
   {
