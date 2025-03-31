@@ -17,7 +17,7 @@ export const useSortUsers = ({ users }: { users: UserInfoType }) => {
     emailVerified: 'desc',
   });
 
-  const sortedUsers = [...users].sort((a, b) => {
+  const sortedUsers = users.sort((a, b) => {
     const createdDateA = new Date(a.createdAt);
     const createdDateB = new Date(b.createdAt);
 
