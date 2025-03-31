@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import { AuctionWithRelationsType } from '@/app/types';
 import Container from '@/components/container';
@@ -8,7 +9,6 @@ import Pagination from '@/components/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Annoyed } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import AuctionCard from './auction-card';
 import Header from './header';
 
@@ -16,12 +16,16 @@ const PAGE_ITEMS_LIMIT = 8;
 
 const Main = () => {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
+  const { params, setParams } = useQueryParams({
+    isPublished: true,
+    page: 1,
+    limit: PAGE_ITEMS_LIMIT,
+  });
   const { data: { auctions = [], total, totalPages } = {}, isFetched } = useAuctionsByFilter<AuctionWithRelationsType>({
     filters: {
-      isPublished: true,
-      page: currentPage,
-      limit: PAGE_ITEMS_LIMIT,
+      isPublished: params.isPublished,
+      page: params.page,
+      limit: params.limit,
     },
     options: {
       staleTime: 1000 * 60 * 3,
@@ -29,7 +33,7 @@ const Main = () => {
   });
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setParams({ ...params, page: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -66,7 +70,7 @@ const Main = () => {
         {isFetched && (
           <Pagination
             className='mt-4'
-            currentPage={currentPage}
+            currentPage={params.page}
             totalPages={totalPages || 1}
             onPageChange={handlePageChange}
             showSummary={false}
