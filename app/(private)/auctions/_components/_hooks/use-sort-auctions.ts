@@ -28,7 +28,7 @@ export const useSortAuctions = ({ auctions }: SortAuctionType) => {
     createdAt: 'desc',
   });
 
-  const sortedAuctions = [...auctions].sort((a, b) => {
+  const sortedAuctions = auctions.sort((a, b) => {
     const startDateA = new Date(a.startDate);
     const startDateB = new Date(b.startDate);
     const endDateA = new Date(a.endDate);
