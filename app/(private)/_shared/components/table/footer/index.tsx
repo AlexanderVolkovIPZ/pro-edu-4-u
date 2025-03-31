@@ -4,13 +4,15 @@ import { TableCell, TableFooter, TableRow } from '@/components/ui/table';
 
 type FooterProps = {
   page: number;
+  perPageCount: number;
   totalPages: number;
   totalCount: number;
   isLoading: boolean;
+  entitiesName: string;
   setPage: (page: number) => void;
 };
 
-const Footer = ({ page, setPage, totalPages, totalCount, isLoading }: FooterProps) => {
+const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCount, isLoading }: FooterProps) => {
   return (
     <TableFooter>
       <TableRow className='w-full bg-white hover:bg-white'>
@@ -38,9 +40,9 @@ const Footer = ({ page, setPage, totalPages, totalCount, isLoading }: FooterProp
               </div>
 
               <p className='hidden sm:block text-sm text-gray-700'>
-                Showing <span className='font-medium'>{totalCount ? (page - 1) * 5 + 1 : 0}</span> to{' '}
-                <span className='font-medium'>{Math.min(page * 5, totalCount)}</span> of{' '}
-                <span className='font-medium'>{totalCount}</span> users
+                Showing <span className='font-medium'>{totalCount ? (page - 1) * perPageCount + 1 : 0}</span> to{' '}
+                <span className='font-medium'>{Math.min(page * perPageCount, totalCount)}</span> of{' '}
+                <span className='font-medium'>{totalCount}</span> {entitiesName}
               </p>
 
               <nav className='hidden sm:block' aria-label='Pagination'>
