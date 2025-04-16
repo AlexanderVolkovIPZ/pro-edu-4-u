@@ -29,7 +29,7 @@ export const useQueryParams = <T extends QueryParams>(defaults: T) => {
     let changed = false;
 
     Object.entries(defaults).forEach(([key, value]) => {
-      if (!searchParams.has(key)) {
+      if (value !== null && value !== undefined && !searchParams.has(key)) {
         urlParams.set(key, String(value));
         changed = true;
       }
@@ -41,7 +41,7 @@ export const useQueryParams = <T extends QueryParams>(defaults: T) => {
   }, [searchParams, defaults, router]);
 
   const setParams = useCallback(
-    (newParams: Partial<T>) => {
+    (newParams: Record<string, unknown>) => {
       if (!searchParams) return;
 
       const urlParams = new URLSearchParams(searchParams.toString());
