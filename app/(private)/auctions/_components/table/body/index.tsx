@@ -1,3 +1,4 @@
+import { formatDate } from '@/app/(private)/_utils/date-format';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TableBody as TableBodyComponent, TableCell, TableRow } from '@/components/ui/table';
@@ -36,18 +37,6 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
         {config.label}
       </Badge>
     );
-  };
-
-  const formatDate = (date: string | null) => {
-    if (!date) return '—';
-    const dateObj = new Date(date);
-    const day = dateObj.getDate().toString().padStart(2, '0');
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-    const year = dateObj.getFullYear();
-    const hours = dateObj.getHours().toString().padStart(2, '0');
-    const minutes = dateObj.getMinutes().toString().padStart(2, '0');
-
-    return `${month}/${day}/${year} ${hours}:${minutes}`;
   };
 
   const renderSkeletonRows = () =>
