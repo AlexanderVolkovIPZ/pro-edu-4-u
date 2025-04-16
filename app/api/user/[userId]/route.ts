@@ -46,8 +46,8 @@ export async function DELETE(request: Request, { params }: { params: { userId: s
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    if (authUser.role !== UserRole.ADMIN || authUser.id === params.userId) {
-      return new NextResponse('Forbidden', { status: 403 });
+    if (authUser.role !== UserRole.ADMIN || authUser.id !== params.userId) {
+      return new NextResponse('User not found', { status: 404 });
     }
 
     const user = await prismaDb?.user.findFirst({

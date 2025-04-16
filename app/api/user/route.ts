@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   try {
     const authUser = await getAuthUser();
     if (!authUser || authUser.role !== UserRole.ADMIN) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('User not found', { status: 404 });
     }
 
     const url = new URL(request.url);
