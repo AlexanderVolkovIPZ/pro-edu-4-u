@@ -6,12 +6,13 @@ import { CardContent } from '@/components/ui/card';
 import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortUsers } from '../../_hooks/use-sort-users';
 import Body from './body';
-import Footer from './footer';
 import Header from './header';
+import Footer from '@/app/(private)/_shared/components/table/footer';
+import { useQueryParams } from '@/app/hooks/use-query-params';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
   lot: (LotWithRelationsType & {
@@ -23,14 +24,18 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 
 const Table = () => {
   const router = useRouter();
-  const [page, setPage] = useState(1);
-  const { data: { users = [], total = 0, totalPages = 0 } = {}, isFetching: isUserDataFetching } = useGetUsers({
-    filters: {
-      page,
-      limit: 5,
-    },
-    options: {},
+  const { params, setParams } = useQueryParams({
+    page: 1,
+    limit: 5,
   });
+  const { data: { users = [], total = 0, totalPages = 0, limit = 0 } = {}, isFetching: isUserDataFetching } =
+    useGetUsers({
+      filters: {
+        page: params.page,
+        limit: params.limit,
+      },
+      options: {},
+    });
 
   const { setSortBy, setSortDirection, sortedUsers, sortBy, sortDirection } = useSortUsers({
     users: users.map((user) => ({
@@ -85,11 +90,13 @@ const Table = () => {
           <Header onSort={onSort} renderSortIcon={renderSortIcon} />
           <Body isLoading={isUserDataFetching} users={sortedUsers} />
           <Footer
-            page={page}
+            page={params.page}
             totalPages={totalPages}
             totalCount={total}
-            setPage={setPage}
+            setPage={(page) => setParams({ ...params, page })}
             isLoading={isUserDataFetching}
+            entitiesName='users'
+            perPageCount={limit}
           />
         </TableComponent>
       </div>
