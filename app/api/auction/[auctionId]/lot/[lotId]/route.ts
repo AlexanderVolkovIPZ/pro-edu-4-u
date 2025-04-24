@@ -11,10 +11,25 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const filters =
+      authUser.role === UserRole.ADMIN
+        ? { id: params.lotId, auctionId: params.auctionId }
+        : {
+            id: params.lotId,
+            auctionId: params.auctionId,
+            auction: {
+              userAuction: {
+                some: {
+                  userId: authUser.id,
+                  role: AuctionRole.OWNER,
+                },
+              },
+            },
+          };
+
     const lot = await prismaDb.lot.findFirst({
       where: {
-        id: params.lotId,
-        auctionId: params.auctionId,
+        ...filters,
       },
       include: {
         photo: {
@@ -46,6 +61,10 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       },
     });
 
+    if (!lot) {
+      return new NextResponse('Lot not found', { status: 404 });
+    }
+
     return NextResponse.json(lot);
   } catch (error) {
     console.error('GET_LOT_ERROR -> ', error);
@@ -58,6 +77,19 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     const authUser = await getAuthUser();
     if (!authUser) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const body = await request.json();
