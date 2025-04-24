@@ -10,9 +10,16 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const filters = authUser.role === UserRole.ADMIN ? {} : { userId: authUser.id, role: AuctionRole.OWNER };
+
     const auction = await prismaDb.auction.findFirst({
       where: {
         id: params.auctionId,
+        userAuction: {
+          some: {
+            ...filters,
+          },
+        },
       },
       include: {
         lot: {
@@ -42,6 +49,10 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
         },
       },
     });
+
+    if (!auction) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
 
     return NextResponse.json(auction);
   } catch (error) {
