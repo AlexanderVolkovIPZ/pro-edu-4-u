@@ -2,9 +2,9 @@ import { cn } from '@/lib/utils';
 import { LotStatus } from '../../_shared/types';
 
 const STATUS_MESSAGES = {
-  UPCOMING: 'Bidding process starting soon',
-  IN_PROGRESS: 'Bidding in progress',
-  COMPLETED: 'Bid process finished',
+  UPCOMING: 'Bidding Process Starting Soon',
+  IN_PROGRESS: 'Bidding Process In Progress',
+  COMPLETED: 'Bid Process Is Finished',
 };
 
 export const StatusBadge = ({ status }: { status: LotStatus }) => {
