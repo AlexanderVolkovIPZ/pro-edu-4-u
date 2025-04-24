@@ -1,11 +1,9 @@
 'use client';
 
-import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { useCategory } from '@/app/queries/category';
 import { useDeleteLot, useLot, useUpdateLot } from '@/app/queries/lot';
 import { useCreateLotCategories } from '@/app/queries/lot-category';
 import { useCreateLotDetails } from '@/app/queries/lot-detail';
-import { useUserAuctionsByFilter } from '@/app/queries/user-auction';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
 import ImageUploader from '@/components/image-uploader';
@@ -15,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import VideoUploader from '@/components/video-uploader';
 import { BookType, LucideDollarSign } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { titleSchema } from '../../../_shared/schemas/title-schema';
 import DescriptionInput from '../../_shared/components/description-input';
@@ -25,7 +23,6 @@ import Header from './_components/header';
 import { buyNowBidSchema } from './_shared/schemas/buy-now-bid';
 import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
 import { startBidSchema } from './_shared/schemas/start-bid';
-import { AuctionRole } from '@prisma/client';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -33,7 +30,6 @@ type LotIdPageParams = {
 };
 
 const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
-  const authUser = useContext(AuthUserContext);
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState({
     isTitleUpdating: false,
@@ -52,18 +48,6 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
     params.lotId
   );
   const { mutateAsync: createLotDetails } = useCreateLotDetails(params.auctionId, params.lotId);
-  const { data: userAuctionsData, isFetched: isUserAuctionsFetched } = useUserAuctionsByFilter(
-    params.auctionId,
-    {
-      auctionId: params.auctionId,
-      userId: authUser?.id,
-      role: AuctionRole.OWNER,
-    },
-    {
-      enabled: !!authUser?.id && !!params.auctionId,
-      staleTime: 600000,
-    }
-  );
 
   const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
   const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
@@ -84,7 +68,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
     }
   };
 
-  if (isUserAuctionsFetched && !userAuctionsData?.length) {
+  if (isLotFetched && !lotData) {
     return (
       <Container>
         <NotFound />
