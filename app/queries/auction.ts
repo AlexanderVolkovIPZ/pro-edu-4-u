@@ -76,7 +76,16 @@ export function useAuction<T extends AuctionWithStringDates>(auctionId: string):
   });
 }
 
-type QueryData<T> = { auctions: T[]; total: number; totalPages: number; page: number; limit: number };
+type QueryData<T> = {
+  auctions: T[];
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  maxLotPriceExisted: number;
+  minLotPriceExisted: number;
+  lotCategoriesExistedNames: string[];
+};
 
 export function useAuctionsByFilter<T extends AuctionWithStringDates>({
   filters,
@@ -86,19 +95,16 @@ export function useAuctionsByFilter<T extends AuctionWithStringDates>({
     page?: number;
     limit?: number;
     loadForCurrentUser?: boolean;
+    minLotPrice?: number;
+    maxLotPrice?: number;
+    categories?: string;
   };
   options?: Omit<UseQueryOptions<QueryData<T>, Error>, 'queryKey'>;
 }): UseQueryResult<QueryData<T>, Error> {
   return useQuery({
     queryKey: [AUCTION, JSON.stringify(filters)],
     queryFn: async () => {
-      const response = await axios.get<{
-        auctions: T[];
-        total: number;
-        totalPages: number;
-        page: number;
-        limit: number;
-      }>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
+      const response = await axios.get<QueryData<T>>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
         params: {
           ...filters,
         },
