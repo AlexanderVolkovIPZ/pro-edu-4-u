@@ -1,8 +1,6 @@
 'use client';
 
-import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { useAuction, useUpdateAuction } from '@/app/queries/auction';
-import { useUserAuctionsByFilter } from '@/app/queries/user-auction';
 import { AuctionWithRelationsType } from '@/app/types';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
@@ -10,7 +8,7 @@ import InputBox from '@/components/input-box';
 import NotFound from '@/components/not-found';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookType } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { titleSchema } from '../_shared/schemas/title-schema';
 import EndDateInput from './_components/end-date-input';
@@ -18,29 +16,15 @@ import Header from './_components/header';
 import LotInput from './_components/lot-input';
 import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
-import { AuctionRole } from '@prisma/client';
 
 type AuctionIdPageParams = {
   auctionId: string;
 };
 
 const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
-  const authUser = useContext(AuthUserContext);
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
   const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(params.auctionId);
-  const { data: userAuctionsData, isFetched: isUserAuctionsFetched } = useUserAuctionsByFilter(
-    params.auctionId,
-    {
-      auctionId: params.auctionId,
-      userId: authUser?.id,
-      role: AuctionRole.OWNER,
-    },
-    {
-      enabled: !!authUser?.id && !!params.auctionId,
-      staleTime: 600000,
-    }
-  );
 
   const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
 
@@ -69,7 +53,7 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
     }
   };
 
-  if (isUserAuctionsFetched && !userAuctionsData?.length) {
+  if (isAuctionFetched && !auctionData) {
     return (
       <Container>
         <NotFound />
