@@ -1,5 +1,7 @@
 'use client';
 
+import Footer from '@/app/(private)/_shared/components/table/footer';
+import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
 import { getAuctionStatus } from '@/app/utils/get-auction-status';
@@ -7,11 +9,10 @@ import { CardContent } from '@/components/ui/card';
 import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortAuctions } from '../_hooks/use-sort-auctions';
 import Body from './body';
-import Footer from './footer';
 import Header from './header';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
@@ -24,17 +25,22 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 
 const Table = () => {
   const router = useRouter();
-  const [page, setPage] = useState(1);
-  const { data: { auctions = [], total = 0, totalPages = 0 } = {}, isFetching } = useAuctionsByFilter<ExtendedAuction>({
-    filters: {
-      page,
-      limit: 5,
-      loadForCurrentUser: true,
-    },
-    options: {
-      staleTime: 1000 * 60 * 3,
-    },
+  const { params, setParams } = useQueryParams({
+    page: 1,
+    limit: 5,
+    loadForCurrentUser: true,
   });
+  const { data: { auctions = [], total = 0, totalPages = 0, limit = 0 } = {}, isFetching } =
+    useAuctionsByFilter<ExtendedAuction>({
+      filters: {
+        page: params.page,
+        limit: params.limit,
+        loadForCurrentUser: params.loadForCurrentUser,
+      },
+      options: {
+        staleTime: 1000 * 60 * 3,
+      },
+    });
 
   const auctionsToDisplay =
     auctions?.map((auction) => ({
@@ -98,7 +104,15 @@ const Table = () => {
         <TableComponent className='min-w-full divide-y divide-gray-200'>
           <Header onSort={onSort} renderSortIcon={renderSortIcon} />
           <Body isLoading={isFetching} auctions={sortedAuctions} />
-          <Footer page={page} totalPages={totalPages} totalCount={total} setPage={setPage} isLoading={isFetching} />
+          <Footer
+            page={params.page}
+            totalPages={totalPages}
+            totalCount={total}
+            setPage={(page) => setParams({ ...params, page })}
+            isLoading={isFetching}
+            entitiesName='auctions'
+            perPageCount={limit}
+          />
         </TableComponent>
       </div>
     </CardContent>
