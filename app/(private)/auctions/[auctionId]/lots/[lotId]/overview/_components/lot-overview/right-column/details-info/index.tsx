@@ -18,7 +18,7 @@ const DetailsInfo = ({ lotDetails = [] }: LotDetailsProps) => {
               {iconKeys.includes(detail.iconName)
                 ? iconsDictionary[detail.iconName as keyof typeof iconsDictionary]
                 : iconsDictionary['question']}
-              <span className='text-sm text-muted-foreground'>{detail.fieldName}</span>
+              <span className='text-sm text-muted-foreground'>{detail.fieldName}:</span>
             </div>
             <span className='text-sm'>{detail.fieldValue}</span>
           </div>
