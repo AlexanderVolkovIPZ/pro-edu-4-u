@@ -96,6 +96,7 @@ export async function POST(request: Request) {
       customer: stripeCustomerId,
       line_items: lineItems,
       mode: 'payment',
+      locale: 'en',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/won-lots/payment?id=[${lotsId.map((id) => `"${id}"`).join(',')}]&canceled=1`,
       metadata: {
