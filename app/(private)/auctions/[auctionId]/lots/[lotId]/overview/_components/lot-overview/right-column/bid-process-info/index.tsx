@@ -143,8 +143,6 @@ const BidProcessInfo = ({
       return;
     }
 
-    console.log('Sending bid:', { lotId, amount: bidToSend, userId: authUser?.id });
-
     socket.emit('newBid', {
       lotId,
       amount: bidToSend,
