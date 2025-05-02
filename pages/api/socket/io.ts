@@ -42,47 +42,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     res.socket.server.io = io;
 
     io.on('connection', async (socket) => {
-      try {
-        socket.on('newBid', async ({ lotId, amount, userId }) => {
-          try {
-            const createdBid = await prismaDb?.bid.create({
-              data: {
-                lotId,
-                amount,
-                bidderId: userId,
-              },
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
+      socket.on('newBid', async ({ lotId, amount, userId }) => {
+        try {
+          const createdBid = await prismaDb?.bid.create({
+            data: {
+              lotId,
+              amount,
+              bidderId: userId,
+            },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
                 },
               },
-            });
+            },
+          });
 
-            if (!createdBid) {
-              throw new Error('Bid creation failed');
-            }
-
-            io.emit('bidCreated', createdBid);
-          } catch (error) {
-            console.error('BID_CREATION_ERROR ->', error);
-            socket.emit('error', 500, 'Failed to create bid');
+          if (!createdBid) {
+            throw new Error('Bid creation failed');
           }
-        });
 
-        socket.on('disconnect', () => {
-          console.info('User disconnected:', socket.id);
-        });
-      } catch (error) {
-        console.error('AUTH_ERROR ->', error);
-        socket.emit('error', 500, 'Authorization failed');
-        socket.disconnect();
-      }
+          io.emit('bidCreated', createdBid);
+        } catch (error) {
+          console.error('BID_CREATION_ERROR ->', error);
+          socket.emit('error', 500, 'Failed to create bid');
+        }
+      });
     });
   }
 
   res.end();
-  res.send({});
 }
