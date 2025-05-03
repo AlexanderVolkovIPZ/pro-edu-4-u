@@ -88,7 +88,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
         </Button>
       </DropdownMenuTrigger>
       {isFetched && (
-        <DropdownMenuContent className='w-80 p-4' align='end'>
+        <DropdownMenuContent className='w-80 max-h-[70vh] overflow-y-auto p-4' align='end'>
           <div className='space-y-4'>
             <div>
               <h3 className='font-medium mb-2'>Price Range</h3>
