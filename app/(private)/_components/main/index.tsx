@@ -100,7 +100,7 @@ const Main = () => {
             auctions.map((auction) => <AuctionCard auction={auction} key={auction.id} />)
           ) : (
             <>
-              {Array.from({ length: PAGE_ITEMS_LIMIT }).map((_, index) => (
+              {Array.from({ length: params.limit || PAGE_ITEMS_LIMIT }).map((_, index) => (
                 <Skeleton className='h-96 w-60' key={index} />
               ))}
             </>
