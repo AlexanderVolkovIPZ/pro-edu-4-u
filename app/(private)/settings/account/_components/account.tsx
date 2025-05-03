@@ -89,7 +89,7 @@ const Account = () => {
         })}
       <div>
         <TabPageHeader title='Account Settings' description='Update your account settings below.' />
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 mt-4'>
           <FormField
             id='oldPassword'
             label='Old Password'
