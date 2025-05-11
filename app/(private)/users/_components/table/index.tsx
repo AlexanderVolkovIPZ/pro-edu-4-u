@@ -1,5 +1,7 @@
 'use client';
 
+import Footer from '@/app/(private)/_shared/components/table/footer';
+import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useGetUsers } from '@/app/queries/auth-user';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
 import { CardContent } from '@/components/ui/card';
@@ -7,12 +9,14 @@ import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortUsers } from '../../_hooks/use-sort-users';
 import Body from './body';
 import Header from './header';
-import Footer from '@/app/(private)/_shared/components/table/footer';
-import { useQueryParams } from '@/app/hooks/use-query-params';
+
+const ASC = 'asc';
+const DESC = 'desc';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
   lot: (LotWithRelationsType & {
@@ -24,10 +28,12 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 
 const Table = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { params, setParams } = useQueryParams({
     page: 1,
     limit: 5,
   });
+
   const { data: { users = [], total = 0, totalPages = 0, limit = 0 } = {}, isFetching: isUserDataFetching } =
     useGetUsers({
       filters: {
@@ -36,7 +42,6 @@ const Table = () => {
       },
       options: {},
     });
-
   const { setSortBy, setSortDirection, sortedUsers, sortBy, sortDirection } = useSortUsers({
     users: users.map((user) => ({
       id: user.id,
@@ -52,20 +57,20 @@ const Table = () => {
     if (sortBy.includes(column)) {
       setSortDirection((prevDirection) => ({
         ...prevDirection,
-        [column]: prevDirection[column] === 'asc' ? 'desc' : 'asc',
+        [column]: prevDirection[column] === ASC ? DESC : ASC,
       }));
 
       setSortBy((prevSortBy) => prevSortBy.filter((item) => item !== column).concat(column));
     } else {
       setSortBy((prevSortBy) => [...prevSortBy, column]);
-      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: 'asc' }));
+      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: ASC }));
     }
   };
 
   const renderSortIcon = (column: keyof typeof sortDirection) => {
     if (!sortBy.includes(column)) return <ChevronDown className='ml-1 h-4 w-4 text-gray-400' />;
 
-    return sortDirection[column] === 'asc' ? (
+    return sortDirection[column] === ASC ? (
       <ChevronUp className='ml-1 h-4 w-4 text-indigo-600' />
     ) : (
       <ChevronDown className='ml-1 h-4 w-4 text-indigo-600' />
@@ -76,9 +81,9 @@ const Table = () => {
     return (
       <EmptyPage
         icon={Annoyed}
-        title='Your Table is Empty'
-        description='Looks like you haven’t had any created user.'
-        buttonTitle='Go to Home'
+        title={t('common.your_table_is_empty')}
+        description={`${t('users.looks_like_you_have_not_had_any_created_user')}.`}
+        buttonTitle={t('users.go_to_home')}
         onClick={() => router.push('/')}
       />
     );
@@ -95,7 +100,7 @@ const Table = () => {
             totalCount={total}
             setPage={(page) => setParams({ ...params, page })}
             isLoading={isUserDataFetching}
-            entitiesName='users'
+            entitiesName={t('users.users')}
             perPageCount={limit}
           />
         </TableComponent>

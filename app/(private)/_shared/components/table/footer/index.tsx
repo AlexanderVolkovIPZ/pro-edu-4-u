@@ -1,6 +1,9 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TableCell, TableFooter, TableRow } from '@/components/ui/table';
+import { useTranslation } from 'react-i18next';
 
 type FooterProps = {
   page: number;
@@ -13,6 +16,8 @@ type FooterProps = {
 };
 
 const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCount, isLoading }: FooterProps) => {
+  const { t } = useTranslation();
+
   return (
     <TableFooter>
       <TableRow className='w-full bg-white hover:bg-white'>
@@ -28,21 +33,24 @@ const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCo
             <div className='flex items-center justify-between px-4 py-3 sm:px-6'>
               <div className='flex space-x-2 sm:hidden'>
                 <Button variant='outline' onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
-                  Previous
+                  {t('common.previous')}
                 </Button>
                 <Button
                   variant='outline'
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
                 >
-                  Next
+                  {t('common.next')}
                 </Button>
               </div>
 
               <p className='hidden sm:block text-sm text-gray-700'>
-                Showing <span className='font-medium'>{totalCount ? (page - 1) * perPageCount + 1 : 0}</span> to{' '}
-                <span className='font-medium'>{Math.min(page * perPageCount, totalCount)}</span> of{' '}
-                <span className='font-medium'>{totalCount}</span> {entitiesName}
+                {t('common.showing_things', {
+                  from: totalCount ? (page - 1) * perPageCount + 1 : 0,
+                  to: Math.min(page * perPageCount, totalCount),
+                  total: totalCount,
+                  thing: entitiesName,
+                })}
               </p>
 
               <nav className='hidden sm:block' aria-label='Pagination'>
@@ -54,7 +62,7 @@ const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCo
                     onClick={() => setPage(Math.max(1, page - 1))}
                     disabled={page === 1}
                   >
-                    Previous
+                    {t('common.previous')}
                   </Button>
 
                   {[...Array(totalPages)].map((_, i) => (
@@ -75,7 +83,7 @@ const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCo
                     onClick={() => setPage(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
                   >
-                    Next
+                    {t('common.next')}
                   </Button>
                 </div>
               </nav>

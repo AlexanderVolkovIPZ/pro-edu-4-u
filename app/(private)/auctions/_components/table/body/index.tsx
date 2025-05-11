@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TableBody as TableBodyComponent, TableCell, TableRow } from '@/components/ui/table';
 import ActionCell from './action-cell';
+import { Status } from '@prisma/client';
 
 type TableBodyProps = {
   isLoading: boolean;
@@ -22,9 +23,9 @@ type TableBodyProps = {
 const Body = ({ isLoading, auctions }: TableBodyProps) => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      IN_PROGRESS: { class: 'bg-green-100 text-green-800', label: 'IN PROGRESS' },
-      UPCOMING: { class: 'bg-blue-100 text-blue-800', label: 'UPCOMING' },
-      COMPLETED: { class: 'bg-gray-100 text-gray-800', label: 'COMPLETED' },
+      IN_PROGRESS: { class: 'bg-green-100 text-green-800', label: Status.IN_PROGRESS },
+      UPCOMING: { class: 'bg-blue-100 text-blue-800', label: Status.UPCOMING },
+      COMPLETED: { class: 'bg-gray-100 text-gray-800', label: Status.COMPLETED },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || {

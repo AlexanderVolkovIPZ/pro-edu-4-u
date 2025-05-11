@@ -12,7 +12,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../../../_shared/schemas/title-schema';
+import { useTranslation } from 'react-i18next';
+import { getTitleSchema } from '../../../_shared/schemas/title-schema';
 import LotList from '../lot-list';
 
 type LotInputProps = {
@@ -22,7 +23,7 @@ type LotInputProps = {
 
 const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps) => {
   const router = useRouter();
-  const [isOpened, setIsOpened] = useState(false);
+  const { t } = useTranslation();
   const {
     register,
     reset,
@@ -30,28 +31,33 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
     formState: { errors },
     watch,
   } = useForm({
-    resolver: zodResolver(titleSchema),
+    resolver: zodResolver(getTitleSchema(t)),
   });
 
-  const { mutateAsync, isPending } = useCreateLot(auctionData.id);
   const { mutateAsync: reorderMutateAsync, isPending: isReorderPending } = useReorderLots(auctionData.id);
+  const { mutateAsync, isPending } = useCreateLot(auctionData.id);
+
+  const [isOpened, setIsOpened] = useState(false);
 
   const onSubmit = async (data: FieldValues) => {
     const { title } = data;
+
     try {
       await mutateAsync({
         title: title.trim(),
         auctionId: auctionData.id,
       });
-      toast.success('The lot has been successfully created', {
+
+      toast.success(t('toast.success.the_lot_has_been_successfully_created'), {
         style: {
           textAlign: 'center',
         },
       });
+
       setIsOpened(false);
       router.refresh();
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 
@@ -64,7 +70,7 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
       )}
       <div className='flex items-center justify-between'>
         <label htmlFor='title' className='block text-base font-semibold text-gray-700 relative'>
-          Auction Lots
+          {t('auction.auction_lots')}
           {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
@@ -82,7 +88,7 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
       {isOpened ? (
         <Input
           id='title'
-          placeholder='Enter lot title'
+          placeholder={t('auction.enter_lot_title')}
           required
           {...register('title', { required: true })}
           error={errors['title'] as FieldError}
@@ -90,7 +96,7 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
         />
       ) : (
         <>
-          {auctionData.lot.length > 0 ? (
+          {auctionData.lot.length ? (
             <LotList
               auctionData={auctionData}
               reorderMutateAsync={async ({ lotId, newPosition }) => {
@@ -102,7 +108,7 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
               }}
             />
           ) : (
-            <p className='text-slate-500 overflow-hidden text-ellipsis italic'>No lots yet</p>
+            <p className='text-slate-500 overflow-hidden text-ellipsis italic'>{t('auction.no_lots_yet')}</p>
           )}
         </>
       )}
@@ -113,7 +119,7 @@ const LotInput = ({ auctionData, showRequiredFieldIcon = false }: LotInputProps)
           onClick={handleSubmit(onSubmit)}
           disabled={isPending}
         >
-          Create
+          {t('common.create')}
           {isPending && (
             <div className='absolute inset-0 flex items-center justify-center'>
               <Spinner />

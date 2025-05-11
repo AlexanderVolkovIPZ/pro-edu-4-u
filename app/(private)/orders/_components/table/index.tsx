@@ -8,10 +8,14 @@ import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortOrders } from '../../_hooks/use-sort-orders';
 import Body from './body';
 import Header from './header';
+
+const ASC = 'asc';
+const DESC = 'desc';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
   lot: (LotWithRelationsType & {
@@ -45,6 +49,7 @@ const Table = ({
   totalPages: number;
 }) => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { setSortBy, setSortDirection, sortedOrders, sortBy, sortDirection } = useSortOrders({
     orders,
@@ -54,20 +59,20 @@ const Table = ({
     if (sortBy.includes(column)) {
       setSortDirection((prevDirection) => ({
         ...prevDirection,
-        [column]: prevDirection[column] === 'asc' ? 'desc' : 'asc',
+        [column]: prevDirection[column] === ASC ? DESC : ASC,
       }));
 
       setSortBy((prevSortBy) => prevSortBy.filter((item) => item !== column).concat(column));
     } else {
       setSortBy((prevSortBy) => [...prevSortBy, column]);
-      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: 'asc' }));
+      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: ASC }));
     }
   };
 
   const renderSortIcon = (column: keyof typeof sortDirection) => {
     if (!sortBy.includes(column)) return <ChevronDown className='ml-1 h-4 w-4 text-gray-400' />;
 
-    return sortDirection[column] === 'asc' ? (
+    return sortDirection[column] === ASC ? (
       <ChevronUp className='ml-1 h-4 w-4 text-indigo-600' />
     ) : (
       <ChevronDown className='ml-1 h-4 w-4 text-indigo-600' />
@@ -97,7 +102,7 @@ const Table = ({
             totalCount={total}
             setPage={setPage}
             isLoading={isFetching}
-            entitiesName='orders'
+            entitiesName={t('orders.orders').toLowerCase()}
             perPageCount={limit}
           />
         </TableComponent>

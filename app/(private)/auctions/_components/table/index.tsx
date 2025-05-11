@@ -10,10 +10,14 @@ import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortAuctions } from '../_hooks/use-sort-auctions';
 import Body from './body';
 import Header from './header';
+
+const ASC = 'asc';
+const DESC = 'desc';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
   lot: (LotWithRelationsType & {
@@ -25,6 +29,8 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 
 const Table = () => {
   const router = useRouter();
+  const { t } = useTranslation();
+
   const { params, setParams } = useQueryParams({
     page: 1,
     limit: 5,
@@ -67,20 +73,20 @@ const Table = () => {
     if (sortBy.includes(column)) {
       setSortDirection((prevDirection) => ({
         ...prevDirection,
-        [column]: prevDirection[column] === 'asc' ? 'desc' : 'asc',
+        [column]: prevDirection[column] === ASC ? DESC : ASC,
       }));
 
       setSortBy((prevSortBy) => prevSortBy.filter((item) => item !== column).concat(column));
     } else {
       setSortBy((prevSortBy) => [...prevSortBy, column]);
-      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: 'asc' }));
+      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: ASC }));
     }
   };
 
   const renderSortIcon = (column: keyof typeof sortDirection) => {
     if (!sortBy.includes(column)) return <ChevronDown className='ml-1 h-4 w-4 text-gray-400' />;
 
-    return sortDirection[column] === 'asc' ? (
+    return sortDirection[column] === ASC ? (
       <ChevronUp className='ml-1 h-4 w-4 text-indigo-600' />
     ) : (
       <ChevronDown className='ml-1 h-4 w-4 text-indigo-600' />
@@ -91,9 +97,9 @@ const Table = () => {
     return (
       <EmptyPage
         icon={Annoyed}
-        title='Your Table is Empty'
-        description='Looks like you haven’t created an auction yet.'
-        buttonTitle='Go to Auctions Create page'
+        title={t('common.your_table_is_empty')}
+        description={`${t('all_auctions.looks_like_you_have_nor_created_any_auction_yet')}.`}
+        buttonTitle={t('all_auctions.go_to_auction_create_page')}
         onClick={() => router.push('/auctions/create')}
       />
     );
@@ -110,7 +116,7 @@ const Table = () => {
             totalCount={total}
             setPage={(page) => setParams({ ...params, page })}
             isLoading={isFetching}
-            entitiesName='auctions'
+            entitiesName={t('all_auctions.auctions')}
             perPageCount={limit}
           />
         </TableComponent>

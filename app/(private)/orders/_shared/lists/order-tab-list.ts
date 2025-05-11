@@ -3,15 +3,15 @@ export const orderTabsList: {
   route: string;
 }[] = [
   {
-    name: 'All Orders',
+    name: 'all_orders',
     route: 'all-orders',
   },
   {
-    name: 'My Orders',
+    name: 'my_orders',
     route: 'my-orders',
   },
   {
-    name: 'Sent Orders',
+    name: 'sent_orders',
     route: 'sent-orders',
   },
 ];

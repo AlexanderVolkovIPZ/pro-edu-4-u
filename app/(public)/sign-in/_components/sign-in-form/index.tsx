@@ -1,25 +1,22 @@
 'use client';
 
-import { emailSchema } from '@/app/_shared/schemas/email-schema';
+import { getEmailSchema } from '@/app/_shared/schemas/email-schema';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { TFunction } from 'i18next';
 import { signIn, SignInOptions } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
 import { z } from 'zod';
-
-const signInSchema = z.object({
-  ...emailSchema.shape,
-  password: z.string().min(1, 'Password is required'),
-});
 
 const authOptions: SignInOptions = {
   redirect: true,
@@ -32,20 +29,28 @@ type LoadingType = {
   credentials: boolean;
 };
 
+const getSignInSchema = (t: TFunction) =>
+  z.object({
+    ...getEmailSchema(t).shape,
+    password: z.string().min(1, t('validation.password_is_required')),
+  });
+
 export default function SignIn() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState<LoadingType>({
-    google: false,
-    github: false,
-    credentials: false,
-  });
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FieldValues>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(getSignInSchema(t)),
     mode: 'onBlur',
+  });
+
+  const [isLoading, setIsLoading] = useState<LoadingType>({
+    google: false,
+    github: false,
+    credentials: false,
   });
 
   const onSubmit = async (data: FieldValues) => {
@@ -62,15 +67,15 @@ export default function SignIn() {
       });
 
       if (response?.ok) {
-        toast.success('Authentication successful');
+        toast.success(t('toast.success.authentication_success'));
         router.push('/');
       }
 
       if (response?.error) {
-        toast.error('Invalid credentials');
+        toast.error(t('toast.error.invalid_credentials'));
       }
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setIsLoading((prevState) => ({
         ...prevState,
@@ -82,8 +87,8 @@ export default function SignIn() {
   return (
     <div className='mx-auto w-full max-w-[322px] space-y-4 rounded-lg bg-card p-6 shadow-lg'>
       <div className='space-y-2 text-center'>
-        <h2 className='text-2xl font-bold'>Sign In</h2>
-        <p className='text-muted-foreground'>Enter your email and password to sign in</p>
+        <h2 className='text-2xl font-bold'>{t('common.sign_in')}</h2>
+        <p className='text-muted-foreground'>{t('sign_in.enter_your_email_and_password_to_sign_in')}</p>
       </div>
       <div className='space-y-6'>
         <div className='space-y-2'>
@@ -102,13 +107,13 @@ export default function SignIn() {
           <Input
             id='password'
             type='password'
-            placeholder='Enter a secure password'
+            placeholder={t('common.enter_a_secure_password')}
             required
             {...register('password', { required: true })}
           />
         </div>
         <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
-          {isLoading.credentials ? <Spinner /> : 'Sign In'}
+          {isLoading.credentials ? <Spinner /> : t('common.sign_in')}
         </Button>
       </div>
       <div className='relative'>
@@ -116,7 +121,7 @@ export default function SignIn() {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-card px-2 text-muted-foreground'>Or continue with</span>
+          <span className='bg-card px-2 text-muted-foreground'>{t('common.or_continue_with')}</span>
         </div>
       </div>
       <div className='grid grid-cols-2 gap-4'>
@@ -132,7 +137,7 @@ export default function SignIn() {
 
             const result = await signIn('github', authOptions);
             if (result?.error) {
-              toast.error('Authentication failed');
+              toast.error(t('toast.error.authentication_failed'));
             }
 
             setIsLoading((prevState) => ({
@@ -161,7 +166,7 @@ export default function SignIn() {
 
             const result = await signIn('google', authOptions);
             if (result?.error) {
-              toast.error('Authentication failed');
+              toast.error(t('toast.error.authentication_failed'));
             }
 
             setIsLoading((prevState) => ({
@@ -180,13 +185,13 @@ export default function SignIn() {
         </Button>
       </div>
       <div className='text-center text-sm text-muted-foreground'>
-        Don&#39;t have an account?
+        {t('sign_in.dont_have_an_account')}
         <Link
           href='/sign-up'
           className='font-medium underline underline-offset-4 ml-1 hover:text-slate-700'
           prefetch={false}
         >
-          Sign up
+          {t('common.sign_up')}
         </Link>
       </div>
     </div>

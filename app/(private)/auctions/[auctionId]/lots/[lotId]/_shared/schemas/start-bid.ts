@@ -1,13 +1,15 @@
+import { TFunction } from 'i18next';
 import { z } from 'zod';
 
-export const startBidSchema = z.object({
-  startBid: z
-    .number({
-      required_error: 'Starting bid is required',
-      invalid_type_error: 'Starting bid must be a number',
-    })
-    .nullable()
-    .refine((value) => value === null || value >= 0, {
-      message: 'Starting bid must be greater than or equal to 0',
-    }),
-});
+export const getStartBidSchema = (t: TFunction) =>
+  z.object({
+    startBid: z
+      .number({
+        required_error: t('validation.start_bid_is_required'),
+        invalid_type_error: t('validation.starting_bid_must_be_a_number'),
+      })
+      .nullable()
+      .refine((value) => value === null || value >= 0, {
+        message: t('validation.starting_bid_must_be_greater_or_equal_to_zero'),
+      }),
+  });

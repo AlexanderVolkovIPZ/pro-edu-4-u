@@ -14,6 +14,7 @@ import { Grip, SquarePen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 type LotListProps = {
   auctionData: Pick<AuctionWithLotsType, 'id' | 'lot'>;
@@ -21,8 +22,10 @@ type LotListProps = {
 };
 
 const LotList = ({ auctionData, reorderMutateAsync }: LotListProps) => {
-  const [lots, setLots] = useState(auctionData.lot);
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const [lots, setLots] = useState(auctionData.lot);
 
   useEffect(() => {
     setLots(auctionData.lot);
@@ -46,13 +49,13 @@ const LotList = ({ auctionData, reorderMutateAsync }: LotListProps) => {
         newPosition: destination.index,
       });
 
-      toast.success('The lots position has been successfully updated', {
+      toast.success(t('toast.success.the_lots_position_has_been_successfully_updated'), {
         style: {
           textAlign: 'center',
         },
       });
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 

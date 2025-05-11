@@ -17,7 +17,7 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
         <div className='fixed h-20 w-full sm:pl-40 max-w-7xl z-50'>
           <AppHeader />
         </div>
-        <div className='fixed h-full w-40 hidden sm:block'>
+        <div className='fixed h-full w-[170px] hidden sm:block'>
           <Sidebar />
         </div>
         <div className='flex-1 mt-20 sm:ml-40'>{children}</div>

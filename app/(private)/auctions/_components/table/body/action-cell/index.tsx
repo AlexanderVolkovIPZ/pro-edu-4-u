@@ -1,3 +1,7 @@
+'use client';
+
+import { useDeleteAuction } from '@/app/queries/auction';
+import AlertDialog from '@/components/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,11 +11,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { TableCell } from '@/components/ui/table';
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react';
-import { useState } from 'react';
-import AlertDialog from '@/components/alert-dialog';
 import { useRouter } from 'next/navigation';
-import { useDeleteAuction } from '@/app/queries/auction';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 type ActionCellProps = {
   auctionId: string;
@@ -19,18 +22,20 @@ type ActionCellProps = {
 
 const ActionCell = ({ auctionId }: ActionCellProps) => {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
+  const { t } = useTranslation();
 
   const { mutateAsync: deleteAuction } = useDeleteAuction({});
+
+  const [open, setOpen] = useState(false);
+  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
   const onDelete = async () => {
     try {
       await deleteAuction(auctionId);
 
-      toast.success('Auction deleted successfully');
+      toast.success(t('toast.success.auction_deleted_successfully'));
     } catch {
-      toast.error('Failed to delete auction');
+      toast.error(t('toast.error.failed_to_delete_auction'));
     }
   };
 
@@ -38,10 +43,10 @@ const ActionCell = ({ auctionId }: ActionCellProps) => {
     <>
       {isShowedAlertDialog &&
         AlertDialog({
-          title: 'Are you absolutely sure?',
-          description: 'Are you sure you want to delete this auction?',
-          cancelBtnTitle: 'Cancel',
-          actionBtnTitle: 'Continue',
+          title: `${t('common.are_you_absolutely_sure')}?`,
+          description: `${t('all_auctions.are_you_sure_you_want_to_delete_this_auction')}?`,
+          cancelBtnTitle: t('common.cancel'),
+          actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,
           showAlertDialog: isShowedAlertDialog,
           onConfirm: onDelete,
@@ -63,7 +68,7 @@ const ActionCell = ({ auctionId }: ActionCellProps) => {
               className='cursor-pointer flex items-center text-slate-600 hover:text-slate-700'
             >
               <Pencil className='mr-2 h-4 w-4' />
-              Edit
+              {t('common.edit')}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -73,7 +78,7 @@ const ActionCell = ({ auctionId }: ActionCellProps) => {
               className='cursor-pointer flex items-center text-slate-600 hover:text-slate-700'
             >
               <Trash className='mr-2 h-4 w-4' />
-              Delete
+              {t('common.delete')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

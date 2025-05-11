@@ -1,3 +1,5 @@
+'use client';
+
 import { TimeLeftType, useLotDate } from '@/app/hooks/use-lot-date';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
 import getLotStatus from '@/app/utils/get-lot-status';
@@ -7,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowUpRight, DollarSign, Eye, ShoppingCart, Tag } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 type LotCardProps = {
   lot: LotWithRelationsType;
@@ -22,10 +25,7 @@ export function LotCard({
   lot,
   auctionInfo: { auctionId, auctionStartDate, auctionEndDate, lotsCount },
 }: LotCardProps) {
-  const lotMediaContent: Media[] = [
-    ...lot.photo.map((photo) => ({ type: 'image' as const, src: photo.url })),
-    ...lot.video.map((video) => ({ type: 'video' as const, src: video.url })),
-  ];
+  const { t } = useTranslation();
   const {
     timeStartLeft = { days: 0, hours: 0, minutes: 0, seconds: 0 },
     startDate,
@@ -36,6 +36,11 @@ export function LotCard({
     position: lot.position,
     lotsCount,
   });
+
+  const lotMediaContent: Media[] = [
+    ...lot.photo.map((photo) => ({ type: 'image' as const, src: photo.url })),
+    ...lot.video.map((video) => ({ type: 'video' as const, src: video.url })),
+  ];
 
   const lotStatus = getLotStatus(startDate, endDate, lot.isSold);
 
@@ -50,7 +55,7 @@ export function LotCard({
         <span className='text-xl leading-6 font-bold rounded-sm text-slate-700'>
           {timeStartLeft[key]?.toString().padStart(2, '0')}
         </span>
-        <span className='text-[8px] text-slate-500 uppercase'>{interval}</span>
+        <span className='text-[8px] text-slate-500 uppercase'>{t(`common.time.${interval}`)}</span>
       </span>
     );
   });
@@ -68,7 +73,7 @@ export function LotCard({
               sliderProps={{ className: 'rounded-lg' }}
             />
             <div className='flex flex-col items-center mt-2'>
-              <div className='text-[8px] text-slate-500 uppercase'>Time To Start</div>
+              <div className='text-[8px] text-slate-500 uppercase'>{t('auction_lots.time_to_start')}</div>
               <span>{timerComponents}</span>
             </div>
           </div>
@@ -80,8 +85,8 @@ export function LotCard({
                 <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
                   {lotStatus}
                 </Badge>
-                <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
-                  LOT #{lot.position}
+                <Badge className='text-xs bg-blue-100 text-blue-800 uppercase' variant='secondary'>
+                  {t('auction_lots.lot')} #{lot.position}
                 </Badge>
               </div>
             </div>
@@ -125,11 +130,11 @@ export function LotCard({
           <Button asChild size='sm'>
             <Link href={`/auctions/${auctionId}/lots/${lot.id}/overview`}>
               <Eye className='h-4 w-4 mr-2' />
-              View
+              {t('auction_lots.view')}
             </Link>
           </Button>
           <Button variant='outline' size='sm'>
-            Bid
+            {t('auction_lots.bid')}
           </Button>
         </div>
       </CardContent>

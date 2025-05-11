@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/chart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
 type ChartAreaInteractiveProps = {
@@ -19,6 +20,7 @@ type ChartAreaInteractiveProps = {
 };
 
 const ChartAreaInteractive = ({ daysPeriod, salesInfo, setDaysPeriod }: ChartAreaInteractiveProps) => {
+  const { t, i18n } = useTranslation();
   const dataToDisplay = Object.entries(salesInfo).map(([key, value]) => {
     return {
       date: key,
@@ -30,22 +32,22 @@ const ChartAreaInteractive = ({ daysPeriod, salesInfo, setDaysPeriod }: ChartAre
     <Card>
       <CardHeader className='flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1 text-center sm:text-left'>
-          <CardTitle>Area Chart - Interactive</CardTitle>
-          <CardDescription>Showing total sales for date range</CardDescription>
+          <CardTitle>{t('dashboard.area_chart_interactive')}</CardTitle>
+          <CardDescription>{t('dashboard.showing_total_sales_for_date_range')}</CardDescription>
         </div>
         <Select value={`${daysPeriod}`} onValueChange={(value) => setDaysPeriod(parseInt(value))}>
-          <SelectTrigger className='w-[160px] rounded-lg sm:ml-auto' aria-label='Select a value'>
+          <SelectTrigger className='w-[160px] rounded-lg sm:ml-auto'>
             <SelectValue placeholder='Last 3 months' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
             <SelectItem value='90' className='rounded-lg'>
-              Last 3 months
+              {t('dashboard.last_3_months')}
             </SelectItem>
             <SelectItem value='60' className='rounded-lg'>
-              Last 2 months
+              {t('dashboard.last_2_months')}
             </SelectItem>
             <SelectItem value='30' className='rounded-lg'>
-              Last month
+              {t('dashboard.last_month')}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -66,29 +68,18 @@ const ChartAreaInteractive = ({ daysPeriod, salesInfo, setDaysPeriod }: ChartAre
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                });
-              }}
+              tickFormatter={(value) => Intl.DateTimeFormat(i18n.language).format(new Date(value))}
             />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    });
-                  }}
+                  labelFormatter={(value) => Intl.DateTimeFormat(i18n.language).format(new Date(value))}
                   indicator='dot'
                 />
               }
             />
-            <Area dataKey='count' type='natural' fill='url(#fillCount)' stroke='#2a9d90' stackId='a' />
+            <Area dataKey='count' type='natural' fill='url(#fillCount)' stroke='#2a9d90' />
 
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>

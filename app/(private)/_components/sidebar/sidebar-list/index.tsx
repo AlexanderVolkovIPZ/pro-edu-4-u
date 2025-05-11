@@ -1,8 +1,9 @@
 'use client';
 
-import { ForwardRefExoticComponent, RefAttributes } from 'react';
-import SidebarItem from './sidebar-item';
 import { LucideProps } from 'lucide-react';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
+import SidebarItem from './sidebar-item';
 
 const SidebarList = ({
   sidebarList,
@@ -13,7 +14,9 @@ const SidebarList = ({
     icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   }[];
 }) => {
-  return sidebarList.map(({ link, name, icon }) => <SidebarItem key={link} link={link} name={name} icon={icon} />);
+  const { t } = useTranslation();
+
+  return sidebarList.map(({ link, name, icon }) => <SidebarItem key={link} link={link} name={t(name)} icon={icon} />);
 };
 
 export default SidebarList;

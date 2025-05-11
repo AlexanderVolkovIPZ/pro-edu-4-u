@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ListFilter, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuctionFiltering, PriceRange } from '../../_shared/types';
 
 const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
@@ -19,6 +20,8 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
     lotCategoriesExistedNames,
     lotCategoriesSelectedNames,
   } = data;
+
+  const { t } = useTranslation();
 
   const [open, setOpen] = useState(false);
   const [filters, setFilters] = useState<{
@@ -91,7 +94,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
         <DropdownMenuContent className='w-80 max-h-[70vh] overflow-y-auto p-4' align='end'>
           <div className='space-y-4'>
             <div>
-              <h3 className='font-medium mb-2'>Price Range</h3>
+              <h3 className='font-medium mb-2'>{t('main.filters.lots_price_range')}</h3>
               <div className='space-y-4'>
                 <Slider
                   defaultValue={[minLotPriceSelected, maxLotPriceSelected]}
@@ -101,8 +104,6 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
                   onValueChange={onPriceRangeChange}
                   className='my-4'
                 />
-
-                <h3 className='font-medium mb-2'>Lots Price Range</h3>
                 <div className='flex items-center justify-between gap-2'>
                   <Input
                     id='min-price'
@@ -126,7 +127,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
             </div>
 
             <div>
-              <h3 className='font-medium mb-2'>Categories</h3>
+              <h3 className='font-medium mb-2'>{t('main.filters.categories')}</h3>
               <div className='space-y-2'>
                 {lotCategoriesExistedNames.map((category) => (
                   <div key={category} className='flex items-center space-x-2'>
@@ -141,18 +142,25 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
               </div>
             </div>
 
-            <div className='flex justify-between'>
-              <Button variant='outline' size='sm' onClick={onResetFilters} className='flex items-center gap-1'>
-                <RotateCcw className='h-4 w-4' />
-                Reset
-              </Button>
+            <div className='flex flex-col gap-y-2 flex-wrap'>
+              <div className='flex justify-between gap-x-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={onResetFilters}
+                  className='flex items-center gap-x-2 flex-1'
+                >
+                  <RotateCcw className='h-3 w-3' />
+                  {t('main.filters.reset')}
+                </Button>
 
-              <Button variant='outline' size='sm' onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
+                <Button variant='outline' size='sm' onClick={() => setOpen(false)} className='flex-1'>
+                  {t('main.filters.cancel')}
+                </Button>
+              </div>
 
               <Button size='sm' onClick={onApplyFilters}>
-                Apply Filters
+                {t('main.filters.apply')}
               </Button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { emailSchema } from '@/app/_shared/schemas/email-schema';
+import { getEmailSchema } from '@/app/_shared/schemas/email-schema';
 import { AccountContext } from '@/app/providers/account-provider';
 import { useDeleteUser, useUpdateUser } from '@/app/queries/auth-user';
 import { capitalize } from '@/app/utils/capitalize';
@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TableBody as TableBodyComponent, TableCell, TableRow } from '@/components/ui/table';
 import { UserRole } from '@prisma/client';
 import dayjs from 'dayjs';
+import { TFunction } from 'i18next';
 import { ChevronDown, Trash } from 'lucide-react';
 import type React from 'react';
 import { useContext, useState } from 'react';
@@ -25,6 +26,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FieldError } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 type TableBodyProps = {
@@ -46,18 +48,20 @@ type EditableCell = {
   errorMessage?: FieldError | undefined;
 };
 
-export const userValidationSchema = z
-  .object({
-    name: z
-      .string()
-      .min(2)
-      .max(50)
-      .refine((value) => /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ'’\- ]+$/.test(value)),
-  })
-  .merge(emailSchema);
+export const getUserValidationSchema = (t: TFunction) =>
+  z
+    .object({
+      name: z
+        .string()
+        .min(2)
+        .max(50)
+        .refine((value) => /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ'’\- ]+$/.test(value)),
+    })
+    .merge(getEmailSchema(t));
 
 const Body = ({ isLoading, users }: TableBodyProps) => {
   const { locale } = useContext(AccountContext);
+  const { t } = useTranslation();
 
   const [editableCell, setEditableCell] = useState<EditableCell | null>(null);
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
@@ -85,14 +89,16 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
       return;
     }
 
-    const result = userValidationSchema.partial().safeParse({ [editableCell.field]: value ?? editableCell.value });
+    const result = getUserValidationSchema(t)
+      .partial()
+      .safeParse({ [editableCell.field]: value ?? editableCell.value });
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors as Record<string, string[] | undefined>;
       const errorMessage = fieldErrors[editableCell.field]?.[0];
 
       const fieldError: FieldError = {
         type: 'validation',
-        message: errorMessage || 'Validation error',
+        message: errorMessage || t('users.validation_error'),
       };
 
       setEditableCell((prev) => {
@@ -112,13 +118,13 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
         [editableCell.field]: value ?? editableCell.value,
       });
 
-      toast.success(`${capitalize(editableCell.field)} field updated successfully`, {
+      toast.success(`${capitalize(editableCell.field)} ${t('toast.success.field_updated_successfully')}`, {
         style: {
           textAlign: 'center',
         },
       });
     } catch {
-      toast.error('Something went wrong!');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       onClose();
     }
@@ -140,7 +146,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
         id: userId,
       });
 
-      toast.success(`The user deleted successfully`, {
+      toast.success(t('toast.success.the_user_deleted_successfully'), {
         style: {
           textAlign: 'center',
         },
@@ -148,7 +154,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
 
       setIsShowedAlertDialog(false);
     } catch {
-      toast.error('Something went wrong!');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 
@@ -189,12 +195,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align='start' className='w-[200px]'>
             {roleOptions.map((role: string) => (
-              <DropdownMenuItem
-                key={role}
-                onClick={async () => {
-                  await onUpdate(role);
-                }}
-              >
+              <DropdownMenuItem key={role} onClick={async () => await onUpdate(role)}>
                 {role}
               </DropdownMenuItem>
             ))}
@@ -321,10 +322,10 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
     <>
       {isShowedAlertDialog &&
         AlertDialog({
-          title: 'Are you absolutely sure?',
-          description: 'Are you sure you want to delete this user?',
-          cancelBtnTitle: 'Cancel',
-          actionBtnTitle: 'Continue',
+          title: `${t('common.are_you_absolutely_sure')}?`,
+          description: `${t('users.are_you_sure_you_want_to_delete_this_user')}?`,
+          cancelBtnTitle: t('common.cancel'),
+          actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,
           showAlertDialog: isShowedAlertDialog,
           onConfirm: () => onDelete(userToDeleteId),

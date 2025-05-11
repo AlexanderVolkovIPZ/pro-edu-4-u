@@ -1,8 +1,4 @@
-enum LotStatus {
-  UPCOMING = 'UPCOMING',
-  IN_PROGRESS = 'IN PROGRESS',
-  COMPLETED = 'COMPLETED',
-}
+import { LotStatus } from '../constants';
 
 const getLotStatus = (startDate?: string, endDate?: string, isLotSold?: boolean) => {
   if (!startDate || !endDate) return LotStatus.UPCOMING;

@@ -1,11 +1,11 @@
-import { AuctionStatus } from '@/app/utils/get-auction-status';
+import { Status } from '@prisma/client';
 import { useState } from 'react';
 
 type AuctionInfoType = {
   id: string;
   title: string;
   isPublished: boolean;
-  status: AuctionStatus;
+  status: Status;
   startDate: string;
   endDate: string;
   createdAt: string;

@@ -1,11 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { AuctionStatus } from '../../../../../utils/get-auction-status';
+import { Status } from '@prisma/client';
 
 type CountdownTimerProps = {
   targetDate: string;
-  status: AuctionStatus;
+  status: Status;
 };
 
 type TimeLeftType = {
@@ -59,8 +59,8 @@ const CountdownTimer = ({ targetDate, status }: CountdownTimerProps) => {
   });
 
   const getAuctionLabel = () => {
-    if (status === 'COMPLETED') return <span className='text-green-600 font-bold'>Auction is completed</span>;
-    if (status === 'IN_PROGRESS') return <span className='text-green-600 font-bold'>Auction is started</span>;
+    if (status === Status.COMPLETED) return <span className='text-green-600 font-bold'>Auction is completed</span>;
+    if (status === Status.IN_PROGRESS) return <span className='text-green-600 font-bold'>Auction is started</span>;
 
     return timerComponents;
   };

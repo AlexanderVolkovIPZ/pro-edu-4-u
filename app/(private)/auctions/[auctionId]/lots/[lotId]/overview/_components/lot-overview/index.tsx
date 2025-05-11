@@ -1,5 +1,6 @@
 'use client';
 
+import { LOT_STATUSES } from '@/app/constants';
 import { useLotDate } from '@/app/hooks/use-lot-date';
 import { useAuction } from '@/app/queries/auction';
 import { AuctionWithRelationsType } from '@/app/types';
@@ -37,7 +38,11 @@ const LotOverview = ({ auctionId, lotId }: LotOverviewProps) => {
   const isLotBidProcessInProgress = isLotTimeStarted && !isLotTimeFinished && !lotData?.isSold;
   const isLotBidProcessIsFinished = isLotTimeStarted && (isLotTimeFinished || !!lotData?.isSold);
 
-  const status = isLotBidProcessInProgress ? 'IN_PROGRESS' : isLotBidProcessIsFinished ? 'COMPLETED' : 'UPCOMING';
+  const status = isLotBidProcessInProgress
+    ? LOT_STATUSES.IN_PROGRESS
+    : isLotBidProcessIsFinished
+      ? LOT_STATUSES.COMPLETED
+      : LOT_STATUSES.UPCOMING;
 
   if (isAuctionFetched && !lotData) {
     return (
@@ -74,7 +79,7 @@ const LotOverview = ({ auctionId, lotId }: LotOverviewProps) => {
                 timeLotLeft: timeLotLeft,
                 bids: lotData.bid,
                 isSold: lotData.isSold,
-                status: status,
+                status,
               }}
             />
           </>

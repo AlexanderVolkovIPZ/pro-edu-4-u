@@ -1,17 +1,19 @@
 'use client';
 
 import { useStatsAdmin } from '@/app/queries/stats-admin';
-import { capitalize } from '@/app/utils/capitalize';
 import EmptyPage from '@/components/empty-page';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Annoyed } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Card from './card';
 import ChartAreaInteractive from './chart-area-interactive';
 
 export default function DashboardStats() {
   const router = useRouter();
+  const { t } = useTranslation();
+
   const [daysPeriod, setDaysPeriod] = useState(30);
   const { data: statsAdminData, isFetching } = useStatsAdmin({
     days: daysPeriod,
@@ -24,7 +26,7 @@ export default function DashboardStats() {
     return (
       <div className='flex flex-col gap-y-4 mt-2'>
         <div className='flex flex-wrap gap-4 align-middle justify-between'>
-          {[...Array(3)].map((_, index) => (
+          {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton className='h-36 flex-grow' key={index} />
           ))}
         </div>
@@ -52,7 +54,9 @@ export default function DashboardStats() {
             <div className='grow' key={key}>
               <Card
                 index={index}
-                title={`Total ${capitalize(key)} Growth`}
+                title={t('dashboard.total_growth_template', {
+                  item: t(`dashboard.entity.${key}`),
+                })}
                 growth={value.growth}
                 totalCount={value.count}
               />

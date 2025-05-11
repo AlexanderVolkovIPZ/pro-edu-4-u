@@ -1,4 +1,7 @@
+'use client';
+
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslation } from 'react-i18next';
 
 type ColumnsToSort = 'name' | 'status' | 'createdAt';
 
@@ -8,6 +11,8 @@ type HeaderProps = {
 };
 
 const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
+  const { t } = useTranslation();
+
   return (
     <TableHeader className='bg-gray-50'>
       <TableRow>
@@ -16,7 +21,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('name')}
           >
-            Customer {renderSortIcon('name')}
+            {t('orders.customer')} {renderSortIcon('name')}
           </div>
         </TableHead>
 
@@ -24,18 +29,18 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
           scope='col'
           className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
         >
-          Contact
+          {t('orders.contact')}
         </TableHead>
 
         <TableHead scope='col' className='px-6 py-3 text-left'>
           <div className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'>
-            Address
+            {t('orders.address')}
           </div>
         </TableHead>
 
         <TableHead scope='col' className='px-6 py-3 text-left'>
           <div className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'>
-            Lot
+            {t('orders.lot')}
           </div>
         </TableHead>
 
@@ -44,7 +49,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('createdAt')}
           >
-            Status {renderSortIcon('status')}
+            {t('orders.status')} {renderSortIcon('status')}
           </div>
         </TableHead>
 
@@ -53,13 +58,11 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('createdAt')}
           >
-            Date {renderSortIcon('createdAt')}
+            {t('orders.date')} {renderSortIcon('createdAt')}
           </div>
         </TableHead>
 
-        <TableHead scope='col' className='relative px-6 py-3'>
-          <span className='sr-only'>Actions</span>
-        </TableHead>
+        <TableHead scope='col' className='relative px-6 py-3' />
       </TableRow>
     </TableHeader>
   );

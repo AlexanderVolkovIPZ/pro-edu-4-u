@@ -3,27 +3,27 @@ import { House, LayoutList, Settings, ChartNoAxesCombined, LayoutDashboard, User
 export const userSidebarList = [
   {
     link: '/',
-    name: 'Home',
+    name: 'main.home',
     icon: House,
   },
   {
     link: '/auctions',
-    name: 'My auctions',
+    name: 'main.all_auctions',
     icon: LayoutList,
   },
   {
     link: '/orders',
-    name: 'Orders',
+    name: 'main.orders',
     icon: Truck,
   },
   {
-    link: '/analytics ',
-    name: 'Analytics ',
+    link: '/analytics',
+    name: 'main.analytics',
     icon: ChartNoAxesCombined,
   },
   {
     link: '/settings',
-    name: 'Settings',
+    name: 'main.settings',
     icon: Settings,
   },
 ];
@@ -31,37 +31,37 @@ export const userSidebarList = [
 export const adminSidebarList = [
   {
     link: '/',
-    name: 'Home',
+    name: 'main.home',
     icon: House,
   },
   {
     link: '/dashboard',
-    name: 'Dashboard',
+    name: 'main.dashboard',
     icon: LayoutDashboard,
   },
   {
     link: '/users',
-    name: 'Users',
+    name: 'main.users',
     icon: UserCog,
   },
   {
     link: '/auctions',
-    name: 'All auctions',
+    name: 'main.all_auctions',
     icon: LayoutList,
   },
   {
     link: '/orders',
-    name: 'Orders',
+    name: 'main.orders',
     icon: Truck,
   },
   {
     link: '/analytics ',
-    name: 'Analytics ',
+    name: 'main.analytics',
     icon: ChartNoAxesCombined,
   },
   {
     link: '/settings',
-    name: 'Settings',
+    name: 'main.settings',
     icon: Settings,
   },
 ];

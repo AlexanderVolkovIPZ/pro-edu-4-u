@@ -1,3 +1,4 @@
+import { Status } from '@prisma/client';
 import dayjs from 'dayjs';
 
 type GetAuctionStatusProps = {
@@ -6,15 +7,13 @@ type GetAuctionStatusProps = {
   isAllLotsSold: boolean;
 };
 
-export type AuctionStatus = 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED';
-
-export const getAuctionStatus = ({ startDate, endDate, isAllLotsSold }: GetAuctionStatusProps): AuctionStatus => {
+export const getAuctionStatus = ({ startDate, endDate, isAllLotsSold }: GetAuctionStatusProps): Status => {
   const now = dayjs();
   const start = dayjs(startDate);
   const end = dayjs(endDate);
 
-  if (isAllLotsSold || now.isAfter(end)) return 'COMPLETED';
-  if (now.isBefore(start)) return 'UPCOMING';
+  if (isAllLotsSold || now.isAfter(end)) return Status.COMPLETED;
+  if (now.isBefore(start)) return Status.UPCOMING;
 
-  return 'IN_PROGRESS';
+  return Status.IN_PROGRESS;
 };

@@ -4,11 +4,13 @@ import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useOrdersByFilter } from '@/app/queries/order';
 import Container from '@/components/container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTranslation } from 'react-i18next';
 import Header from './_components/header';
 import Table from './_components/table';
 import { orderTabsList } from './_shared/lists/order-tab-list';
 
 const ShippingPage = () => {
+  const { t } = useTranslation();
   const { params, setParams } = useQueryParams({
     page: 1,
     limit: 10,
@@ -35,7 +37,7 @@ const ShippingPage = () => {
         <TabsList className='grid w-full grid-cols-3'>
           {orderTabsList.map((tab) => (
             <TabsTrigger key={tab.route} value={tab.route}>
-              {tab.name}
+              {t(`orders.${tab.name}`)}
             </TabsTrigger>
           ))}
         </TabsList>

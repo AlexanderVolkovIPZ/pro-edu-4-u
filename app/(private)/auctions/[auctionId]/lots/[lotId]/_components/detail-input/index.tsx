@@ -8,17 +8,20 @@ import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { TFunction } from 'i18next';
 import { Pencil, PencilOff, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { FieldError } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-const fieldsArraySchema = z.array(
-  z.object({
-    name: z.string().min(1, 'Field name is required'),
-    value: z.string().min(1, 'Field value is required'),
-  })
-);
+const getFieldsArraySchema = (t: TFunction) =>
+  z.array(
+    z.object({
+      name: z.string().min(1, t('validation.field_name_is_required')),
+      value: z.string().min(1, t('validation.field_value_is_required')),
+    })
+  );
 
 export type DetailInputProps = {
   title: string;
@@ -39,29 +42,29 @@ const DetailInput = ({
   onError,
   setIsLoading,
 }: DetailInputProps) => {
+  const { t } = useTranslation();
+
   const [isOpened, setIsOpened] = useState(false);
   const [fields, setFields] = useState(initialFields);
   const [errors, setErrors] = useState<Record<string, { name?: string; value?: string }>>({});
 
-  const onAddField = () => {
-    setFields([...fields, { name: '', value: '', id: generateUUID() }]);
-  };
+  const onAddField = () => setFields([...fields, { name: '', value: '', id: generateUUID() }]);
 
   const onRemoveField = (id: string) => {
     setFields((prev) => prev.filter((field) => field.id !== id));
     setErrors((prev) => {
       const updatedErrors = { ...prev };
       delete updatedErrors[id];
+
       return updatedErrors;
     });
   };
 
-  const onFieldChange = (index: string, key: 'name' | 'value', value: string) => {
+  const onFieldChange = (index: string, key: 'name' | 'value', value: string) =>
     setFields((prev) => prev.map((field) => (field.id === index ? { ...field, [key]: value } : field)));
-  };
 
   const validateFields = () => {
-    const validation = fieldsArraySchema.safeParse(fields.map(({ name, value }) => ({ name, value })));
+    const validation = getFieldsArraySchema(t).safeParse(fields.map(({ name, value }) => ({ name, value })));
 
     if (!validation.success) {
       const newErrors: Record<string, { name?: string; value?: string }> = {};
@@ -73,10 +76,12 @@ const DetailInput = ({
           [fieldKey]: err.message,
         };
       });
+
       setErrors(newErrors);
 
       return false;
     }
+
     setErrors({});
 
     return true;
@@ -115,9 +120,7 @@ const DetailInput = ({
         <Button
           className='cursor-pointer hover:bg-transparent hover:scale-105 transition p-0'
           variant='ghost'
-          onClick={() => {
-            setIsOpened((prev) => !prev);
-          }}
+          onClick={() => setIsOpened((prev) => !prev)}
           type='button'
         >
           {isOpened ? <PencilOff className='w-5 h-5' /> : <Pencil className='w-5 h-5' />}
@@ -130,7 +133,7 @@ const DetailInput = ({
             <div key={id} className='flex items-center gap-x-3'>
               <div className='flex-1'>
                 <Input
-                  placeholder='Field Name'
+                  placeholder={t('new_lot.field_name')}
                   value={name}
                   onChange={(e) => onFieldChange(id, 'name', e.target.value)}
                   error={errors[id]?.name as FieldError | undefined}
@@ -138,7 +141,7 @@ const DetailInput = ({
               </div>
               <div className='flex-1'>
                 <Input
-                  placeholder='Field Value'
+                  placeholder={t('new_lot.field_value')}
                   value={value}
                   onChange={(e) => onFieldChange(id, 'value', e.target.value)}
                   error={errors[id]?.value as FieldError | undefined}
@@ -152,10 +155,10 @@ const DetailInput = ({
           ))}
 
           <div className='flex space-x-4'>
-            <Button onClick={onAddField}>Add Field</Button>
+            <Button onClick={onAddField}>{t('new_lot.add_field')}</Button>
 
             <Button className='relative' variant='secondary' onClick={onSubmit} disabled={isLoading}>
-              Save Fields
+              {t('new_lot.save_fields')}
               {isLoading && (
                 <div className='absolute inset-0 flex items-center justify-center'>
                   <Spinner color='text-rose-500' />
@@ -175,7 +178,7 @@ const DetailInput = ({
               ))}
             </ul>
           ) : (
-            <span>No details</span>
+            <span>{t('new_lot.no_details')}</span>
           )}
         </div>
       )}

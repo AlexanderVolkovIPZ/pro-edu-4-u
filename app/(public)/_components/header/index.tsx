@@ -1,10 +1,15 @@
+'use client';
+
 import MenuBurger from '@/app/(public)/_components/menu-burger';
 import { menuLinksList } from '@/app/(public)/_shared/lists/menu-links-list';
 import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
+  const { t } = useTranslation();
+
   return (
     <header className='bg-card border-b border-gray-200'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
@@ -22,10 +27,10 @@ const Header = () => {
           </nav>
           <div className='hidden md:block items-center space-x-4'>
             <Button variant='ghost' asChild>
-              <Link href='/sign-in'>Sign In</Link>
+              <Link href='/sign-in'>{t('common.sign_in')}</Link>
             </Button>
             <Button variant='default' asChild>
-              <Link href='/sign-up'>Sign Up</Link>
+              <Link href='/sign-up'>{t('common.sign_up')}</Link>
             </Button>
           </div>
         </div>

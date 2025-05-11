@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 type TableBodyProps = {
   isLoading: boolean;
@@ -34,9 +35,11 @@ type EditableCell = {
 const Body = ({ isLoading, orders }: TableBodyProps) => {
   const authUser = useContext(AuthUserContext);
   const router = useRouter();
-  const [editableCell, setEditableCell] = useState<EditableCell | null>(null);
+  const { t } = useTranslation();
 
   const { mutateAsync: updateShipping } = useUpdateShipping();
+
+  const [editableCell, setEditableCell] = useState<EditableCell | null>(null);
 
   const onStatusClick = (orderId: string, status: string) =>
     setEditableCell({ orderId, field: 'status', value: status });
@@ -63,13 +66,13 @@ const Body = ({ isLoading, orders }: TableBodyProps) => {
         status: value,
       });
 
-      toast.success(`Status updated successfully`, {
+      toast.success(t('toast.success.status_updated_successfully'), {
         style: {
           textAlign: 'center',
         },
       });
     } catch {
-      toast.error('Something went wrong!');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       onClose();
     }
@@ -171,7 +174,9 @@ const Body = ({ isLoading, orders }: TableBodyProps) => {
             <span className='block text-gray-900'>
               {order.firstName} {order.lastName}
             </span>
-            <span className='block text-gray-500'>Order #{index + 1}</span>
+            <span className='block text-gray-500'>
+              {t('orders.order')} #{index + 1}
+            </span>
           </TableCell>
           <TableCell className='px-6 py-2 whitespace-nowrap'>
             <span className='block text-gray-900'>{order.email}</span>
@@ -194,8 +199,12 @@ const Body = ({ isLoading, orders }: TableBodyProps) => {
             {renderStatusCell(order.id, order.status, order.lot.auction.userAuction.userId)}
           </TableCell>
           <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>
-            <span className='block text-gray-900'>Created {formatDate(order.createdAt)}</span>
-            <span className='block text-gray-500'>Updated {formatDate(order.updatedAt)}</span>
+            <span className='block text-gray-900'>
+              {t('orders.created')} {formatDate(order.createdAt)}
+            </span>
+            <span className='block text-gray-500'>
+              {t('orders.updated')} {formatDate(order.updatedAt)}
+            </span>
           </TableCell>
           <TableCell className='px-6 py-4 whitespace-nowrap text-gray-500'>
             <SquareArrowOutUpRight
