@@ -56,15 +56,15 @@ export async function GET(request: Request) {
 
     const result = {
       statInfo: {
-        auction: {
+        auctions: {
           count: auctionsCurrentPeriodCount,
           growth: growthAuctionsCount,
         },
-        lot: {
+        lots: {
           count: lotsCurrentPeriodCount,
           growth: growthLotsCount,
         },
-        user: {
+        users: {
           count: userCurrentPeriodCount,
           growth: growthUserCount,
         },
