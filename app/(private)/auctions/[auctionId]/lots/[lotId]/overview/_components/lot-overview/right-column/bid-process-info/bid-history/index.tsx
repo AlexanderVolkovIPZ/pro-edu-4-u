@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ClipboardList, Clock } from 'lucide-react';
+import { History, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BidInfo } from '../_shared/types';
 
@@ -12,7 +12,7 @@ const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
   return (
     <div className='w-full bg-white'>
       <h3 className='flex items-center gap-2 text-xl font-semibold mb-4'>
-        <ClipboardList className='h-5 w-5' />
+        <History className='h-5 w-5 text-slate-600' />
         {t('lot.bid_history')}
       </h3>
       <ScrollArea className='h-[300px] pr-4'>
