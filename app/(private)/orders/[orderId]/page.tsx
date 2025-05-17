@@ -1,6 +1,6 @@
 'use client';
 
-import { User, MapPin, Phone, Mail, ArrowRight, Annoyed } from 'lucide-react';
+import { User, MapPin, Phone, Mail, Annoyed } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Media, MediaSlider } from '@/components/media-slider';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import EmptyPage from '@/components/empty-page';
+import { useTranslation } from 'react-i18next';
 
 const statusColors = {
   PENDING: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
@@ -24,14 +25,15 @@ const statusColors = {
 };
 
 const statusMessages = {
-  PENDING: 'Awaiting Processing',
-  SHIPPED: 'Shipped',
-  IN_TRANSIT: 'In Transit',
-  DELIVERED: 'Delivered',
-  CANCELED: 'Canceled',
+  PENDING: 'pending',
+  SHIPPED: 'shipped',
+  IN_TRANSIT: 'in_transit',
+  DELIVERED: 'delivered',
+  CANCELED: 'canceled',
 };
 
 const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { data: orderData, isFetching: isOrderFetching } = useOrder(params.orderId);
 
@@ -45,8 +47,7 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
             <Skeleton className='h-40' />
           </div>
           <div className='flex flex-col gap-4 flex-grow-[1]'>
-            <Skeleton className='h-96' />
-            <Skeleton className='h-40' />
+            <Skeleton className='h-full' />
           </div>
         </div>
       </Container>
@@ -57,9 +58,9 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
     return (
       <EmptyPage
         icon={Annoyed}
-        title='Your Table is Empty'
-        description='Looks like this order doesn’t exist.'
-        buttonTitle='Go to Home page'
+        title={t('common.your_table_is_empty')}
+        description={t('order.looks_like_this_order_does_not_exist')}
+        buttonTitle={t('order.go_to_home_page')}
         onClick={() => router.push('/')}
       />
     );
@@ -78,11 +79,16 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
           <Card>
             <CardHeader className='pb-3'>
               <div className='flex justify-between items-center'>
-                <CardTitle>Delivery status</CardTitle>
-                <Badge className={statusColors[orderData.status]}>{statusMessages[orderData.status]}</Badge>
+                <CardTitle>{t('order.delivery_status')}</CardTitle>
+                <Badge className={statusColors[orderData.status]}>
+                  {t(`order.statuses.${statusMessages[orderData.status]}`)}
+                </Badge>
               </div>
               <CardDescription>
-                Order #{orderData.id} from {formatDate(orderData.createdAt)}
+                {t('order.order_from', {
+                  id: orderData.id,
+                  date: formatDate(orderData.createdAt),
+                })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -98,13 +104,13 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
                     <h3 className='font-medium'>
                       {orderData.firstName} {orderData.lastName}
                     </h3>
-                    <p className='text-sm text-muted-foreground'>Customer</p>
+                    <p className='text-sm text-muted-foreground'>{t('order.customer')}</p>
                   </div>
                 </div>
 
                 <div className='grid gap-4 sm:grid-cols-2'>
                   <div className='space-y-2'>
-                    <h3 className='text-sm font-medium'>Destination</h3>
+                    <h3 className='text-sm font-medium'>{t('order.destination')}</h3>
                     <div className='flex items-start gap-2 text-sm'>
                       <MapPin className='h-4 w-4 mt-0.5 text-muted-foreground' />
                       <div>
@@ -117,7 +123,7 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
                   </div>
 
                   <div className='space-y-2'>
-                    <h3 className='text-sm font-medium'>Contact information</h3>
+                    <h3 className='text-sm font-medium'>{t('order.contact_information')}</h3>
                     <div className='space-y-1'>
                       <div className='flex items-center gap-2 text-sm'>
                         <Phone className='h-4 w-4 text-muted-foreground' />
@@ -136,22 +142,23 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Payment</CardTitle>
+              <CardTitle>{t('order.payment')}</CardTitle>
             </CardHeader>
+
             <CardContent>
               <div className='space-y-4'>
                 <div className='flex justify-between items-center'>
-                  <p className='text-sm text-muted-foreground'>Payment status</p>
+                  <p className='text-sm text-muted-foreground'>{t('order.payment_status')}</p>
 
                   <Badge variant={orderData.lot.bid[0].isPaid ? 'default' : 'outline'}>
-                    {orderData.lot.bid[0].isPaid ? 'Paid' : 'Pending payment'}
+                    {orderData.lot.bid[0].isPaid ? t('order.paid') : t('order.pending_payment')}
                   </Badge>
                 </div>
 
                 <Separator />
 
                 <div className='flex justify-between items-center'>
-                  <p className='font-medium'>Amount due</p>
+                  <p className='font-medium'>{t('order.amount_due')}</p>
                   <p className='font-bold text-lg'>{orderData.lot.bid[0].amount} $</p>
                 </div>
               </div>
@@ -159,50 +166,38 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
           </Card>
         </div>
 
-        <div className='space-y-4'>
-          <Card>
-            <CardHeader>
-              <CardTitle>Lot information</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <div className='relative overflow-hidden'>
-                <MediaSlider
-                  media={lotMediaContent}
-                  alt='Images'
-                  imageProps={{ width: 300, height: 300 }}
-                  videoProps={{ width: 300, height: 300, controls: true }}
-                  sliderProps={{ className: 'rounded-lg flex-shrink-0' }}
-                />
-              </div>
-              <div>
-                <h3 className='font-medium'>{orderData.lot.title}</h3>
-                <p className='text-sm text-muted-foreground'>Лот #{orderData.lotId}</p>
-              </div>
-              <Separator />
-              <div>
-                <Button
-                  variant='outline'
-                  className='w-full'
-                  onClick={() => router.push(`/auctions/${orderData.lot.auctionId}/lots/${orderData.lotId}/overview`)}
-                >
-                  Check Lot Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-2'>
-              <Button variant='outline' className='w-full justify-between'>
-                <span>Contact support</span>
-                <ArrowRight className='h-4 w-4' />
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('order.lot_information')}</CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <div className='relative overflow-hidden'>
+              <MediaSlider
+                media={lotMediaContent}
+                alt='Images'
+                imageProps={{ width: 300, height: 300 }}
+                videoProps={{ width: 300, height: 300, controls: true }}
+                sliderProps={{ className: 'rounded-lg flex-shrink-0' }}
+              />
+            </div>
+            <div>
+              <h3 className='font-medium'>{orderData.lot.title}</h3>
+              <p className='text-sm text-muted-foreground'>
+                {t('order.lot')} #{orderData.lotId}
+              </p>
+            </div>
+            <Separator />
+            <div>
+              <Button
+                variant='outline'
+                className='w-full'
+                onClick={() => router.push(`/auctions/${orderData.lot.auctionId}/lots/${orderData.lotId}/overview`)}
+              >
+                {t('order.check_lot_details')}
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Container>
   );

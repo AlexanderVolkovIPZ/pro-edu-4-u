@@ -26,7 +26,12 @@
     "first_name": "First name",
     "last_name": "Last name",
     "showing_things": "Showing {{from}} to {{to}} of {{total}} {{thing}}",
-    "your_table_is_empty": "Your Table is Empty"
+    "your_table_is_empty": "Your Table is Empty",
+    "status": {
+      "upcoming": "Upcoming",
+      "in_progress": "In Progress",
+      "completed": "Completed"
+    }
   },
   "main": {
     "home": "Home",
@@ -145,7 +150,14 @@
     "order": "Order",
     "actions": "Actions",
     "created": "Created",
-    "updated": "Updated"
+    "updated": "Updated",
+    "statuses": {
+      "pending": "Pending",
+      "shipped": "Shipped",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
   },
   "settings": {
     "settings": "Settings",
@@ -267,6 +279,30 @@
     "videos": "videos",
     "upload": "Upload",
     "categories_selected": "categories selected"
+  },
+  "order": {
+    "looks_like_this_order_does_not_exist": "Looks like this order doesn't exist",
+    "go_to_home_page": "Go to Home Page",
+    "delivery_status": "Delivery Status",
+    "order_from": "Order {{id}} from {{date}}",
+    "customer": "Customer",
+    "destination": "Destination",
+    "contact_information": "Contact Information",
+    "payment": "Payment",
+    "payment_status": "Payment status",
+    "paid": "Paid",
+    "pending_payment": "Pending payment",
+    "amount_due": "Amount due",
+    "lot_information": "Lot Information",
+    "lot": "Lot",
+    "check_lot_details": "Check Lot Details",
+    "statuses": {
+      "pending": "Pending",
+      "shipped": "Shipped",
+      "in_transit": "In Transit",
+      "delivered": "Delivered",
+      "canceled": "Canceled"
+    }
   },
   "toast": {
     "success": {

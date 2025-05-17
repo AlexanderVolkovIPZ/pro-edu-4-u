@@ -26,7 +26,12 @@
     "first_name": "Ім'я",
     "last_name": "Прізвище",
     "showing_things": "Показано з {{from}} по {{to}} із {{total}} {{thing}}",
-    "your_table_is_empty": "Твоя таблиця є порожньою"
+    "your_table_is_empty": "Твоя таблиця є порожньою",
+    "status": {
+      "upcoming": "Очікується",
+      "in_progress": "В процесі",
+      "completed": "Завершено"
+    }
   },
   "main": {
     "home": "Головна",
@@ -145,7 +150,14 @@
     "order": "Замовлення",
     "actions": "Дії",
     "created": "Створено",
-    "updated": "Оновлено"
+    "updated": "Оновлено",
+    "statuses": {
+      "pending": "Очікується",
+      "shipped": "Відправлено",
+      "in_transit": "У дорозі",
+      "delivered": "Доставлено",
+      "canceled": "Скасовано"
+    }
   },
   "settings": {
     "settings": "Налаштування",
@@ -267,6 +279,30 @@
     "videos": "відео",
     "upload": "Завантажити",
     "categories_selected": "вибрані категорії"
+  },
+  "order": {
+    "looks_like_this_order_does_not_exist": "Схоже, цього замовлення не існує",
+    "go_to_home_page": "Перейти на головну сторінку",
+    "delivery_status": "Статус доставки",
+    "order_from": "Замовлення {{id}} від {{date}}",
+    "customer": "Клієнт",
+    "destination": "Місце призначення",
+    "contact_information": "Контактна інформація",
+    "payment": "Оплата",
+    "payment_status": "Статус оплати",
+    "paid": "Оплачено",
+    "pending_payment": "Очікує оплату",
+    "amount_due": "Сума до сплати",
+    "lot_information": "Інформація про лот",
+    "lot": "Лот",
+    "check_lot_details": "Переглянути деталі лота",
+    "statuses": {
+      "pending": "Очікується",
+      "shipped": "Відправлено",
+      "in_transit": "У дорозі",
+      "delivered": "Доставлено",
+      "canceled": "Скасовано"
+    }
   },
   "toast": {
     "success": {

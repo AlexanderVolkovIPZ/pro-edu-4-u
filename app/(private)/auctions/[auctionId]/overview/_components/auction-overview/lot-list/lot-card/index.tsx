@@ -83,9 +83,9 @@ export function LotCard({
               <h3 className='text-lg font-semibold truncate'>{lot.title}</h3>
               <div className='flex gap-2'>
                 <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
-                  {lotStatus}
+                  {t(`common.status.${lotStatus.toLowerCase()}`)}
                 </Badge>
-                <Badge className='text-xs bg-blue-100 text-blue-800 uppercase' variant='secondary'>
+                <Badge className='text-xs bg-blue-100 text-blue-800' variant='secondary'>
                   {t('auction_lots.lot')} #{lot.position}
                 </Badge>
               </div>

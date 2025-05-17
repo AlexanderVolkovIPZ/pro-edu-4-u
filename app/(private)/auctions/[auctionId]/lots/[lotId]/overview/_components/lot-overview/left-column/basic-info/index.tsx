@@ -32,7 +32,7 @@ const BasicInfo = ({ id, title, status, startDate, endDate, timeStartLeft }: Lot
           <p className='text-sm text-muted-foreground'>Lot: {id}</p>
         </div>
         <Badge variant='secondary' className='text-sm'>
-          {status}
+          {t(`common.status.${status.toLowerCase()}`)}
         </Badge>
       </div>
 
