@@ -10,16 +10,27 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const filters = authUser.role === UserRole.ADMIN ? {} : { userId: authUser.id, role: AuctionRole.OWNER };
+    const mode = request.headers.get('x-access-mode') ?? 'view';
+
+    const filters =
+      mode === 'edit'
+        ? {
+            userAuction: {
+              some:
+                authUser.role === UserRole.ADMIN
+                  ? {}
+                  : {
+                      userId: authUser.id,
+                      role: AuctionRole.OWNER,
+                    },
+            },
+          }
+        : {};
 
     const auction = await prismaDb.auction.findFirst({
       where: {
         id: params.auctionId,
-        userAuction: {
-          some: {
-            ...filters,
-          },
-        },
+        ...filters,
       },
       include: {
         lot: {

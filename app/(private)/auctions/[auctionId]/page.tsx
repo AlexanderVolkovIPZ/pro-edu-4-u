@@ -27,7 +27,10 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
   const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
 
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
-  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(params.auctionId);
+  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(
+    params.auctionId,
+    'edit'
+  );
 
   const isAllRequiredFieldsFilled = [
     auctionData?.title,

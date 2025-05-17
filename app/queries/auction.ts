@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
-import { AuctionWithStringDates } from '../types';
+import { AuctionMode, AuctionWithStringDates } from '../types';
 import { AUCTION } from './query-keys';
 
 export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutationResult<Auction, Error, T> {
@@ -64,11 +64,19 @@ export function useUpdateAuction<
   });
 }
 
-export function useAuction<T extends AuctionWithStringDates>(auctionId: string): UseQueryResult<T, Error> {
+export function useAuction<T extends AuctionWithStringDates>(
+  auctionId: string,
+  mode: AuctionMode = 'view'
+): UseQueryResult<T, Error> {
   return useQuery<T, Error>({
     queryKey: [AUCTION, auctionId],
     queryFn: async () => {
-      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`, {
+        headers: {
+          'x-access-mode': mode,
+        },
+      });
+
       return response.data;
     },
     staleTime: 1000 * 60,

@@ -79,7 +79,9 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const userAuction = await prismaDb.userAuction.findFirst({
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+
+    const ownerAuction = await prismaDb.userAuction.findFirst({
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
@@ -87,8 +89,16 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       },
     });
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
+    const hasUserAuctionBid = await prismaDb.bid.findFirst({
+      where: {
+        lotId: params.lotId,
+        user: {
+          id: authUser.id,
+        },
+      },
+    });
+
+    if (!ownerAuction && !isAuthUserAdmin && !hasUserAuctionBid) {
       return new NextResponse('Auction not found', { status: 404 });
     }
 

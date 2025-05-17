@@ -50,3 +50,5 @@ export type GetServerSessionParams =
   | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
   | [NextApiRequest, NextApiResponse]
   | [];
+
+export type AuctionMode = 'view' | 'edit';
