@@ -104,7 +104,7 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
               onChange={(date) => setValue('startDate', date as Date)}
               showTimeSelect
               timeFormat={timeFormat}
-              timeIntervals={1}
+              timeIntervals={5}
               dateFormat={`${dateFormat}, ${timeFormat}`}
               minDate={new Date()}
               maxDate={dayjs(new Date()).add(1, 'year').toDate()}
