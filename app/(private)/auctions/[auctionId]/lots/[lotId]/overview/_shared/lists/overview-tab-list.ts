@@ -14,4 +14,8 @@ export const tabsList: {
     name: 'bid_process',
     route: 'bid-process',
   },
+  {
+    name: 'buy_now',
+    route: 'buy-now',
+  },
 ];

@@ -36,20 +36,9 @@ const OrderConfirmation = ({ totalAmount }: { totalAmount: number }) => {
           <p>{getValues('address')}</p>
         </div>
 
-        <div className='space-y-2'>
-          <div className='flex items-center justify-between'>
-            <span className='text-gray-600'>{t('checkout.product_cost')}:</span>
-            <span className='font-medium'>${totalAmount.toFixed(2)}</span>
-          </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-gray-600'>{t('checkout.shipping')}:</span>
-            <span className='font-medium text-green-500'>{t('checkout.free')}</span>
-          </div>
-          <div className='h-px bg-gray-200 my-2' />
-          <div className='flex items-center justify-between'>
-            <span className='text-lg font-medium'>{t('checkout.total_amount')}:</span>
-            <span className='text-2xl font-bold text-rose-500'>${totalAmount.toFixed(2)}</span>
-          </div>
+        <div className='flex items-center justify-between'>
+          <span className='text-lg font-medium'>{t('checkout.total_amount')}:</span>
+          <span className='text-2xl font-bold text-rose-500'>${totalAmount.toFixed(2)}</span>
         </div>
       </CardContent>
     </Card>

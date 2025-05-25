@@ -2,12 +2,15 @@
 
 import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { useBidsByFilter } from '@/app/queries/bid';
+import { useLot } from '@/app/queries/lot';
 import { useCreatePayment } from '@/app/queries/payment';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TFunction } from 'i18next';
 import { ArrowLeft, ArrowRight, CreditCard } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -93,21 +96,45 @@ const getValidationSchema = (t: TFunction) =>
       .regex(/^[0-9A-Za-z\s-]+$/, t('validation.invalid_postal_code_format')),
   });
 
+const tryParse = (value: string) => {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+
 const CheckoutPage = () => {
   const authUser = useContext(AuthUserContext);
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+
+  const lotsId = searchParams?.get('id');
+  const lotInfo = searchParams?.get('info');
+
+  const lotsIdParsed = lotsId ? (tryParse(lotsId) ?? []) : [];
+  const lotInfoParsed = lotInfo ? (tryParse(lotInfo) ?? [{}])[0] : {};
+
+  const isAuctionBidMode = !!lotsIdParsed.length;
+  const isBuyNowMode = !!lotInfoParsed.auctionId && !!lotInfoParsed.lotId;
 
   const { data: bidsData, isFetching: isFetchingBids } = useBidsByFilter(
     {
       bidderId: authUser?.id,
       isWinner: true,
       isPaid: false,
+      lotsId: lotsIdParsed,
     },
     {
-      enabled: !!authUser?.id,
+      enabled: !!authUser?.id && isAuctionBidMode,
       staleTime: 1000 * 60,
     }
   );
+
+  const { data: lotData, isFetching: isFetchingLot } = useLot(lotInfoParsed.auctionId, lotInfoParsed.lotId, {
+    enabled: isBuyNowMode,
+  });
+
   const { mutateAsync: createPayment, isPending: isCreatePaymentPending } = useCreatePayment();
 
   const validationSchema = getValidationSchema(t);
@@ -131,16 +158,29 @@ const CheckoutPage = () => {
   const { trigger, getValues, watch } = methods;
   const fields = watch();
 
-  const totalAmount = bidsData?.reduce((acc, { amount }) => acc + amount, 0) ?? 0;
+  const totalAmount = isAuctionBidMode
+    ? (bidsData?.reduce((acc, { amount }) => acc + amount, 0) ?? 0)
+    : (lotData?.buyNowBid ?? 0);
+
+  const isLoading = isFetchingBids || isFetchingLot || isCreatePaymentPending;
 
   const onPay = async () => {
     const data = getValues();
-    const lotsId = bidsData?.map(({ lot: { id } }) => id);
 
-    if (!lotsId) return;
+    let paymentData;
+
+    if (isAuctionBidMode && bidsData) {
+      const lotsId = bidsData.map(({ lot: { id } }) => id);
+      paymentData = { lots: lotsId, shippingInfo: data, bidType: 'BIDDING' as const };
+    } else if (isBuyNowMode && lotData) {
+      paymentData = { lots: [lotData.id], shippingInfo: data, bidType: 'INSTANT' as const };
+    } else {
+      toast.error(t('toast.error.no_lots_selected'));
+      return;
+    }
 
     try {
-      const response = await createPayment({ lots: lotsId, shippingInfo: data });
+      const response = await createPayment(paymentData);
       window.location.assign(response.url);
     } catch {
       toast.error(t('toast.error.something_went_wrong'));
@@ -193,7 +233,15 @@ const CheckoutPage = () => {
     }
   };
 
-  if (!bidsData?.length) return null;
+  const hasData = (isAuctionBidMode && bidsData?.length) || (isBuyNowMode && lotData?.buyNowBid);
+
+  if (isFetchingBids || isFetchingLot) {
+    return <Skeleton className='w-full h-72' />;
+  }
+
+  if ((isAuctionBidMode || isBuyNowMode) && !hasData) {
+    return <div className='text-center py-8'>{t('checkout.no_lots_to_pay')}</div>;
+  }
 
   return (
     <>
@@ -204,7 +252,12 @@ const CheckoutPage = () => {
 
           <div className='flex gap-4 justify-end'>
             {currentStep > 1 && (
-              <Button type='button' onClick={onPrevStep} className='bg-gray-200 hover:bg-gray-300 text-gray-700'>
+              <Button
+                type='button'
+                onClick={onPrevStep}
+                className='bg-gray-200 hover:bg-gray-300 text-gray-700'
+                disabled={isLoading}
+              >
                 <ArrowLeft className='mr-2 h-4 w-4' />
                 {t('common.back')}
               </Button>
@@ -213,7 +266,7 @@ const CheckoutPage = () => {
               <Button
                 type='button'
                 onClick={onNextStep}
-                disabled={!isValid}
+                disabled={!isValid || isLoading}
                 className='bg-rose-500 hover:bg-rose-600 text-white'
               >
                 {t('common.next')}
@@ -222,12 +275,12 @@ const CheckoutPage = () => {
             ) : (
               <Button
                 type='button'
-                onClick={async () => await onPay()}
+                onClick={onPay}
                 className='bg-rose-500 hover:bg-rose-600 text-white relative'
-                disabled={isCreatePaymentPending || isFetchingBids}
+                disabled={isLoading}
               >
                 {t('checkout.pay')}
-                {isCreatePaymentPending ? (
+                {isLoading ? (
                   <Spinner className='ml-1' width={20} height={20} />
                 ) : (
                   <CreditCard className='ml-2 h-4 w-4' />

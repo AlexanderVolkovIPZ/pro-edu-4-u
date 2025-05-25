@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { stripe } from '@/app/lib/stripe';
-import { Shipping } from '@prisma/client';
+import { BidType, Shipping } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
@@ -10,12 +10,12 @@ export async function POST(request: Request) {
     if (!authUser) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
-
     const body: {
       lots: string[];
       shippingInfo: Omit<Shipping, 'id' | 'createdAt' | 'updatedAt' | 'lotId' | 'userId' | 'status'>;
+      bidType: BidType;
     } = await request.json();
-    const { lots: lotsId } = body;
+    const { lots: lotsId, shippingInfo, bidType } = body;
 
     const lots = await prismaDb?.lot.findMany({
       where: {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!lots || !lots.length) {
+    if (!lots?.length) {
       return new NextResponse('Lots not found', { status: 404 });
     }
 
@@ -35,38 +35,70 @@ export async function POST(request: Request) {
         isPaid: true,
       },
     });
-
     if (alreadyPaidBid) {
       return new NextResponse('You have already paid for one of the selected lots', { status: 400 });
     }
 
-    const bids = await prismaDb?.bid.findMany({
-      where: {
-        lotId: { in: lotsId },
-        bidderId: authUser.id,
-        isPaid: false,
-        isWinner: true,
-      },
-    });
+    let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
-    if (!bids?.length) {
-      return new NextResponse('No valid bids found', { status: 404 });
-    }
-
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = bids.map((bid) => {
-      const lot = lots.find((l) => l.id === bid.lotId);
-      return {
-        quantity: 1,
-        price_data: {
-          currency: 'USD',
-          product_data: {
-            name: lot?.title || 'Auction Lot',
-            description: lot?.description || undefined,
-          },
-          unit_amount: Math.round(bid.amount * 100),
+    if (bidType === BidType.BIDDING) {
+      const bids = await prismaDb?.bid.findMany({
+        where: {
+          lotId: { in: lotsId },
+          bidderId: authUser.id,
+          isPaid: false,
+          isWinner: true,
         },
-      };
-    });
+      });
+
+      if (!bids?.length) {
+        return new NextResponse('No valid bids found', { status: 404 });
+      }
+
+      lineItems = bids.map((bid) => {
+        const lot = lots.find((l) => l.id === bid.lotId);
+        return {
+          quantity: 1,
+          price_data: {
+            currency: 'UAH',
+            product_data: {
+              name: lot?.title || 'Auction Lot',
+            },
+            unit_amount: Math.round(bid.amount * 100),
+          },
+        };
+      });
+    } else if (bidType === BidType.INSTANT) {
+      const buyNowLotId = lotsId[0];
+
+      const lot = lots.find((l) => l.id === buyNowLotId);
+      if (!lot) {
+        return new NextResponse('Lot not found', { status: 404 });
+      }
+
+      if (!lot.buyNowBid) {
+        return new NextResponse('Buy now bid not found', { status: 404 });
+      }
+
+      lineItems = [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'UAH',
+            product_data: {
+              name: lot.title || 'Auction Lot',
+              metadata: {
+                lotId: lot.id,
+                price: lot.buyNowBid,
+              },
+            },
+            unit_amount: Math.round(lot.buyNowBid * 100),
+          },
+        },
+      ];
+    } else {
+      return new NextResponse('Invalid bid type', { status: 400 });
+    }
 
     const stripeCustomer = await prismaDb?.user.findUnique({
       where: {
@@ -102,7 +134,8 @@ export async function POST(request: Request) {
       metadata: {
         userId: authUser.id,
         lotsId: JSON.stringify(lotsId),
-        ...body.shippingInfo,
+        bidType,
+        ...shippingInfo,
       },
     });
 

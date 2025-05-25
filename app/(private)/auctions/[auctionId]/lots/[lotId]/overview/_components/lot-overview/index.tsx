@@ -80,6 +80,7 @@ const LotOverview = ({ auctionId, lotId }: LotOverviewProps) => {
                 bids: lotData.bid,
                 isSold: lotData.isSold,
                 status,
+                title: lotData.title,
               }}
             />
           </>

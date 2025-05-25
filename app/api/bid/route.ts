@@ -12,6 +12,8 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const searchParams = Object.fromEntries(url.searchParams.entries());
 
+    const lotsId: string[] = searchParams.lotsId ? JSON.parse(searchParams.lotsId) : [];
+
     const params: Partial<Bid> = {
       ...searchParams,
       isPaid: searchParams.isPaid === 'true' ? true : searchParams.isPaid === 'false' ? false : undefined,
@@ -27,6 +29,13 @@ export async function GET(request: Request) {
         isWinner: params.isWinner,
         isPaid: params.isPaid,
         createdAt: params.createdAt,
+        ...(lotsId.length
+          ? {
+              lotId: {
+                in: lotsId,
+              },
+            }
+          : {}),
       }).filter(([, value]) => value !== undefined)
     );
 

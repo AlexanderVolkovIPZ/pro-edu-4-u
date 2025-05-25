@@ -7,7 +7,7 @@ import { useUpdateLot } from '@/app/queries/lot';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Status } from '@prisma/client';
+import { BidType, Status } from '@prisma/client';
 import { Bolt, Gavel } from 'lucide-react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -26,7 +26,7 @@ import { StatusBadge } from './status-badge';
 
 const PROGRESS_VALUE_MAX = 100;
 
-interface BidProcessInfoProps {
+type BidProcessInfoProps = {
   lotId: string;
   startBid: number;
   auctionId: string;
@@ -34,7 +34,7 @@ interface BidProcessInfoProps {
   initialBids?: BidInfo[];
   minBidIncrement: number;
   status: LotStatus;
-}
+};
 
 const BidProcessInfo = ({
   initialBids = [],
@@ -116,6 +116,7 @@ const BidProcessInfo = ({
           bidderName: newBid.user.name || t('bid_process.anonymous'),
           bidderId: newBid.user.id,
           createdAt: new Date(newBid.createdAt).toISOString(),
+          type: BidType.BIDDING,
         },
         ...prevBids,
       ]);
@@ -163,7 +164,7 @@ const BidProcessInfo = ({
     setIsBidSent(true);
   };
 
-  const makeBidIfPossible = () => {
+  const onMakeBidIfPossible = () => {
     if (!isLastBidByMe && !isBidSent && isLotInProgress) {
       onBid();
       return true;
@@ -184,7 +185,7 @@ const BidProcessInfo = ({
       localStorage.setItem(IS_AUTO_BID, 'true');
 
       if (!isLastBidByMe && isLotInProgress) {
-        makeBidIfPossible();
+        onMakeBidIfPossible();
       }
 
       return true;
@@ -266,7 +267,7 @@ const BidProcessInfo = ({
         </>
       )}
 
-      {!isLotUpcoming && <BidHistory bids={bids} />}
+      {!isLotUpcoming && <BidHistory bids={bids.filter((bid) => bid.type !== BidType.INSTANT)} />}
     </div>
   );
 };

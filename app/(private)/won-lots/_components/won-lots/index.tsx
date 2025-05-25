@@ -73,26 +73,28 @@ const WonLots = () => {
           )}
 
           <div className='space-y-4 mt-4'>
-            {bidsData.map(({ id, amount, createdAt, lot: { photo = [], video = [], title, auction, lotCategory } }) => {
-              const media: Media[] = [
-                ...photo.map((photo) => ({ type: 'image' as const, src: photo.url })),
-                ...video.map((video) => ({ type: 'video' as const, src: video.url })),
-              ];
+            {bidsData.map(
+              ({ id, amount, createdAt, lot: { id: lotId, photo = [], video = [], title, auction, lotCategory } }) => {
+                const media: Media[] = [
+                  ...photo.map((photo) => ({ type: 'image' as const, src: photo.url })),
+                  ...video.map((video) => ({ type: 'video' as const, src: video.url })),
+                ];
 
-              return (
-                <LotCard
-                  key={id}
-                  auctionName={auction.title}
-                  lotName={title}
-                  price={amount}
-                  media={media}
-                  categories={lotCategory.map(({ category: { name } }) => name)}
-                  lotWonDate={dayjs(new Date(createdAt)).format('MMM D, YYYY').toString()}
-                  onClick={() => router.push(`/won-lots/payment?id=${JSON.stringify([id])}`)}
-                  isLoading={isFetchingBids}
-                />
-              );
-            })}
+                return (
+                  <LotCard
+                    key={id}
+                    auctionName={auction.title}
+                    lotName={title}
+                    price={amount}
+                    media={media}
+                    categories={lotCategory.map(({ category: { name } }) => name)}
+                    lotWonDate={dayjs(new Date(createdAt)).format('MMM D, YYYY').toString()}
+                    onClick={() => router.push(`/won-lots/payment?id=${JSON.stringify([lotId])}`)}
+                    isLoading={isFetchingBids}
+                  />
+                );
+              }
+            )}
           </div>
         </>
       ) : (

@@ -32,14 +32,17 @@ export function useBidsByFilter<
     };
   })[],
 >(
-  filters?: Partial<Omit<Bid, 'createdAt'> & { createdAt: string }>,
+  filters?: Partial<Omit<Bid, 'createdAt'> & { createdAt: string; lotsId?: string[] }>,
   options?: Omit<UseQueryOptions<T, Error>, 'queryKey'>
 ): UseQueryResult<T, Error> {
   return useQuery<T, Error>({
     queryKey: [BID, filters],
     queryFn: async () => {
       const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/bid`, {
-        params: filters,
+        params: {
+          ...filters,
+          ...(filters?.lotsId ? { lotsId: JSON.stringify(filters.lotsId) } : {}),
+        },
       });
       return response.data;
     },
