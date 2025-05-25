@@ -126,17 +126,12 @@ export function LotCard({
           </div>
         </div>
 
-        <div className='flex flex-shrink-0 gap-x-2 max-[950px]:mt-2 max-[950px]:self-end'>
-          <Button asChild size='sm'>
-            <Link href={`/auctions/${auctionId}/lots/${lot.id}/overview`}>
-              <Eye className='h-4 w-4 mr-2' />
-              {t('auction_lots.view')}
-            </Link>
-          </Button>
-          <Button variant='outline' size='sm'>
-            {t('auction_lots.bid')}
-          </Button>
-        </div>
+        <Button asChild size='sm' className='max-[950px]:mt-3'>
+          <Link href={`/auctions/${auctionId}/lots/${lot.id}/overview`}>
+            <Eye className='h-4 w-4 mr-2' />
+            {t('auction_lots.view')}
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
