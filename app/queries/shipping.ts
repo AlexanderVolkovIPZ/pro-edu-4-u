@@ -22,7 +22,7 @@ export function useUpdateShipping<
       await queryClient.cancelQueries({ queryKey: [ORDER] });
 
       const previousOrdersData = queryClient.getQueryData<QueryData<OrderWithStringDates>>([ORDER]);
-      console.log(previousOrdersData);
+
       if (!previousOrdersData) return;
 
       queryClient.setQueryData<QueryData<OrderWithStringDates>>([ORDER, JSON.stringify({ page: 1 })], (oldData) => {
