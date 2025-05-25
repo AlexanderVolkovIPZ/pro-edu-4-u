@@ -1,4 +1,7 @@
+'use client';
+
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslation } from 'react-i18next';
 
 type Columns = 'title' | 'startDate' | 'endDate' | 'lotCount' | 'bidCount' | 'createdAt';
 
@@ -8,6 +11,8 @@ type HeaderProps = {
 };
 
 const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
+  const { t } = useTranslation();
+
   return (
     <TableHeader className='bg-gray-50'>
       <TableRow>
@@ -16,7 +21,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('title')}
           >
-            Auction Title {renderSortIcon('title')}
+            {t('all_auctions.auction_title')} {renderSortIcon('title')}
           </div>
         </TableHead>
 
@@ -24,7 +29,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
           scope='col'
           className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'
         >
-          Status
+          {t('all_auctions.status')}
         </TableHead>
 
         <TableHead scope='col' className='px-6 py-3 text-left'>
@@ -32,7 +37,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('startDate')}
           >
-            Start Date {renderSortIcon('startDate')}
+            {t('all_auctions.start_date')} {renderSortIcon('startDate')}
           </div>
         </TableHead>
 
@@ -41,7 +46,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('endDate')}
           >
-            End Date {renderSortIcon('endDate')}
+            {t('all_auctions.end_date')} {renderSortIcon('endDate')}
           </div>
         </TableHead>
 
@@ -50,7 +55,7 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('lotCount')}
           >
-            Lots {renderSortIcon('lotCount')}
+            {t('all_auctions.lots')} {renderSortIcon('lotCount')}
           </div>
         </TableHead>
 
@@ -59,13 +64,11 @@ const Header = ({ onSort, renderSortIcon }: HeaderProps) => {
             className='flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer'
             onClick={() => onSort('bidCount')}
           >
-            Bids {renderSortIcon('bidCount')}
+            {t('all_auctions.bids')} {renderSortIcon('bidCount')}
           </div>
         </TableHead>
 
-        <TableHead scope='col' className='relative px-6 py-3'>
-          <span className='sr-only'>Actions</span>
-        </TableHead>
+        <TableHead scope='col' className='relative px-6 py-3' />
       </TableRow>
     </TableHeader>
   );

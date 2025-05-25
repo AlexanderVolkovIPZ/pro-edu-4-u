@@ -16,7 +16,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { auctionDateSchema, AuctionDateSchema } from '../../_shared/schemas/auction-date-schema';
+import { useTranslation } from 'react-i18next';
+import { getAuctionDateSchema } from '../../_shared/schemas/auction-date-schema';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -29,18 +30,19 @@ type StartDateInputProps = {
 
 const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = false }: StartDateInputProps) => {
   const { timeZone, locale } = useContext(AccountContext);
-  const [isOpened, setIsOpened] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
   const { mutateAsync, isPending } = useUpdateAuction(auctionId);
+  const { t } = useTranslation();
+
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [isOpened, setIsOpened] = useState(false);
 
   const {
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm<AuctionDateSchema>({
-    resolver: zodResolver(auctionDateSchema),
+  } = useForm({
+    resolver: zodResolver(getAuctionDateSchema(t)),
     defaultValues: {
       startDate: selectedDate,
     },
@@ -65,14 +67,16 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
       await mutateAsync({
         startDate: formattedStartDate,
       });
-      toast.success('The start date has been successfully updated', {
+
+      toast.success(t('toast.success.the_start_date_has_been_successfully_updated'), {
         style: {
           textAlign: 'center',
         },
       });
+
       setIsOpened(false);
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 
@@ -80,7 +84,7 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
     <div className='px-4 py-3 rounded-lg border-slate-300 border-[1.4px]'>
       <div className='flex items-center justify-between'>
         <label htmlFor='startDate' className='block text-base font-semibold text-gray-700 relative'>
-          Start Date
+          {t('auction.start_date')}
           {showRequiredFieldIcon && <span className='text-rose-500 text-sm absolute top-0 -right-2'>*</span>}
         </label>
         <Button
@@ -100,7 +104,7 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
               onChange={(date) => setValue('startDate', date as Date)}
               showTimeSelect
               timeFormat={timeFormat}
-              timeIntervals={1}
+              timeIntervals={5}
               dateFormat={`${dateFormat}, ${timeFormat}`}
               minDate={new Date()}
               maxDate={dayjs(new Date()).add(1, 'year').toDate()}
@@ -140,7 +144,7 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
           {errors.startDate && <p className='text-red-600'>{errors.startDate.message}</p>}
 
           <Button className='mt-3 relative' type='button' onClick={handleSubmit(onSubmit)} disabled={isPending}>
-            Save
+            {t('common.save')}
             {isPending && (
               <div className='absolute inset-0 flex items-center justify-center'>
                 <Spinner />
@@ -150,7 +154,7 @@ const StartDateInput = ({ initialStartDate, auctionId, showRequiredFieldIcon = f
         </>
       ) : (
         <div className={cn('text-slate-500 overflow-hidden text-ellipsis', !initialStartDate && 'italic')}>
-          {initialStartDate ? selectedDate?.toLocaleString(locale) : 'No start date'}
+          {initialStartDate ? selectedDate?.toLocaleString(locale) : t('auction.no_start_date')}
         </div>
       )}
     </div>

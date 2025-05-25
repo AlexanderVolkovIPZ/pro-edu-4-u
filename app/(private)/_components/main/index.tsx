@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import { AuctionWithRelationsType } from '@/app/types';
 import Container from '@/components/container';
@@ -8,7 +9,6 @@ import Pagination from '@/components/pagination';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Annoyed } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import AuctionCard from './auction-card';
 import Header from './header';
 
@@ -16,20 +16,49 @@ const PAGE_ITEMS_LIMIT = 8;
 
 const Main = () => {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const { data: { auctions = [], total, totalPages } = {}, isFetched } = useAuctionsByFilter<AuctionWithRelationsType>({
+  const { params, setParams } = useQueryParams({
+    isPublished: true,
+    page: 1,
+    limit: PAGE_ITEMS_LIMIT,
+    minLotPrice: undefined,
+    maxLotPrice: undefined,
+    categories: undefined,
+  });
+  const {
+    data: {
+      auctions = [],
+      total,
+      totalPages,
+      maxLotPriceExisted = 0,
+      minLotPriceExisted = 0,
+      lotCategoriesExistedNames = [],
+    } = {},
+    isFetched,
+  } = useAuctionsByFilter<AuctionWithRelationsType>({
     filters: {
-      isPublished: true,
-      page: currentPage,
-      limit: PAGE_ITEMS_LIMIT,
+      isPublished: params.isPublished,
+      page: params.page,
+      limit: params.limit,
+      minLotPrice: params.minLotPrice,
+      maxLotPrice: params.maxLotPrice,
+      categories: params.categories,
     },
     options: {
       staleTime: 1000 * 60 * 3,
     },
   });
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const maxLotPriceSelected = params.maxLotPrice
+    ? params.maxLotPrice
+    : Math.max(...auctions.map((auction) => auction.lot.reduce((max, lot) => Math.max(max, lot.startBid ?? 0), 0)));
+  const minLotPriceSelected = params.minLotPrice
+    ? params.minLotPrice
+    : Math.min(...auctions.map((auction) => auction.lot.reduce((min, lot) => Math.min(min, lot.startBid ?? 0), 0)));
+
+  const lotCategoriesSelectedNames = params.categories ? JSON.parse(params.categories) : [];
+
+  const onPageChange = (newPage: number) => {
+    setParams({ ...params, page: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -49,14 +78,29 @@ const Main = () => {
 
   return (
     <Container>
-      <Header />
+      <Header
+        onChangeFilters={({ priceRange: { minPrice, maxPrice }, categories }) =>
+          setParams({ ...params, minLotPrice: minPrice, maxLotPrice: maxPrice, categories })
+        }
+        data={{
+          maxLotPriceExisted,
+          minLotPriceExisted,
+          maxLotPriceSelected,
+          minLotPriceSelected,
+          lotCategoriesExistedNames,
+          lotCategoriesSelectedNames,
+        }}
+        isFetched={isFetched}
+        key={isFetched.toString()} //To force re-render
+      />
+
       <main className='mt-2 flex flex-col'>
         <div className='flex flex-wrap gap-3 lg:gap-4 flex-grow'>
           {isFetched ? (
             auctions.map((auction) => <AuctionCard auction={auction} key={auction.id} />)
           ) : (
             <>
-              {Array.from({ length: PAGE_ITEMS_LIMIT }).map((_, index) => (
+              {Array.from({ length: params.limit || PAGE_ITEMS_LIMIT }).map((_, index) => (
                 <Skeleton className='h-96 w-60' key={index} />
               ))}
             </>
@@ -66,9 +110,9 @@ const Main = () => {
         {isFetched && (
           <Pagination
             className='mt-4'
-            currentPage={currentPage}
+            currentPage={params.page}
             totalPages={totalPages || 1}
-            onPageChange={handlePageChange}
+            onPageChange={onPageChange}
             showSummary={false}
             itemsPerPage={PAGE_ITEMS_LIMIT}
             totalItems={total || 0}

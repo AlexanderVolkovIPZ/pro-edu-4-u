@@ -5,7 +5,7 @@ export type LotOverviewInfo = {
     categoryId: Category['id'];
     category: Category;
   }[];
-} & Pick<Lot, 'startBid' | 'buyNowBid' | 'minBidIncrement' | 'description' | 'id' | 'isSold'> & {
+} & Pick<Lot, 'startBid' | 'buyNowBid' | 'minBidIncrement' | 'description' | 'id' | 'isSold' | 'title'> & {
     bids?: (Bid & {
       user: Pick<User, 'id' | 'name'>;
     })[];

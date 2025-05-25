@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 
 type EmptyTableProps = {
@@ -6,12 +7,13 @@ type EmptyTableProps = {
   title: string;
   description: string;
   buttonTitle: string;
+  className?: string;
   onClick: () => void;
 };
 
-const EmptyPage = ({ icon: Icon, title, description, buttonTitle, onClick }: EmptyTableProps) => {
+const EmptyPage = ({ icon: Icon, title, description, buttonTitle, className = '', onClick }: EmptyTableProps) => {
   return (
-    <div className='flex flex-col items-center justify-center text-center mt-20'>
+    <div className={cn('flex flex-col items-center justify-center text-center mt-20', className)}>
       <Icon className='w-12 h-12 text-gray-400 animate-bounce' />
 
       <h1 className='mt-4 text-3xl font-semibold text-gray-700'>{title}</h1>

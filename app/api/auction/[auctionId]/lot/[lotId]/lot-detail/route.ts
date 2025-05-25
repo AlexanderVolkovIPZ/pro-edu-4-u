@@ -3,25 +3,25 @@ import { CreateLotDetailsType } from '@/app/types';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { lotId } = params;
-
-  if (!lotId) {
-    return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-  }
-
-  const details: CreateLotDetailsType = await request.json();
-
-  const data = details.map((detail) => ({
-    lotId,
-    ...detail,
-  }));
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { lotId } = params;
+
+    if (!lotId) {
+      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
+    }
+
+    const details: CreateLotDetailsType = await request.json();
+
+    const data = details.map((detail) => ({
+      lotId,
+      ...detail,
+    }));
+
     await prismaDb?.lotDetail.deleteMany({ where: { lotId } });
 
     if (!data.length) return NextResponse.json([]);

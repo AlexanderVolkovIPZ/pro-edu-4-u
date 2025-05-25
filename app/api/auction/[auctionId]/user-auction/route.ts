@@ -3,20 +3,20 @@ import { AuctionRole, UserAuction } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const url = new URL(request.url);
-  const searchParams = Object.fromEntries(url.searchParams.entries());
-  const params: Partial<UserAuction> = {
-    ...searchParams,
-  };
-  const { id, auctionId, userId, createdAt } = params;
-  const role = searchParams.role as AuctionRole | undefined;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const searchParams = Object.fromEntries(url.searchParams.entries());
+    const params: Partial<UserAuction> = {
+      ...searchParams,
+    };
+    const { id, auctionId, userId, createdAt } = params;
+    const role = searchParams.role as AuctionRole | undefined;
+
     const auctions = await prismaDb?.userAuction.findMany({
       where: {
         ...(id && { id }),

@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LucideIcon, Pencil, PencilOff } from 'lucide-react';
 import { useState } from 'react';
 import { FieldError, FieldValues, RegisterOptions, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 type InputBoxProps<T extends number | string | null> = {
@@ -41,7 +42,7 @@ const InputBox = <T extends number | string | null>({
   onError,
   setIsLoading,
 }: InputBoxProps<T>) => {
-  const [isOpened, setIsOpened] = useState(false);
+  const { t } = useTranslation();
   const {
     register,
     reset,
@@ -51,6 +52,8 @@ const InputBox = <T extends number | string | null>({
   } = useForm({
     resolver: zodResolver(schema ?? z.object({})),
   });
+
+  const [isOpened, setIsOpened] = useState(false);
 
   const onSubmit = async (data: FieldValues) => {
     if (setIsLoading) setIsLoading(true);
@@ -99,7 +102,7 @@ const InputBox = <T extends number | string | null>({
         </div>
       ) : (
         <div className={cn('text-slate-500 overflow-hidden text-ellipsis', !initialValue && 'italic')}>
-          {initialValue || `No ${title.toLowerCase()}`}
+          {initialValue || `${t('common.no')} ${title.toLowerCase()}`}
         </div>
       )}
       {isOpened && (
@@ -109,7 +112,7 @@ const InputBox = <T extends number | string | null>({
           onClick={handleSubmit(onSubmit)}
           disabled={isLoading}
         >
-          Save
+          {t('common.save')}
           {isLoading && (
             <div className='absolute inset-0 flex items-center justify-center'>
               <Spinner />

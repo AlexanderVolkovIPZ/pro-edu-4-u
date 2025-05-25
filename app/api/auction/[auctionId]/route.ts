@@ -1,6 +1,6 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction } from '@prisma/client';
+import { Auction, AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
@@ -10,9 +10,27 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    const mode = request.headers.get('x-access-mode') ?? 'view';
+
+    const filters =
+      mode === 'edit'
+        ? {
+            userAuction: {
+              some:
+                authUser.role === UserRole.ADMIN
+                  ? {}
+                  : {
+                      userId: authUser.id,
+                      role: AuctionRole.OWNER,
+                    },
+            },
+          }
+        : {};
+
     const auction = await prismaDb.auction.findFirst({
       where: {
         id: params.auctionId,
+        ...filters,
       },
       include: {
         lot: {
@@ -43,6 +61,10 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       },
     });
 
+    if (!auction) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
+
     return NextResponse.json(auction);
   } catch (error) {
     console.error('GET_AUCTION_ERROR -> ', error);
@@ -55,6 +77,19 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     const authUser = await getAuthUser();
     if (!authUser) {
       return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const body = await request.json();
@@ -101,12 +136,13 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
-        role: 'OWNER',
+        role: AuctionRole.OWNER,
       },
     });
 
-    if (!userAuction) {
-      return new NextResponse('You are not the owner of this auction', { status: 401 });
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
     }
 
     const deletedAction = await prismaDb.auction.delete({

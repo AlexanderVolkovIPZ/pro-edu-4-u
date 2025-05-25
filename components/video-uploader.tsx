@@ -18,6 +18,7 @@ import { Pause, Play, Upload, VideoIcon, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import Spinner from './spinner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
@@ -38,10 +39,7 @@ type VideoUploaderParams = {
 };
 
 const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzoneOptions }: VideoUploaderParams) => {
-  const [videos, setVideos] = useState<UploadedVideo[]>([]);
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
-  const isAllVideosUploaded = videos.every((video) => video.isVideoUploaded);
-  const [isUploading, setIsUploading] = useState(false);
+  const { t } = useTranslation();
 
   const { mutateAsync: createVideo } = useCreateVideo(auctionId, lotId);
   const { mutateAsync: deleteVideo } = useDeleteVideo(auctionId, lotId);
@@ -49,6 +47,12 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
+  const [videos, setVideos] = useState<UploadedVideo[]>([]);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const isAllVideosUploaded = videos.every((video) => video.isVideoUploaded);
 
   useEffect(() => {
     setVideos(
@@ -111,13 +115,19 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
           id: identifier,
         });
 
-        toast.success(`The video ${videoToDelete.file.name} has been successfully deleted`, {
-          style: {
-            textAlign: 'center',
-          },
-        });
+        toast.success(
+          t('toast.success.the_media_has_been_successfully_deleted', {
+            mediaType: t('toast.success.video'),
+            name: videoToDelete.file.name,
+          }),
+          {
+            style: {
+              textAlign: 'center',
+            },
+          }
+        );
       } catch {
-        toast.error('Something went wrong');
+        toast.error(t('toast.error.something_went_wrong'));
       }
     }
 
@@ -149,14 +159,20 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
       await createVideo(data);
 
       const newVideosLength = data.filter(({ isFileUploaded }) => !isFileUploaded).length;
-      toast.success(`Successfully uploaded ${newVideosLength} video${newVideosLength > 1 ? 's' : ''}.`, {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      toast.success(
+        t('toast.success.successfully_uploaded_media', {
+          count: newVideosLength,
+          mediaType: newVideosLength > 1 ? t('toast.success.videos') : t('toast.success.video'),
+        }),
+        {
+          style: {
+            textAlign: 'center',
+          },
+        }
+      );
     } catch {
       setIsUploading(false);
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setIsUploading(false);
     }
@@ -180,13 +196,18 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
     try {
       await reorderVideo({ id: draggableId, position: destination.index });
 
-      toast.success('The video position has been successfully updated', {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      toast.success(
+        t('toast.success.the_media_position_has_been_successfully_updated', {
+          mediaType: t('toast.success.video'),
+        }),
+        {
+          style: {
+            textAlign: 'center',
+          },
+        }
+      );
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setVideos((prevVideos) =>
         prevVideos.map((video) => ({
@@ -243,7 +264,7 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
       >
         <input {...getInputProps()} />
         <VideoIcon className='mx-auto h-12 w-12 text-gray-400' />
-        <p className='mt-2 text-sm text-gray-600'>Drag and drop some videos here, or click to select videos</p>
+        <p className='mt-2 text-sm text-gray-600'>{t('common.drag_and_drop_some_videos_here')}</p>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId='videos' direction='horizontal'>
@@ -281,7 +302,6 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
                               draggable={true}
                             />
 
-                            {/* <div className='absolute w-full h-full z-50 cursor-grabbing' /> */}
                             {isLoading ? (
                               <>
                                 <div className='absolute inset-0 bg-slate-500 opacity-50 rounded-lg'></div>
@@ -332,7 +352,7 @@ const VideoUploader = ({ auctionId, lotId, videos: existingVideos = [], dropzone
               </div>
             ) : (
               <div className='flex items-center'>
-                {`Upload Video${videos.length > 1 ? 's' : ''}`}
+                {`${t('new_lot.upload')} ${videos.length > 1 ? t('new_lot.videos') : t('new_lot.video')}`}
                 <Upload className='ml-2 h-4 w-4' />
               </div>
             )}

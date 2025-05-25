@@ -1,8 +1,6 @@
 'use client';
 
-import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { useAuction, useUpdateAuction } from '@/app/queries/auction';
-import { useUserAuctionsByFilter } from '@/app/queries/user-auction';
 import { AuctionWithRelationsType } from '@/app/types';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
@@ -10,9 +8,10 @@ import InputBox from '@/components/input-box';
 import NotFound from '@/components/not-found';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookType } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../_shared/schemas/title-schema';
+import { useTranslation } from 'react-i18next';
+import { getTitleSchema } from '../_shared/schemas/title-schema';
 import EndDateInput from './_components/end-date-input';
 import Header from './_components/header';
 import LotInput from './_components/lot-input';
@@ -24,24 +23,14 @@ type AuctionIdPageParams = {
 };
 
 const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
-  const authUser = useContext(AuthUserContext);
-  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
-
-  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(params.auctionId);
-  const { data: userAuctionsData, isFetched: isUserAuctionsFetched } = useUserAuctionsByFilter(
-    params.auctionId,
-    {
-      auctionId: params.auctionId,
-      userId: authUser?.id,
-      role: 'OWNER',
-    },
-    {
-      enabled: !!authUser?.id && !!params.auctionId,
-      staleTime: 600000,
-    }
-  );
-
+  const { t } = useTranslation();
   const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
+
+  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
+  const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(
+    params.auctionId,
+    'edit'
+  );
 
   const isAllRequiredFieldsFilled = [
     auctionData?.title,
@@ -49,7 +38,7 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
     auctionData?.endDate,
     auctionData?.lot &&
       auctionData.lot.every(
-        (lot) => lot.title && lot.startBid && lot.minBidIncrement && lot.photo.length > 0 && lot.lotCategory.length > 0
+        (lot) => lot.title && lot.startBid && lot.minBidIncrement && !!lot.photo.length && !!lot.lotCategory.length
       ),
   ].every(Boolean);
 
@@ -58,17 +47,17 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
 
     try {
       await updateAuction({ isPublished: true });
-      toast.success('The auction has been successfully published', {
+      toast.success(t('toast.success.the_auction_has_been_successfully_published'), {
         style: {
           textAlign: 'center',
         },
       });
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 
-  if (isUserAuctionsFetched && !userAuctionsData?.length) {
+  if (isAuctionFetched && !auctionData) {
     return (
       <Container>
         <NotFound />
@@ -80,10 +69,10 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
     <Container>
       {isShowedAlertDialog &&
         AlertDialog({
-          title: 'Are you absolutely sure?',
-          description: 'Are you sure you want to publish this auction?',
-          cancelBtnTitle: 'Cancel',
-          actionBtnTitle: 'Continue',
+          title: `${t('common.are_you_absolutely_sure')}?`,
+          description: `${t('auction.are_you_sure_you_want_to_publish_this_auction')}?`,
+          cancelBtnTitle: t('common.cancel'),
+          actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,
           showAlertDialog: isShowedAlertDialog,
           onConfirm,
@@ -91,19 +80,14 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
 
       {isAuctionFetched && auctionData ? (
         <div className='mx-auto bg-white'>
-          <Header
-            isButtonDisabled={!isAllRequiredFieldsFilled}
-            onBtnClick={() => {
-              setIsShowedAlertDialog(true);
-            }}
-          />
+          <Header isButtonDisabled={!isAllRequiredFieldsFilled} onBtnClick={() => setIsShowedAlertDialog(true)} />
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'>
             <div className='flex flex-col gap-y-4'>
               <InputBox
                 initialValue={auctionData?.title || ''}
-                title='Title'
+                title={t('auction.title')}
                 fieldName='title'
-                schema={titleSchema}
+                schema={getTitleSchema(t)}
                 isLoading={isUpdateAuctionPending}
                 icon={BookType}
                 registerOptions={{ required: true }}
@@ -111,19 +95,15 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                 inputProps={{
                   required: true,
                 }}
-                onSubmit={async (title) => {
-                  await updateAuction({ title });
-                }}
-                onSuccess={() => {
-                  toast.success('The title has been successfully updated', {
+                onSubmit={async (title) => await updateAuction({ title })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_title_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <DescriptionInput
                 initialDescription={auctionData?.description || ''}
@@ -131,16 +111,14 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
                 onSubmit={async (description) => {
                   await updateAuction({ description });
                 }}
-                onSuccess={() => {
-                  toast.success('The description has been successfully updated', {
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_description_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <LotInput
                 auctionData={{

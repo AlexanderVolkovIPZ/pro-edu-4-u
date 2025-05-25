@@ -35,7 +35,7 @@ const AuctionOverview = ({ auctionId }: AuctionOverviewProps) => {
           </>
         ) : (
           <div className='flex flex-col gap-y-4 overflow-hidden'>
-            {[...Array(4)].map((_, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton className='h-40' key={index} />
             ))}
           </div>

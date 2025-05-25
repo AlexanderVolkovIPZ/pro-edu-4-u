@@ -1,13 +1,15 @@
+import { TFunction } from 'i18next';
 import { z } from 'zod';
 
-export const minBidIncrementSchema = z.object({
-  minBidIncrement: z
-    .number({
-      required_error: 'Min bid increment is required',
-      invalid_type_error: 'Min bid increment must be a number',
-    })
-    .nullable()
-    .refine((value) => value === null || value >= 0, {
-      message: 'Min bid increment must be greater than or equal to 0',
-    }),
-});
+export const createMinBidIncrementSchema = (t: TFunction) =>
+  z.object({
+    minBidIncrement: z
+      .number({
+        required_error: t('validation.min_bid_increment_is_required'),
+        invalid_type_error: t('validation.min_bid_increment_must_be_a_number'),
+      })
+      .nullable()
+      .refine((value) => value === null || value >= 0, {
+        message: t('validation.min_bid_increment_must_be_greater_or_equal_to_zero'),
+      }),
+  });

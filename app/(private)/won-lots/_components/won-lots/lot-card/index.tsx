@@ -1,9 +1,12 @@
+'use client';
+
 import { Media, MediaSlider } from '@/components/media-slider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Award, Calendar, ChevronRight, Tag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type LotCardProps = {
   auctionName: string;
@@ -17,6 +20,8 @@ type LotCardProps = {
 };
 
 const LotCard = ({ price, auctionName, lotName, media, categories, lotWonDate, isLoading, onClick }: LotCardProps) => {
+  const { t } = useTranslation();
+
   return (
     <Card className='overflow-hidden transition-all duration-300 hover:shadow-lg border-gray-200'>
       <CardContent className='p-4'>
@@ -24,7 +29,7 @@ const LotCard = ({ price, auctionName, lotName, media, categories, lotWonDate, i
           <div className='overflow-hidden rounded-lg'>
             <MediaSlider
               media={media}
-              alt='Auction Item'
+              alt={t('won_lots.auction_item')}
               imageProps={{
                 width: 200,
                 height: 200,
@@ -58,7 +63,9 @@ const LotCard = ({ price, auctionName, lotName, media, categories, lotWonDate, i
                 <div className='text-xl font-bold text-rose-500'>${price.toLocaleString()}</div>
                 <div className='flex items-center justify-end gap-1.5 text-xs text-muted-foreground'>
                   <Calendar className='w-3.5 h-3.5' />
-                  <span>Won on {lotWonDate}</span>
+                  <span>
+                    {t('won_lots.won_on')} {lotWonDate}
+                  </span>
                 </div>
               </div>
             </div>
@@ -78,7 +85,7 @@ const LotCard = ({ price, auctionName, lotName, media, categories, lotWonDate, i
 
       <CardFooter className='p-4 flex justify-end items-center bg-gray-50'>
         <Button variant='outline' disabled={isLoading} onClick={onClick}>
-          Pay Now
+          {t('won_lots.pay_now')}
           <ChevronRight className='w-4 h-4 ml-1' />
         </Button>
       </CardFooter>

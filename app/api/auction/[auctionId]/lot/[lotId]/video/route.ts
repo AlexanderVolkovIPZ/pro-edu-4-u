@@ -1,18 +1,18 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
 import { CreateFileType, DeleteFileType } from '@/app/types';
-import { Video } from '@prisma/client';
+import { AuctionRole, UserRole, Video } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body: CreateFileType<Video> = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const body: CreateFileType<Video> = await request.json();
+
     const uploadedVideos: Video[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
@@ -56,14 +56,27 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 }
 
 export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { id }: DeleteFileType = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb?.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
+
+    const { id }: DeleteFileType = await request.json();
+
     const video = await prismaDb?.video.findFirst({
       where: {
         id,

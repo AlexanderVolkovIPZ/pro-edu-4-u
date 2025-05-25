@@ -1,19 +1,35 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
 import prismaDb from '@/lib/prismadb';
+import { AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const filters =
+      authUser.role === UserRole.ADMIN
+        ? { id: params.lotId, auctionId: params.auctionId }
+        : {
+            id: params.lotId,
+            auctionId: params.auctionId,
+            auction: {
+              userAuction: {
+                some: {
+                  userId: authUser.id,
+                  role: AuctionRole.OWNER,
+                },
+              },
+            },
+          };
+
     const lot = await prismaDb.lot.findFirst({
       where: {
-        id: params.lotId,
-        auctionId: params.auctionId,
+        ...filters,
       },
       include: {
         photo: {
@@ -45,6 +61,10 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
       },
     });
 
+    if (!lot) {
+      return new NextResponse('Lot not found', { status: 404 });
+    }
+
     return NextResponse.json(lot);
   } catch (error) {
     console.error('GET_LOT_ERROR -> ', error);
@@ -53,15 +73,38 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
 }
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const body = await request.json();
-  const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+
+    const ownerAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const hasUserAuctionBid = await prismaDb.bid.findFirst({
+      where: {
+        lotId: params.lotId,
+        user: {
+          id: authUser.id,
+        },
+      },
+    });
+
+    if (!ownerAuction && !isAuthUserAdmin && !hasUserAuctionBid) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
+
+    const body = await request.json();
+    const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
+
     const lot = await prismaDb.lot.update({
       data: {
         title,
@@ -86,12 +129,25 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 }
 
 export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const userAuction = await prismaDb.userAuction.findFirst({
+      where: {
+        userId: authUser.id,
+        auctionId: params.auctionId,
+        role: AuctionRole.OWNER,
+      },
+    });
+
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
+    if (!userAuction && !isAuthUserAdmin) {
+      return new NextResponse('Auction not found', { status: 404 });
+    }
+
     const photos = await prismaDb.photo.findMany({ where: { lotId: params.lotId } });
     const videos = await prismaDb.video.findMany({ where: { lotId: params.lotId } });
 

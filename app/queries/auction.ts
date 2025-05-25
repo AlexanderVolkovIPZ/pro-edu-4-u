@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryClient } from '../providers/query-client-provider';
-import { AuctionWithStringDates } from '../types';
+import { AuctionMode, AuctionWithStringDates } from '../types';
 import { AUCTION } from './query-keys';
 
 export function useCreateAuction<T extends Pick<Auction, 'title'>>(): UseMutationResult<Auction, Error, T> {
@@ -64,11 +64,19 @@ export function useUpdateAuction<
   });
 }
 
-export function useAuction<T extends AuctionWithStringDates>(auctionId: string): UseQueryResult<T, Error> {
+export function useAuction<T extends AuctionWithStringDates>(
+  auctionId: string,
+  mode: AuctionMode = 'view'
+): UseQueryResult<T, Error> {
   return useQuery<T, Error>({
     queryKey: [AUCTION, auctionId],
     queryFn: async () => {
-      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`);
+      const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}`, {
+        headers: {
+          'x-access-mode': mode,
+        },
+      });
+
       return response.data;
     },
     staleTime: 1000 * 60,
@@ -76,7 +84,16 @@ export function useAuction<T extends AuctionWithStringDates>(auctionId: string):
   });
 }
 
-type QueryData<T> = { auctions: T[]; total: number; totalPages: number; page: number; limit: number };
+type QueryData<T> = {
+  auctions: T[];
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  maxLotPriceExisted: number;
+  minLotPriceExisted: number;
+  lotCategoriesExistedNames: string[];
+};
 
 export function useAuctionsByFilter<T extends AuctionWithStringDates>({
   filters,
@@ -85,19 +102,17 @@ export function useAuctionsByFilter<T extends AuctionWithStringDates>({
   filters?: Partial<AuctionWithStringDates> & {
     page?: number;
     limit?: number;
+    loadForCurrentUser?: boolean;
+    minLotPrice?: number;
+    maxLotPrice?: number;
+    categories?: string;
   };
   options?: Omit<UseQueryOptions<QueryData<T>, Error>, 'queryKey'>;
 }): UseQueryResult<QueryData<T>, Error> {
   return useQuery({
     queryKey: [AUCTION, JSON.stringify(filters)],
     queryFn: async () => {
-      const response = await axios.get<{
-        auctions: T[];
-        total: number;
-        totalPages: number;
-        page: number;
-        limit: number;
-      }>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
+      const response = await axios.get<QueryData<T>>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction`, {
         params: {
           ...filters,
         },

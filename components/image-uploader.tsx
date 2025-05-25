@@ -19,6 +19,7 @@ import { CldImage } from 'next-cloudinary';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import Spinner from './spinner';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
@@ -39,13 +40,15 @@ type ImageUploaderParams = {
 };
 
 const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptions }: ImageUploaderParams) => {
-  const [images, setImages] = useState<UploadedImage[]>([]);
-  const isAllImagesUploaded = images.every((image) => image.isImageUploaded);
-  const [isUploading, setIsUploading] = useState(false);
+  const { t } = useTranslation();
 
   const { mutateAsync: createPhoto } = useCreatePhoto(auctionId, lotId);
   const { mutateAsync: deletePhoto } = useDeletePhoto(auctionId, lotId);
   const { mutateAsync: reorderPhoto } = useReorderPhoto(auctionId, lotId);
+
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const isAllImagesUploaded = images.every((image) => image.isImageUploaded);
+  const [isUploading, setIsUploading] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -110,13 +113,19 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
           id: identifier,
         });
 
-        toast.success(`The image ${imageToDelete.file.name} has been successfully deleted`, {
-          style: {
-            textAlign: 'center',
-          },
-        });
+        toast.success(
+          t('toast.success.the_media_has_been_successfully_deleted', {
+            mediaType: t('toast.success.image'),
+            name: imageToDelete.file.name,
+          }),
+          {
+            style: {
+              textAlign: 'center',
+            },
+          }
+        );
       } catch {
-        toast.error('Something went wrong');
+        toast.error(t('toast.error.something_went_wrong'));
       }
     }
 
@@ -148,14 +157,20 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
       await createPhoto(data);
 
       const newImagesLength = data.filter(({ isFileUploaded }) => !isFileUploaded).length;
-      toast.success(`Successfully uploaded ${newImagesLength} image${newImagesLength > 1 ? 's' : ''}.`, {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      toast.success(
+        t('toast.success.successfully_uploaded_media', {
+          count: newImagesLength,
+          mediaType: newImagesLength > 1 ? t('toast.success.images') : t('toast.success.image'),
+        }),
+        {
+          style: {
+            textAlign: 'center',
+          },
+        }
+      );
     } catch {
       setIsUploading(false);
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setIsUploading(false);
     }
@@ -179,13 +194,18 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
     try {
       await reorderPhoto({ id: draggableId, position: destination.index });
 
-      toast.success('The image position has been successfully updated', {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      toast.success(
+        t('toast.success.the_media_position_has_been_successfully_updated', {
+          mediaType: t('toast.success.image'),
+        }),
+        {
+          style: {
+            textAlign: 'center',
+          },
+        }
+      );
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setImages((prevImages) =>
         prevImages.map((image) => ({
@@ -228,7 +248,7 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
       >
         <input {...getInputProps()} />
         <ImageIcon className='mx-auto h-12 w-12 text-gray-400' />
-        <p className='mt-2 text-sm text-gray-600'>Drag and drop some images here, or click to select images</p>
+        <p className='mt-2 text-sm text-gray-600'>{t('common.drag_and_drop_some_images_here')}</p>
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
@@ -306,7 +326,7 @@ const ImageUploader = ({ auctionId, lotId, images: existingImages, dropzoneOptio
               </div>
             ) : (
               <div className='flex items-center'>
-                {`Upload Image${images.length > 1 ? 's' : ''}`}
+                {`${t('new_lot.upload')} ${images.length > 1 ? t('new_lot.images') : t('new_lot.image')}`}
                 <Upload className='ml-2 h-4 w-4' />
               </div>
             )}

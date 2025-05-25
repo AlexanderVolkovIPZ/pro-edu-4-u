@@ -1,5 +1,11 @@
+'use client';
+
+import { useTranslation } from 'react-i18next';
+
 const Appearance = () => {
-  return <div>Appearance</div>;
+  const { t } = useTranslation();
+
+  return <div>{t('settings.appearance')}</div>;
 };
 
 export default Appearance;

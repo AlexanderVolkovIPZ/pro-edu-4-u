@@ -3,15 +3,19 @@ export const tabsList: {
   route: string;
 }[] = [
   {
-    name: 'Overview',
+    name: 'overview',
     route: 'overview',
   },
   {
-    name: 'Details',
+    name: 'details',
     route: 'details',
   },
   {
-    name: 'Bid Process',
+    name: 'bid_process',
     route: 'bid-process',
+  },
+  {
+    name: 'buy_now',
+    route: 'buy-now',
   },
 ];

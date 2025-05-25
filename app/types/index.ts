@@ -1,4 +1,5 @@
 import { Auction, Category, Lot, LotCategory, Photo, UserAuction, Video, LotDetail, Bid, User } from '@prisma/client';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next/types';
 
 export type CreateFileType<T extends Photo | Video> = {
   id: T['id'];
@@ -44,3 +45,10 @@ export type CreateLotCategoriesType = {
 };
 
 export type CreateLotDetailsType = Pick<LotDetail, 'fieldName' | 'fieldValue' | 'iconName'>[];
+
+export type GetServerSessionParams =
+  | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
+  | [NextApiRequest, NextApiResponse]
+  | [];
+
+export type AuctionMode = 'view' | 'edit';

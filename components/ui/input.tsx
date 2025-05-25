@@ -8,10 +8,11 @@ import { Eye, EyeOff } from 'lucide-react';
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: FieldError;
   errorMsgPosition?: 'bottom-left' | 'bottom-right';
+  shouldShowErrorMsg?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, error = null, errorMsgPosition = 'bottom-left', ...props }, ref) => {
+  ({ className, type, error = null, errorMsgPosition = 'bottom-left', shouldShowErrorMsg = true, ...props }, ref) => {
     const isPassword = type === 'password';
     const [shouldShowPassword, setShouldShowPassword] = useState(false);
     const getErrorMsgPosition = () => {
@@ -61,7 +62,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {error && (
+        {error && shouldShowErrorMsg && (
           <p className={cn('text-xs text-red-500 absolute -bottom-4', getErrorMsgPosition())}>{error.message}</p>
         )}
       </div>

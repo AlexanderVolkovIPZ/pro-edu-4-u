@@ -1,18 +1,15 @@
 import QueryClientProvider from '@/app/providers/query-client-provider';
 import { ToastProvider } from '@/app/providers/toast-provider';
-import type { Metadata } from 'next';
+import LayoutContainer from '@/components/layout-container';
+import dynamic from 'next/dynamic';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AccountProvider } from './providers/account-provider';
-import LayoutContainer from '@/components/layout-container';
 import { SocketProvider } from './providers/socket-provider';
 
-const inter = Inter({ subsets: ['latin'] });
+const I18nProvider = dynamic(() => import('./providers/i18n-provider'), { ssr: false });
 
-export const metadata: Metadata = {
-  title: 'PRO-EDU-4-U',
-  description: 'PRO-EDU-4-U',
-};
+const inter = Inter({ subsets: ['latin'] });
 
 export default async function RootLayout({
   children,
@@ -21,12 +18,18 @@ export default async function RootLayout({
 }>) {
   return (
     <QueryClientProvider>
-      <html lang='en'>
+      <html>
+        <head>
+          <title>Bidium</title>
+          <link rel='icon' type='image/x-icon' href='./logo.ico' />
+        </head>
         <body className={`${inter.className}`}>
           <SocketProvider>
             <AccountProvider>
               <ToastProvider>
-                <LayoutContainer>{children}</LayoutContainer>
+                <I18nProvider>
+                  <LayoutContainer>{children}</LayoutContainer>
+                </I18nProvider>
               </ToastProvider>
             </AccountProvider>
           </SocketProvider>

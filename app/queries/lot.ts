@@ -1,7 +1,7 @@
 'use client';
 
 import { Auction, Lot } from '@prisma/client';
-import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
@@ -136,13 +136,18 @@ export function useDeleteLot(
   });
 }
 
-export function useLot<T extends LotWithRelationsType>(auctionId: string, lotId: string): UseQueryResult<T, Error> {
+export function useLot<T extends LotWithRelationsType>(
+  auctionId: string,
+  lotId: string,
+  options?: Omit<UseQueryOptions<T, Error>, 'queryKey'>
+): UseQueryResult<T, Error> {
   return useQuery<T, Error, T>({
     queryKey: [LOT, auctionId, lotId],
     queryFn: async () => {
       const response = await axios.get<T>(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}`);
       return response.data;
     },
+    ...options,
   });
 }
 

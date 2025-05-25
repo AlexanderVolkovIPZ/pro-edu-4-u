@@ -5,15 +5,15 @@ import Tab from './tab';
 
 const tabList = [
   {
-    title: 'Profile',
+    title: 'profile',
     path: '/',
   },
   {
-    title: 'Account',
+    title: 'account',
     path: '/account',
   },
   {
-    title: 'Appearance',
+    title: 'appearance',
     path: '/appearance',
   },
 ];

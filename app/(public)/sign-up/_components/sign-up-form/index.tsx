@@ -1,29 +1,23 @@
 'use client';
 
 import { confirmPasswordSchema } from '@/app/_shared/schemas/confirm-password-schema';
-import { emailSchema } from '@/app/_shared/schemas/email-schema';
-import { passwordSchema } from '@/app/_shared/schemas/password-schema';
+import { getEmailSchema } from '@/app/_shared/schemas/email-schema';
+import { getPasswordSchema } from '@/app/_shared/schemas/password-schema';
 import { useCreateUser } from '@/app/queries/auth-user';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { TFunction } from 'i18next';
 import { signIn, SignInOptions } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { AiFillGithub } from 'react-icons/ai';
 import { FcGoogle } from 'react-icons/fc';
-
-const signUpSchema = emailSchema
-  .merge(passwordSchema)
-  .merge(confirmPasswordSchema)
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
 
 const authOptions: SignInOptions = {
   redirect: true,
@@ -36,22 +30,33 @@ type LoadingType = {
   credentials: boolean;
 };
 
+const getSignUpSchema = (t: TFunction) =>
+  getEmailSchema(t)
+    .merge(getPasswordSchema(t))
+    .merge(confirmPasswordSchema)
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.password_do_not_match'),
+      path: ['confirmPassword'],
+    });
+
 const SignUp = () => {
-  const [isLoading, setIsLoading] = useState<LoadingType>({
-    google: false,
-    github: false,
-    credentials: false,
-  });
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<FieldValues>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(getSignUpSchema(t)),
     mode: 'onBlur',
   });
   const { mutateAsync } = useCreateUser();
+
+  const [isLoading, setIsLoading] = useState<LoadingType>({
+    google: false,
+    github: false,
+    credentials: false,
+  });
 
   const onSubmit = async (data: FieldValues) => {
     if (isLoading.credentials || isLoading.github || isLoading.google) return;
@@ -74,8 +79,8 @@ const SignUp = () => {
       toast.success(
         () => (
           <div>
-            <div className='text-center font-bold'>Registration Successful!</div>
-            <div className='text-center'>Please check your email to confirm your account.</div>
+            <div className='text-center font-bold'>{t('toast.success.registration_success')}!</div>
+            <div className='text-center'>{t('toast.success.please_check_your_email_to_confirm_your_account')}</div>
           </div>
         ),
         {
@@ -83,7 +88,7 @@ const SignUp = () => {
         }
       );
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setIsLoading((prevState) => ({
         ...prevState,
@@ -95,8 +100,8 @@ const SignUp = () => {
   return (
     <div className='mx-auto w-full max-w-[322px] space-y-4 rounded-lg bg-card p-6 shadow-lg'>
       <div className='space-y-2 text-center'>
-        <h2 className='text-2xl font-bold'>Sign Up</h2>
-        <p className='text-muted-foreground'>Create a new account or get started</p>
+        <h2 className='text-2xl font-bold'>{t('common.sign_up')}</h2>
+        <p className='text-muted-foreground'>{t('sign_up.create_a_new_account_or_get_started')}</p>
       </div>
       <div className='space-y-6'>
         <div className='space-y-2'>
@@ -115,7 +120,7 @@ const SignUp = () => {
           <Input
             id='password'
             type='password'
-            placeholder='Enter a secure password'
+            placeholder={t('common.enter_a_secure_password')}
             required
             {...register('password', { required: true })}
             error={errors['password'] as FieldError}
@@ -126,14 +131,14 @@ const SignUp = () => {
           <Input
             id='confirm-password'
             type='password'
-            placeholder='Confirm your password'
+            placeholder={t('sign_up.confirm_your_password')}
             required
             {...register('confirmPassword', { required: true })}
             error={errors['confirmPassword'] as FieldError}
           />
         </div>
         <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
-          {isLoading.credentials ? <Spinner /> : 'Sign Up'}
+          {isLoading.credentials ? <Spinner /> : t('common.sign_up')}
         </Button>
       </div>
       <div className='relative'>
@@ -141,7 +146,7 @@ const SignUp = () => {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-card px-2 text-muted-foreground'>Or continue with</span>
+          <span className='bg-card px-2 text-muted-foreground'>{t('common.or_continue_with')}</span>
         </div>
       </div>
       <div className='grid grid-cols-2 gap-4'>
@@ -157,7 +162,7 @@ const SignUp = () => {
             const result = await signIn('github', authOptions);
 
             if (result?.error) {
-              toast.error('Authentication failed');
+              toast.error(t('toast.error.authentication_failed'));
             }
 
             setIsLoading((prevState) => ({
@@ -187,7 +192,7 @@ const SignUp = () => {
             const result = await signIn('google', authOptions);
 
             if (result?.error) {
-              toast.error('Authentication failed');
+              toast.error(t('toast.error.authentication_failed'));
             }
 
             setIsLoading((prevState) => ({
@@ -206,13 +211,13 @@ const SignUp = () => {
         </Button>
       </div>
       <div className='text-center text-sm text-muted-foreground'>
-        Already have an account?
+        {t('sign_up.already_have_an_account')}
         <Link
           href='/sign-in'
           className='font-medium underline underline-offset-4 ml-1 hover:text-slate-700'
           prefetch={false}
         >
-          Sign in
+          {t('common.sign_in')}
         </Link>
       </div>
     </div>

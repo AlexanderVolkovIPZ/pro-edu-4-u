@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
 
 export async function GET() {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
     const categories = await prismaDb.category.findMany();
 
     return NextResponse.json(categories);

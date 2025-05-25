@@ -1,19 +1,23 @@
 import { Slider } from '@/components/ui/slider';
 import { BID_INCREMENT_STORAGE_KEY } from '../_shared/constants';
 
-export const BidIncrementSlider = ({
-  minBidIncrement,
-  maxBidIncrement,
-  bidIncrement,
-  setBidIncrement,
-}: {
+type BidIncrementSliderProps = {
+  label: string;
   minBidIncrement: number;
   maxBidIncrement: number;
   bidIncrement: number;
   setBidIncrement: (value: number) => void;
-}) => (
+};
+
+export const BidIncrementSlider = ({
+  label,
+  minBidIncrement,
+  maxBidIncrement,
+  bidIncrement,
+  setBidIncrement,
+}: BidIncrementSliderProps) => (
   <div>
-    <label className='block text-sm font-medium text-gray-700 mb-1'>Bid Increment</label>
+    <label className='block text-sm font-medium text-gray-700 mb-1'>{label}</label>
     <Slider
       min={minBidIncrement}
       max={maxBidIncrement}

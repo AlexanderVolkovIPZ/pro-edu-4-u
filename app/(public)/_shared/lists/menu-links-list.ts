@@ -1,7 +1,7 @@
 export const menuLinksList = [
   {
-    title: 'Courses',
-    link: '/courses',
+    title: 'Auctions',
+    link: '/',
   },
   {
     title: 'Resources',

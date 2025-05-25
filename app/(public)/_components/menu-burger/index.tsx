@@ -4,13 +4,12 @@ import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/s
 import { MenuIcon } from 'lucide-react';
 import Link from 'next/link';
 
-const MenuBurger = () => {
+const MenuBurger = ({ signInLabel, signUpLabel }: { signInLabel: string; signUpLabel: string }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant='outline' size='icon' className='md:hidden'>
           <MenuIcon className='h-6 w-6' />
-          <span className='sr-only'>Toggle menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent side='right'>
@@ -24,12 +23,12 @@ const MenuBurger = () => {
           ))}
           <SheetClose asChild>
             <Link href='/sign-in' className='text-muted-foreground hover:text-gray-900 text-2xl'>
-              Sign In
+              {signInLabel}
             </Link>
           </SheetClose>
           <SheetClose asChild>
             <Link href='/sign-up' className='text-muted-foreground hover:text-gray-900 text-2xl'>
-              Sign Up
+              {signUpLabel}
             </Link>
           </SheetClose>
         </nav>

@@ -3,20 +3,20 @@ import { CreateLotCategoriesType } from '@/app/types';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { lotId } = params;
-
-  if (!lotId) {
-    return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-  }
-
-  const { categoryIds }: CreateLotCategoriesType = await request.json();
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { lotId } = params;
+
+    if (!lotId) {
+      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
+    }
+
+    const { categoryIds }: CreateLotCategoriesType = await request.json();
+
     await prismaDb?.lotCategory.deleteMany({
       where: {
         lotId,
@@ -48,18 +48,18 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 }
 
 export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  const { lotId } = params;
-
-  if (!lotId) {
-    return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-  }
-
   try {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { lotId } = params;
+
+    if (!lotId) {
+      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
+    }
+
     const lotCategories = await prismaDb?.lotCategory.findMany({
       where: {
         lotId,

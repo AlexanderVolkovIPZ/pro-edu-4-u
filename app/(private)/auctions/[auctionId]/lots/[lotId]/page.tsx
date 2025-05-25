@@ -1,11 +1,9 @@
 'use client';
 
-import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { useCategory } from '@/app/queries/category';
 import { useDeleteLot, useLot, useUpdateLot } from '@/app/queries/lot';
 import { useCreateLotCategories } from '@/app/queries/lot-category';
 import { useCreateLotDetails } from '@/app/queries/lot-detail';
-import { useUserAuctionsByFilter } from '@/app/queries/user-auction';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
 import ImageUploader from '@/components/image-uploader';
@@ -15,16 +13,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import VideoUploader from '@/components/video-uploader';
 import { BookType, LucideDollarSign } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../../../_shared/schemas/title-schema';
+import { useTranslation } from 'react-i18next';
+import { getTitleSchema } from '../../../_shared/schemas/title-schema';
 import DescriptionInput from '../../_shared/components/description-input';
 import CategoryInput from './_components/category-input';
 import DetailInput from './_components/detail-input';
 import Header from './_components/header';
-import { buyNowBidSchema } from './_shared/schemas/buy-now-bid';
-import { minBidIncrementSchema } from './_shared/schemas/min-bid-increment';
-import { startBidSchema } from './_shared/schemas/start-bid';
+import { createByNowBidSchema } from './_shared/schemas/buy-now-bid';
+import { createMinBidIncrementSchema } from './_shared/schemas/min-bid-increment';
+import { getStartBidSchema } from './_shared/schemas/start-bid';
 
 type LotIdPageParams = {
   auctionId: string;
@@ -32,8 +31,20 @@ type LotIdPageParams = {
 };
 
 const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
-  const authUser = useContext(AuthUserContext);
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const { data: lotData, isFetched: isLotFetched } = useLot(params.auctionId, params.lotId);
+  const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
+  const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
+
+  const { mutateAsync: createLotCategories, isPending: isCreateLotCategoriesPending } = useCreateLotCategories(
+    params.auctionId,
+    params.lotId
+  );
+  const { mutateAsync: createLotDetails } = useCreateLotDetails(params.auctionId, params.lotId);
+  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
+
   const [isUpdating, setIsUpdating] = useState({
     isTitleUpdating: false,
     isStartBidUpdating: false,
@@ -43,47 +54,23 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
   });
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
 
-  const { data: lotData, isFetched: isLotFetched } = useLot(params.auctionId, params.lotId);
-  const { data: categoriesData, isFetched: isCategoriesFetched } = useCategory();
-
-  const { mutateAsync: createLotCategories, isPending: isCreateLotCategoriesPending } = useCreateLotCategories(
-    params.auctionId,
-    params.lotId
-  );
-  const { mutateAsync: createLotDetails } = useCreateLotDetails(params.auctionId, params.lotId);
-  const { data: userAuctionsData, isFetched: isUserAuctionsFetched } = useUserAuctionsByFilter(
-    params.auctionId,
-    {
-      auctionId: params.auctionId,
-      userId: authUser?.id,
-      role: 'OWNER',
-    },
-    {
-      enabled: !!authUser?.id && !!params.auctionId,
-      staleTime: 600000,
-    }
-  );
-
-  const { mutateAsync: updateLot, isPending } = useUpdateLot(params.auctionId, params.lotId);
-  const { mutateAsync: deleteLot } = useDeleteLot(params.auctionId, params.lotId);
-
   const isFetched = isLotFetched && isCategoriesFetched;
 
   const onDeleteLot = async () => {
     try {
       await deleteLot();
 
-      toast.success('Lot deleted successfully');
+      toast.success(t('toast.success.lot_deleted_successfully'));
 
       router.push(`/auctions/${params.auctionId}`);
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     } finally {
       setIsShowedAlertDialog(false);
     }
   };
 
-  if (isUserAuctionsFetched && !userAuctionsData?.length) {
+  if (isLotFetched && !lotData) {
     return (
       <Container>
         <NotFound />
@@ -95,14 +82,15 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
     <Container>
       {isShowedAlertDialog &&
         AlertDialog({
-          title: 'Are you absolutely sure?',
-          description: 'Are you sure you want to delete this lot?',
-          cancelBtnTitle: 'Cancel',
-          actionBtnTitle: 'Continue',
+          title: `${t('common.are_you_absolutely_sure')}?`,
+          description: `${t('new_lot.are_you_sure_you_want_to_delete_this_lot')}?`,
+          cancelBtnTitle: t('common.cancel'),
+          actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,
           showAlertDialog: isShowedAlertDialog,
           onConfirm: onDeleteLot,
         })}
+
       {isFetched ? (
         <>
           <Header auctionLink={`/auctions/${params.auctionId}`} setShowAlertDialog={setIsShowedAlertDialog} />
@@ -110,7 +98,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
             <div className='flex flex-col gap-y-4'>
               <InputBox
                 initialValue={lotData?.title ?? ''}
-                title='Title'
+                title={t('new_lot.title')}
                 fieldName='title'
                 isLoading={isUpdating.isTitleUpdating}
                 showRequiredFieldIcon={true}
@@ -123,62 +111,50 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 registerOptions={{ required: true }}
                 icon={BookType}
                 inputProps={{
-                  placeholder: 'Enter lot title',
+                  placeholder: t('new_lot.enter_lot_title'),
                   required: true,
                 }}
-                schema={titleSchema}
-                onSubmit={async (title) => {
-                  await updateLot({ title });
-                }}
-                onSuccess={() => {
-                  toast.success('The title has been successfully updated', {
+                schema={getTitleSchema(t)}
+                onSubmit={async (title) => await updateLot({ title })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_title_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <DescriptionInput
                 initialDescription={lotData?.description ?? ''}
                 isPending={isPending}
-                onSubmit={async (description) => {
-                  await updateLot({ description });
-                }}
-                onSuccess={() => {
-                  toast.success('The description has been successfully updated', {
+                onSubmit={async (description) => await updateLot({ description })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_description_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <CategoryInput
                 initialCategories={categoriesData}
                 initialLotCategoryIds={lotData?.lotCategory?.map((lotCategory) => lotCategory.categoryId)}
                 isLoading={isCreateLotCategoriesPending}
                 showRequiredFieldIcon={true}
-                onSubmit={async (data) => {
-                  await createLotCategories(data);
-                }}
-                onSuccess={() => {
-                  toast.success('The categories has been successfully updated', {
+                onSubmit={async (data) => await createLotCategories(data)}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_categories_have_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <DetailInput
-                title='Details (with using AI to select icons)'
+                title={`${t('new_lot.details')} (${t('new_lot.with_using_ai_to_select_icons')})`}
                 isLoading={isUpdating.isCreateLotDetailsUpdating}
                 setIsLoading={(isLoading) =>
                   setIsUpdating((prev) => ({
@@ -191,23 +167,19 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   name: lotDetail.fieldName,
                   value: lotDetail.fieldValue,
                 }))}
-                onSubmit={async (fields) => {
-                  await createLotDetails(fields);
-                }}
-                onSuccess={() => {
-                  toast.success('The lot details has been successfully updated', {
+                onSubmit={async (fields) => await createLotDetails(fields)}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_lot_details_have_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <InputBox
                 initialValue={lotData?.startBid ?? null}
-                title='Start bid'
+                title={t('new_lot.start_bid')}
                 fieldName='startBid'
                 icon={LucideDollarSign}
                 isLoading={isUpdating.isStartBidUpdating}
@@ -220,29 +192,25 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 }
                 registerOptions={{ valueAsNumber: true }}
                 inputProps={{
-                  placeholder: 'Enter start bid',
+                  placeholder: t('new_lot.enter_start_bid'),
                   type: 'number',
                   step: 1,
                   min: 0,
                 }}
-                schema={startBidSchema}
-                onSubmit={async (startBid) => {
-                  await updateLot({ startBid });
-                }}
-                onSuccess={() => {
-                  toast.success('The start bid has been successfully updated', {
+                schema={getStartBidSchema(t)}
+                onSubmit={async (startBid) => await updateLot({ startBid })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_start_bid_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <InputBox
                 initialValue={lotData?.minBidIncrement ?? null}
-                title='Minimum bid increment'
+                title={t('new_lot.minimum_bid_increment')}
                 fieldName='minBidIncrement'
                 icon={LucideDollarSign}
                 isLoading={isUpdating.isMinBidIncrementUpdating}
@@ -255,29 +223,25 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 }
                 registerOptions={{ valueAsNumber: true }}
                 inputProps={{
-                  placeholder: 'Enter minimum bid increment',
+                  placeholder: t('new_lot.enter_minimum_bid_increment'),
                   type: 'number',
                   step: 1,
                   min: 0,
                 }}
-                schema={minBidIncrementSchema}
-                onSubmit={async (minBidIncrement) => {
-                  await updateLot({ minBidIncrement });
-                }}
-                onSuccess={() => {
-                  toast.success('The minimum bid increment has been successfully updated', {
+                schema={createMinBidIncrementSchema(t)}
+                onSubmit={async (minBidIncrement) => await updateLot({ minBidIncrement })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_minimum_bid_increment_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <InputBox
                 initialValue={lotData?.buyNowBid ?? null}
-                title='Buy now bid'
+                title={t('new_lot.buy_now_bid')}
                 fieldName='buyNowBid'
                 icon={LucideDollarSign}
                 isLoading={isUpdating.isBuyNowBidUpdating}
@@ -289,25 +253,21 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 }
                 registerOptions={{ valueAsNumber: true }}
                 inputProps={{
-                  placeholder: 'Enter minimum buy now bid',
+                  placeholder: t('new_lot.enter_buy_now_bid'),
                   type: 'number',
                   step: 1,
                   min: 0,
                 }}
-                schema={buyNowBidSchema}
-                onSubmit={async (buyNowBid) => {
-                  await updateLot({ buyNowBid });
-                }}
-                onSuccess={() => {
-                  toast.success('The buy now bid has been successfully updated', {
+                schema={createByNowBidSchema(t)}
+                onSubmit={async (buyNowBid) => await updateLot({ buyNowBid })}
+                onSuccess={() =>
+                  toast.success(t('toast.success.the_buy_now_price_has_been_successfully_updated'), {
                     style: {
                       textAlign: 'center',
                     },
-                  });
-                }}
-                onError={() => {
-                  toast.error('Something went wrong');
-                }}
+                  })
+                }
+                onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
             </div>
             <div className='flex flex-col gap-y-4'>

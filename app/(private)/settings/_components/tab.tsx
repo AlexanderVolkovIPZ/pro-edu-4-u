@@ -2,6 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
+
 type TabProps = {
   title: string;
   path: string;
@@ -9,6 +11,8 @@ type TabProps = {
 };
 
 const Tab = ({ title, path, isActive }: TabProps) => {
+  const { t } = useTranslation();
+
   return (
     <Link
       href={path}
@@ -18,7 +22,7 @@ const Tab = ({ title, path, isActive }: TabProps) => {
         !isActive && 'hover:underline'
       )}
     >
-      {title}
+      {t(`settings.${title}`)}
     </Link>
   );
 };

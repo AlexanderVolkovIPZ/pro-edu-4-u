@@ -11,18 +11,21 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { titleSchema } from '../_shared/schemas/title-schema';
+import { useTranslation } from 'react-i18next';
+import { getTitleSchema } from '../_shared/schemas/title-schema';
 
 const CreateAuctionPage = () => {
-  const { mutateAsync, isPending } = useCreateAuction();
   const router = useRouter();
+  const { t } = useTranslation();
+
+  const { mutateAsync, isPending } = useCreateAuction();
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     reset,
   } = useForm<FieldValues>({
-    resolver: zodResolver(titleSchema),
+    resolver: zodResolver(getTitleSchema(t)),
     mode: 'onBlur',
   });
 
@@ -32,15 +35,18 @@ const CreateAuctionPage = () => {
       const { id } = await mutateAsync({
         title: title.trim(),
       });
-      toast.success('The auction has been successfully created in draft status', {
+
+      toast.success(t('toast.success.the_auction_has_been_successfully_created_in_draft'), {
         style: {
           textAlign: 'center',
         },
       });
+
       router.push(`/auctions/${id}`);
+
       reset();
     } catch {
-      toast.error('Something went wrong');
+      toast.error(t('toast.error.something_went_wrong'));
     }
   };
 
@@ -50,24 +56,23 @@ const CreateAuctionPage = () => {
         <div className='bg-white rounded-xl max-w-2xl mx-auto'>
           <div className='text-center space-y-4 mb-8'>
             <h1 className='text-3xl md:text-4xl font-extrabold text-gray-900'>
-              <span className='text-violet-600'>Create</span> new <span className='text-rose-500'>auction</span>
+              <span className='text-violet-600'>{t('new_auction.create')}</span> {t('new_auction.new')}{' '}
+              <span className='text-rose-500'>{t('new_auction.auction')}</span>
             </h1>
 
-            <p className='text-gray-500 max-w-md mx-auto'>
-              Enter a captivating title that will make your auction stand out from the crowd
-            </p>
+            <p className='text-gray-500 max-w-md mx-auto'>{t('new_auction.auction_title_hint')}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
             <div className='space-y-2'>
               <Label htmlFor='title' className='text-sm font-medium flex items-center text-gray-700'>
                 <Sparkles className='w-4 h-4 mr-2 text-amber-500' />
-                Auction Title
+                {t('new_auction.auction_title')}
               </Label>
 
               <Input
                 id='title'
-                placeholder="e.g. 'Vintage Pocket Watch Collection'"
+                placeholder={t('new_auction.auction_title_placeholder')}
                 {...register('title', { required: true })}
                 error={errors['title'] as FieldError}
               />
@@ -81,7 +86,7 @@ const CreateAuctionPage = () => {
                 className='flex items-center text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all'
               >
                 <ArrowLeft className='w-4 h-4 mr-2' />
-                Back to Auctions
+                {t('new_auction.back_to_auctions')}
               </Button>
 
               <Button
@@ -91,7 +96,7 @@ const CreateAuctionPage = () => {
                   !isValid ? 'opacity-70' : ''
                 }`}
               >
-                <span className={isPending ? 'opacity-0' : 'opacity-100'}>Create Auction</span>
+                <span className={isPending ? 'opacity-0' : 'opacity-100'}>{t('new_auction.create_auction')}</span>
 
                 {isPending && (
                   <div className='absolute inset-0 flex items-center justify-center'>

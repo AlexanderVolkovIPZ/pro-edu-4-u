@@ -25,7 +25,7 @@ model User {
   emailVerified    DateTime?
   image            String?
   password         String?
-  role             String    @default("user")
+  role             UserRole  @default(USER)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -163,6 +163,7 @@ model Bid {
   lotId     String   @db.ObjectId
   bidderId  String   @db.ObjectId
   amount    Float
+  type      BidType  @default(BIDDING)
   isWinner  Boolean  @default(false)
   isPaid    Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -175,9 +176,9 @@ model Bid {
 }
 
 model Shipping {
-  id         String          @id @default(auto()) @map("_id") @db.ObjectId
-  lotId      String          @db.ObjectId
-  userId     String          @db.ObjectId
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  lotId      String         @db.ObjectId
+  userId     String         @db.ObjectId
   address    String
   city       String
   postalCode String
@@ -185,9 +186,9 @@ model Shipping {
   lastName   String
   phone      String
   email      String
-  status     ShippingStatus? @default(PENDING)
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  status     ShippingStatus @default(PENDING)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
   lot  Lot  @relation(fields: [lotId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -198,7 +199,7 @@ enum ShippingStatus {
   SHIPPED
   IN_TRANSIT
   DELIVERED
-  CANCELLED
+  CANCELED
 }
 
 enum Status {
@@ -209,4 +210,14 @@ enum Status {
 
 enum AuctionRole {
   OWNER
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum BidType {
+  BIDDING
+  INSTANT
 }

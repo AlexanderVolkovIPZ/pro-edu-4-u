@@ -1,4 +1,4 @@
-import { GetServerSessionParams } from './_shared/types';
+import { GetServerSessionParams } from '../types';
 import { getSession } from './get-session';
 import prismaDb from '@/lib/prismadb';
 

@@ -2,18 +2,21 @@
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ClipboardList, Clock } from 'lucide-react';
+import { Clock, History } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BidInfo } from '../_shared/types';
 
 const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
+  const { t } = useTranslation();
+
   return (
     <div className='w-full bg-white'>
-      <h3 className='flex items-center gap-2 text-xl font-semibold mb-4'>
-        <ClipboardList className='h-5 w-5' />
-        Bid History
+      <h3 className='flex items-center gap-2 text-xl font-semibold mb-4 text-slate-700'>
+        <History className='h-5 w-5 text-slate-600' />
+        {t('lot.bid_history')}
       </h3>
       <ScrollArea className='h-[300px] pr-4'>
-        {bids.length > 0 ? (
+        {bids.length ? (
           <div>
             {bids.map((bid) => (
               <div key={bid.id} className='flex items-center justify-between py-3 border-b last:border-b-0'>
@@ -35,7 +38,7 @@ const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
           </div>
         ) : (
           <div className='flex h-full items-center justify-center'>
-            <p className='text-center text-muted-foreground'>No bids yet</p>
+            <p className='text-center text-muted-foreground'>{t('bid_process.no_bids_yet')}</p>
           </div>
         )}
       </ScrollArea>

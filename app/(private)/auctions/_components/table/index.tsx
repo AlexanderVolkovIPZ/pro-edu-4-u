@@ -1,5 +1,7 @@
 'use client';
 
+import Footer from '@/app/(private)/_shared/components/table/footer';
+import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
 import { getAuctionStatus } from '@/app/utils/get-auction-status';
@@ -7,12 +9,15 @@ import { CardContent } from '@/components/ui/card';
 import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import EmptyPage from '../../../../../components/empty-page';
 import { useSortAuctions } from '../_hooks/use-sort-auctions';
 import Body from './body';
-import Footer from './footer';
 import Header from './header';
+
+const ASC = 'asc';
+const DESC = 'desc';
 
 export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
   lot: (LotWithRelationsType & {
@@ -24,16 +29,24 @@ export type ExtendedAuction = Omit<AuctionWithRelationsType, 'lot'> & {
 
 const Table = () => {
   const router = useRouter();
-  const [page, setPage] = useState(1);
-  const { data: { auctions = [], total = 0, totalPages = 0 } = {}, isFetching } = useAuctionsByFilter<ExtendedAuction>({
-    filters: {
-      page,
-      limit: 5,
-    },
-    options: {
-      staleTime: 1000 * 60 * 3,
-    },
+  const { t } = useTranslation();
+
+  const { params, setParams } = useQueryParams({
+    page: 1,
+    limit: 5,
+    loadForCurrentUser: true,
   });
+  const { data: { auctions = [], total = 0, totalPages = 0, limit = 0 } = {}, isFetching } =
+    useAuctionsByFilter<ExtendedAuction>({
+      filters: {
+        page: params.page,
+        limit: params.limit,
+        loadForCurrentUser: params.loadForCurrentUser,
+      },
+      options: {
+        staleTime: 1000 * 60 * 3,
+      },
+    });
 
   const auctionsToDisplay =
     auctions?.map((auction) => ({
@@ -60,20 +73,20 @@ const Table = () => {
     if (sortBy.includes(column)) {
       setSortDirection((prevDirection) => ({
         ...prevDirection,
-        [column]: prevDirection[column] === 'asc' ? 'desc' : 'asc',
+        [column]: prevDirection[column] === ASC ? DESC : ASC,
       }));
 
       setSortBy((prevSortBy) => prevSortBy.filter((item) => item !== column).concat(column));
     } else {
       setSortBy((prevSortBy) => [...prevSortBy, column]);
-      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: 'asc' }));
+      setSortDirection((prevDirection) => ({ ...prevDirection, [column]: ASC }));
     }
   };
 
   const renderSortIcon = (column: keyof typeof sortDirection) => {
     if (!sortBy.includes(column)) return <ChevronDown className='ml-1 h-4 w-4 text-gray-400' />;
 
-    return sortDirection[column] === 'asc' ? (
+    return sortDirection[column] === ASC ? (
       <ChevronUp className='ml-1 h-4 w-4 text-indigo-600' />
     ) : (
       <ChevronDown className='ml-1 h-4 w-4 text-indigo-600' />
@@ -84,9 +97,9 @@ const Table = () => {
     return (
       <EmptyPage
         icon={Annoyed}
-        title='Your Table is Empty'
-        description='Looks like you haven’t created an auction yet.'
-        buttonTitle='Go to Auctions Create page'
+        title={t('common.your_table_is_empty')}
+        description={`${t('all_auctions.looks_like_you_have_nor_created_any_auction_yet')}.`}
+        buttonTitle={t('all_auctions.go_to_auction_create_page')}
         onClick={() => router.push('/auctions/create')}
       />
     );
@@ -97,7 +110,15 @@ const Table = () => {
         <TableComponent className='min-w-full divide-y divide-gray-200'>
           <Header onSort={onSort} renderSortIcon={renderSortIcon} />
           <Body isLoading={isFetching} auctions={sortedAuctions} />
-          <Footer page={page} totalPages={totalPages} totalCount={total} setPage={setPage} isLoading={isFetching} />
+          <Footer
+            page={params.page}
+            totalPages={totalPages}
+            totalCount={total}
+            setPage={(page) => setParams({ ...params, page })}
+            isLoading={isFetching}
+            entitiesName={t('all_auctions.auctions')}
+            perPageCount={limit}
+          />
         </TableComponent>
       </div>
     </CardContent>
