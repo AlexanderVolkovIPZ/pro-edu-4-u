@@ -163,7 +163,7 @@ model Bid {
   lotId     String   @db.ObjectId
   bidderId  String   @db.ObjectId
   amount    Float
-  type      BidType  @default(AUCTION)
+  type      BidType  @default(BIDDING)
   isWinner  Boolean  @default(false)
   isPaid    Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -218,6 +218,6 @@ enum UserRole {
 }
 
 enum BidType {
-  AUCTION
-  BUY_NOW
+  BIDDING
+  INSTANT
 }
