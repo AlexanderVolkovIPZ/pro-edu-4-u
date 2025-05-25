@@ -18,6 +18,8 @@
     "delete": "Delete",
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
+    "sign_in_header": "Sign In",
+    "sign_up_header": "Sign Up",
     "or_continue_with": "Or continue with",
     "enter_a_secure_password": "Enter a secure password",
     "no": "No",
@@ -31,7 +33,8 @@
       "upcoming": "Upcoming",
       "in_progress": "In Progress",
       "completed": "Completed"
-    }
+    },
+    "anonymous": "Anonymous"
   },
   "main": {
     "home": "Home",
@@ -60,7 +63,6 @@
     "auction_lots": "Auction Lots",
     "auction_details": "Auction Details",
     "view": "View",
-    "bid": "Bid",
     "lot": "Lot",
     "start": "Start",
     "end": "End",
@@ -82,7 +84,28 @@
     "bid_history": "Bid History",
     "start_bid": "Start Bid",
     "buy_now_price": "Buy Now Price",
-    "minimum_increment": "Minimum Increment"
+    "minimum_increment": "Minimum Increment",
+    "buy_now": "Buy Now",
+    "lot_was_sold": "Lot was sold",
+    "lot_was_purchased_by_another_user": "Lot {{lotName}} has already been purchased by another user through the \"Buy Now\" feature",
+    "return_to_catalog": "Return to catalog",
+    "congratulations_on_your_purchase": "Congratulations on your purchase!",
+    "you_have_successfully_purchased_the_lot": "You have successfully purchased {{lotName}}",
+    "instant_purchase_unavailable": "Instant purchase is not available",
+    "instant_purchase_unavailable_description": "Instant purchase is not available for this lot. The auction may have already started or the lot may not have an instant buy now option.",
+    "no_details_available": "No details available"
+  },
+  "buy_now": {
+    "buy_now_price": "Buy Now Price",
+    "description": "The Buy Now option allows you to purchase the lot at a fixed price without participating in the auction.",
+    "advantages_of_buy_now": "Advantages of Buy Now",
+    "advantages": {
+      "guaranteed_lot": "Guaranteed lot acquisition",
+      "no_competition": "No competition with other bidders",
+      "fast_closure": "Quick deal closure"
+    },
+    "buy_now_for": "Buy Now for",
+    "agreement_note": "By clicking the \"Buy Now\" button, you agree to the purchase terms and service rules."
   },
   "dashboard": {
     "dashboard": "Dashboard",
@@ -221,12 +244,10 @@
     "address": "Address",
     "enter_delivery_address": "Enter delivery address",
     "order_confirmation": "Order Confirmation",
-    "product_cost": "Product Cost",
-    "shipping": "Shipping",
-    "free": "Free",
     "total_amount": "Total Amount",
     "pay": "Pay",
-    "min": "min"
+    "min": "min",
+    "no_lots_to_pay": "No lots to pay"
   },
   "auction": {
     "auction_setup": "Auction Setup",

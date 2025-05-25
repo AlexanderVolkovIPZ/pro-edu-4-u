@@ -18,6 +18,8 @@
     "delete": "Видалити",
     "sign_in": "Увійти",
     "sign_up": "Зареєструватися",
+    "sign_in_header": "Вхід",
+    "sign_up_header": "Реєстрація",
     "or_continue_with": "Або продовжити через",
     "enter_a_secure_password": "Введіть надійний пароль",
     "no": "Відсутня",
@@ -31,7 +33,8 @@
       "upcoming": "Очікується",
       "in_progress": "В процесі",
       "completed": "Завершено"
-    }
+    },
+    "anonymous": "Анонім"
   },
   "main": {
     "home": "Головна",
@@ -60,7 +63,6 @@
     "auction_lots": "Лоти Аукціону",
     "auction_details": "Деталі Аукціону",
     "view": "Переглянути",
-    "bid": "Ставка",
     "lot": "Лот",
     "start": "Початок",
     "end": "Завершення",
@@ -82,7 +84,28 @@
     "bid_history": "Історія Ставок",
     "start_bid": "Початкова Ставка",
     "buy_now_price": "Ціна Купівлі Зараз",
-    "minimum_increment": "Мінімальний Приріст"
+    "minimum_increment": "Мінімальний Приріст",
+    "buy_now": "Купити Зараз",
+    "lot_was_sold": "Лот продано",
+    "lot_was_purchased_by_another_user": "Лот {{lotName}} вже придбано іншим користувачем через функцію \"Купити зараз\"",
+    "return_to_catalog": "Повернутися до каталогу",
+    "congratulations_on_your_purchase": "Вітаємо з покупкою!",
+    "you_have_successfully_purchased_the_lot": "Ви успішно придбали {{lotName}}",
+    "instant_purchase_unavailable": "Моментальний викуп недоступний",
+    "instant_purchase_unavailable_description": "Моментальний викуп цього лоту недоступний. Можливо, аукціон вже розпочався або лот не має опції моментального викупу.",
+    "no_details_available": "Немає доступних деталей"
+  },
+  "buy_now": {
+    "buy_now_price": "Ціна моментального викупу",
+    "description": "Моментальний викуп дозволяє вам придбати лот за фіксованою ціною без участі в аукціоні",
+    "advantages_of_buy_now": "Переваги моментального викупу",
+    "advantages": {
+      "guaranteed_lot": "Гарантоване отримання лоту",
+      "no_competition": "Відсутність конкуренції з іншими учасниками",
+      "fast_closure": "Швидке завершення угоди"
+    },
+    "buy_now_for": "Купити зараз за",
+    "agreement_note": "Натискаючи кнопку \"Купити зараз\", ви погоджуєтесь з умовами покупки та правилами сервісу"
   },
   "dashboard": {
     "dashboard": "Огляд",
@@ -221,12 +244,10 @@
     "address": "Адреса",
     "enter_delivery_address": "Введіть адресу доставки",
     "order_confirmation": "Підтвердження замовлення",
-    "product_cost": "Вартість товару",
-    "shipping": "Доставка",
-    "free": "Безкоштовно",
     "total_amount": "Загальна сума",
     "pay": "Оплатити",
-    "min": "хв"
+    "min": "хв",
+    "no_lots_to_pay": "Немає лотів для оплати"
   },
   "auction": {
     "auction_setup": "Налаштування Аукціону",
