@@ -2,7 +2,7 @@
 
 import { getEmailSchema } from '@/app/_shared/schemas/email-schema';
 import { AccountContext } from '@/app/providers/account-provider';
-import { useDeleteUser, useUpdateUser } from '@/app/queries/auth-user';
+import { useUpdateUser } from '@/app/queries/auth-user';
 import { capitalize } from '@/app/utils/capitalize';
 import { getDatePickerDateFormat, getDatePickerTimeFormat } from '@/app/utils/get-date-picker-format';
 import AlertDialog from '@/components/alert-dialog';
@@ -68,7 +68,6 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
   const [userToDeleteId, setUserToDeleteId] = useState<string | null>(null);
 
   const { mutateAsync: updateUser } = useUpdateUser();
-  const { mutateAsync: deleteUser } = useDeleteUser();
 
   const onCellClick = (userId: string, field: EditableCell['field'], value: string) =>
     setEditableCell({ userId, field, value });
@@ -142,11 +141,12 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
     try {
       if (!userId) return;
 
-      await deleteUser({
+      await updateUser({
         id: userId,
+        isActive: false,
       });
 
-      toast.success(t('toast.success.the_user_deleted_successfully'), {
+      toast.success(t('toast.success.the_user_deactivated_successfully'), {
         style: {
           textAlign: 'center',
         },
@@ -323,7 +323,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
       {isShowedAlertDialog &&
         AlertDialog({
           title: `${t('common.are_you_absolutely_sure')}?`,
-          description: `${t('users.are_you_sure_you_want_to_delete_this_user')}?`,
+          description: `${t('users.are_you_sure_you_want_to_deactivate_this_user')}?`,
           cancelBtnTitle: t('common.cancel'),
           actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,

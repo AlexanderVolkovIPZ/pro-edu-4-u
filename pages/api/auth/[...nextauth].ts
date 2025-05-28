@@ -26,7 +26,7 @@ export const authOptions: AuthOptions = {
         const email = credentials?.email;
         const password = credentials?.password;
         if (!email || !password) {
-          throw new Error('Invalid credentials');
+          throw new Error('toast.error.invalid_credentials');
         }
 
         const user = await prismaDb.user.findUnique({
@@ -34,13 +34,18 @@ export const authOptions: AuthOptions = {
             email,
           },
         });
+
         if (!user || !user?.password) {
-          throw new Error('Invalid credentials');
+          throw new Error('toast.error.invalid_credentials');
         }
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
-          throw new Error('Invalid credentials');
+          throw new Error('toast.error.invalid_credentials');
+        }
+
+        if (!user.isActive) {
+          throw new Error('toast.error.user_is_not_active');
         }
 
         return user;

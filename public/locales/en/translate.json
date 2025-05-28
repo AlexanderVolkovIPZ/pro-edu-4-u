@@ -129,7 +129,7 @@
     "role": "Role",
     "created_at": "Created At",
     "verified_at": "Verified At",
-    "are_you_sure_you_want_to_delete_this_user": "Are you sure you want to delete this user",
+    "are_you_sure_you_want_to_deactivate_this_user": "Are you sure you want to deactivate this user",
     "users": "users",
     "go_to_home": "Go to Home",
     "looks_like_you_have_not_had_any_created_user": "Looks like you have not had any created user",
@@ -345,7 +345,7 @@
       "status_updated_successfully": "Status updated successfully",
       "password_updated_successfully": "Password updated successfully",
       "field_updated_successfully": "field updated successfully",
-      "the_user_deleted_successfully": "The user deleted successfully",
+      "the_user_deactivated_successfully": "The user deactivated successfully",
       "authentication_success": "Authentication success",
       "registration_success": "Registration success",
       "successfully_uploaded_media": "Successfully uploaded {{count}} {{mediaType}}",
@@ -364,7 +364,8 @@
       "failed_to_delete_auction": "Failed to delete auction",
       "invalid_credentials": "Invalid credentials",
       "authentication_failed": "Authentication failed",
-      "bid_not_sent_trying_to_reconnect": "Bid not sent, trying to reconnect"
+      "bid_not_sent_trying_to_reconnect": "Bid not sent, trying to reconnect",
+      "user_is_not_active": "User is not active. Please contact the administrator!"
     }
   },
   "validation": {

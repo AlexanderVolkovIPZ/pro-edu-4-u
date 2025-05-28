@@ -16,7 +16,7 @@ export async function PATCH(request: Request, { params }: { params: { userId: st
     }
 
     const body = await request.json();
-    const { name, email, emailVerified, image, password, role }: Partial<User> = body;
+    const { name, email, emailVerified, image, password, role, isActive }: Partial<User> = body;
 
     const updatedUser = await prismaDb?.user.update({
       where: {
@@ -29,6 +29,7 @@ export async function PATCH(request: Request, { params }: { params: { userId: st
         ...(image && { image }),
         ...(password && { password }),
         ...(role && { role }),
+        ...(isActive !== undefined && { isActive }),
       },
     });
 
