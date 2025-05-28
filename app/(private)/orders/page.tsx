@@ -9,11 +9,13 @@ import Header from './_components/header';
 import Table from './_components/table';
 import { orderTabsList } from './_shared/lists/order-tab-list';
 
+const ITEMS_PER_PAGE = 5;
+
 const ShippingPage = () => {
   const { t } = useTranslation();
   const { params, setParams } = useQueryParams({
     page: 1,
-    limit: 10,
+    limit: ITEMS_PER_PAGE,
     loadForCurrentUser: true,
     tab: orderTabsList[0].route,
   });
