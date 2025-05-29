@@ -42,6 +42,7 @@ const Table = () => {
       },
       options: {},
     });
+
   const { setSortBy, setSortDirection, sortedUsers, sortBy, sortDirection } = useSortUsers({
     users: users.map((user) => ({
       id: user.id,
@@ -50,6 +51,7 @@ const Table = () => {
       role: user.role,
       createdAt: user.createdAt,
       emailVerified: user.emailVerified ?? '',
+      isActive: user.isActive,
     })),
   });
 

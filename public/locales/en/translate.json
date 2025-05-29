@@ -130,6 +130,7 @@
     "created_at": "Created At",
     "verified_at": "Verified At",
     "are_you_sure_you_want_to_deactivate_this_user": "Are you sure you want to deactivate this user",
+    "are_you_sure_you_want_to_activate_this_user": "Are you sure you want to activate this user",
     "users": "users",
     "go_to_home": "Go to Home",
     "looks_like_you_have_not_had_any_created_user": "Looks like you have not had any created user",

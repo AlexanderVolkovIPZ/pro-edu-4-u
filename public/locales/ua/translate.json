@@ -130,6 +130,7 @@
     "created_at": "Створено",
     "verified_at": "Підтверджено",
     "are_you_sure_you_want_to_deactivate_this_user": "Ви впевнені, що хочете деактивувати цього користувача",
+    "are_you_sure_you_want_to_activate_this_user": "Ви впевнені, що хочете активувати цього користувача",
     "users": "користувачів",
     "go_to_home": "На головну",
     "looks_like_you_have_not_had_any_created_user": "Схоже, що у вас ще не створено жодного користувача",
