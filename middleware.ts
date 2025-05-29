@@ -5,7 +5,6 @@ export const config = { matcher: ['/((?!sign-in|sign-up|(?!ws$)).*)'] };
 
 export async function middleware() {
   try {
-    console.log('WE-ARE-HERE');
     const authUser = await getAuthUser();
 
     if (!authUser || !authUser.isActive) {
