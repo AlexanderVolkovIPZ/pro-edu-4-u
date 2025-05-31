@@ -73,7 +73,7 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
         <div className='flex items-center text-green-600'>
           <TrendingUp size={18} className='mr-1' />
           <span className='font-semibold text-lg'>
-            ${lowestPrice.toLocaleString()} - ${highestPrice.toLocaleString()}
+            ₴{lowestPrice.toLocaleString()} - ₴{highestPrice.toLocaleString()}
           </span>
         </div>
 

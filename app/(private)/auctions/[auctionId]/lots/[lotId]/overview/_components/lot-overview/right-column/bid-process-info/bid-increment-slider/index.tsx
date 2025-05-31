@@ -29,9 +29,9 @@ export const BidIncrementSlider = ({
       className='w-full'
     />
     <div className='flex justify-between text-sm text-gray-500 mt-1'>
-      <span>${minBidIncrement}</span>
-      <span>${bidIncrement}</span>
-      <span>${minBidIncrement * 5}</span>
+      <span>₴{minBidIncrement}</span>
+      <span>₴{bidIncrement}</span>
+      <span>₴{minBidIncrement * 5}</span>
     </div>
   </div>
 );

@@ -87,7 +87,7 @@ export function BuyNowInfo({
       <div>
         <div className='flex justify-between items-center mb-4'>
           <span className='text-lg font-medium'>{t('buy_now.buy_now_price')}:</span>
-          <span className='text-2xl font-bold text-green-600'>${buyNowBid.toLocaleString()}</span>
+          <span className='text-2xl font-bold text-green-600'>₴{buyNowBid.toLocaleString()}</span>
         </div>
         <p className='text-muted-foreground mb-4'>{t('buy_now.description')}.</p>
         <div className='bg-blue-50 p-4 rounded-lg mb-4'>
@@ -108,7 +108,7 @@ export function BuyNowInfo({
         onClick={() => router.push(`/won-lots/payment?info=${JSON.stringify([{ lotId, auctionId }])}`)}
       >
         <ShoppingCart className='mr-2 h-5 w-5' />
-        {t('buy_now.buy_now_for')} ${buyNowBid.toLocaleString()}
+        {t('buy_now.buy_now_for')} ₴{buyNowBid.toLocaleString()}
       </Button>
 
       <p className='text-sm text-muted-foreground mt-4 text-center'>{t('buy_now.agreement_note')}.</p>

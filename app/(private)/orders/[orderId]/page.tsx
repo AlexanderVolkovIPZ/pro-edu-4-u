@@ -159,7 +159,7 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
 
                 <div className='flex justify-between items-center'>
                   <p className='font-medium'>{t('order.amount_due')}</p>
-                  <p className='font-bold text-lg'>{orderData.lot.bid[0]?.amount} $</p>
+                  <p className='font-bold text-lg'>{orderData.lot.bid[0]?.amount} ₴</p>
                 </div>
               </div>
             </CardContent>

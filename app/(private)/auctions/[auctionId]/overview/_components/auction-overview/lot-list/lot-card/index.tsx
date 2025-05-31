@@ -101,16 +101,16 @@ export function LotCard({
             <div className='flex flex-wrap items-center justify-start gap-x-3 text-sm mb-2'>
               <div className='flex items-center'>
                 <DollarSign className='h-4 w-4 text-green-600 mr-1' />
-                <span className='font-semibold'>${lot.startBid}</span>
+                <span className='font-semibold'>₴{lot.startBid}</span>
               </div>
               <div className='flex items-center'>
                 <ArrowUpRight className='h-4 w-4 text-blue-600 mr-1' />
-                <span>${lot.minBidIncrement}</span>
+                <span>₴{lot.minBidIncrement}</span>
               </div>
               {lot.buyNowBid && (
                 <div className='flex items-center'>
                   <ShoppingCart className='h-4 w-4 text-purple-600 mr-1' />
-                  <span>${lot.buyNowBid}</span>
+                  <span>₴{lot.buyNowBid}</span>
                 </div>
               )}
             </div>

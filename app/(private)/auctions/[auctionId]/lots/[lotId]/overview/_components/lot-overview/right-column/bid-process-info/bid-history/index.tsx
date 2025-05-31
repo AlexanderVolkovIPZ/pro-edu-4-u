@@ -32,7 +32,7 @@ const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
                     </p>
                   </div>
                 </div>
-                <span className='text-lg font-semibold'>${bid.amount.toLocaleString()}</span>
+                <span className='text-lg font-semibold'>₴{bid.amount.toLocaleString()}</span>
               </div>
             ))}
           </div>
