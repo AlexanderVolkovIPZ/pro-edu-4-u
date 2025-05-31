@@ -155,6 +155,15 @@ export async function GET(request: Request) {
                 category: true,
               },
             },
+            bid: {
+              select: {
+                user: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
             _count: {
               select: {
                 bid: true,

@@ -27,7 +27,12 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
   const uniqueLotCategories = Array.from(
     new Set(auction.lot.flatMap((lot) => lot.lotCategory.map((category) => category.category.name)))
   ).sort((a, b) => a.length - b.length);
-  const auctionParticipantsCount = auction.userAuction.length - 1;
+
+  const auctionParticipantsCount = auction.lot
+    .flatMap((lot) => lot.bid?.map((bid) => bid.user.id) ?? [])
+    .reduce<
+      string[]
+    >((accumulator, currentValue) => (accumulator.includes(currentValue) ? accumulator : [...accumulator, currentValue]), []).length;
 
   const auctionStatus = getAuctionStatus({
     startDate: auction.startDate,
