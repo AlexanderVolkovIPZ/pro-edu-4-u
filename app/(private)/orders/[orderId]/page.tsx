@@ -150,8 +150,8 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
                 <div className='flex justify-between items-center'>
                   <p className='text-sm text-muted-foreground'>{t('order.payment_status')}</p>
 
-                  <Badge variant={orderData.lot.bid[0].isPaid ? 'default' : 'outline'}>
-                    {orderData.lot.bid[0].isPaid ? t('order.paid') : t('order.pending_payment')}
+                  <Badge variant={orderData.lot.bid[0]?.isPaid ? 'default' : 'outline'}>
+                    {orderData.lot.bid[0]?.isPaid ? t('order.paid') : t('order.pending_payment')}
                   </Badge>
                 </div>
 
@@ -159,7 +159,7 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
 
                 <div className='flex justify-between items-center'>
                   <p className='font-medium'>{t('order.amount_due')}</p>
-                  <p className='font-bold text-lg'>{orderData.lot.bid[0].amount} $</p>
+                  <p className='font-bold text-lg'>{orderData.lot.bid[0]?.amount} $</p>
                 </div>
               </div>
             </CardContent>

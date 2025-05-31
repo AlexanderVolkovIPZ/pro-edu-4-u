@@ -1,5 +1,5 @@
 import getAuthUser from '@/app/actions/get-auth-user';
-import { UserRole } from '@prisma/client';
+import { AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: { orderId: string } }) {
@@ -29,6 +29,7 @@ export async function GET(request: Request, { params }: { params: { orderId: str
             userAuction: {
               select: {
                 userId: true,
+                role: true,
               },
             },
           },
@@ -40,12 +41,13 @@ export async function GET(request: Request, { params }: { params: { orderId: str
       return new NextResponse('Lot not found', { status: 404 });
     }
 
+    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
     const isAuthUserLotCustomer = authUser.id === shipping.userId;
     const isAuthUserLotOwner = lot.auction.userAuction.some(
-      ({ userId }) => userId === authUser.id && authUser.role === UserRole.ADMIN
+      ({ userId, role }) => userId === authUser.id && role === AuctionRole.OWNER
     );
 
-    if (!isAuthUserLotCustomer && !isAuthUserLotOwner) {
+    if (!isAuthUserAdmin && !isAuthUserLotCustomer && !isAuthUserLotOwner) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
