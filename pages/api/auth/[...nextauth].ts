@@ -53,15 +53,18 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.provider = account.provider as string;
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.provider = account?.provider;
+        token.isActive = user.isActive;
       }
 
       return token;
     },
+
     async session({ session, token }) {
       session.provider = token.provider as string;
+      session.user.isActive = token.isActive as boolean;
       return session;
     },
   },
