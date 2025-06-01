@@ -95,7 +95,7 @@ const OrderIdPage = ({ params }: { params: { orderId: string } }) => {
               <div className='space-y-6'>
                 <div className='flex items-center gap-4'>
                   <Avatar className='h-12 w-12'>
-                    <AvatarImage src={''} alt={'NAME'} />
+                    <AvatarImage src={''} alt='avatar' />
                     <AvatarFallback>
                       <User className='h-6 w-6' />
                     </AvatarFallback>
