@@ -18,7 +18,7 @@ export default async function RootLayout({
 }>) {
   return (
     <QueryClientProvider>
-      <html>
+      <html lang='ua'>
         <head>
           <title>Bidium</title>
           <link rel='icon' type='image/x-icon' href='./logo.ico' />
