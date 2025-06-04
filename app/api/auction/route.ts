@@ -59,6 +59,7 @@ export async function GET(request: Request) {
 
       isPublished:
         searchParams.isPublished === 'true' ? true : searchParams.isPublished === 'false' ? false : undefined,
+      isApproved: searchParams.isApproved === 'true' ? true : searchParams.isApproved === 'false' ? false : undefined,
     };
     const {
       title,
@@ -68,6 +69,7 @@ export async function GET(request: Request) {
       createdAt,
       updatedAt,
       isPublished,
+      isApproved,
       page,
       limit,
       loadForCurrentUser,
@@ -94,6 +96,7 @@ export async function GET(request: Request) {
       ...(createdAt && { createdAt }),
       ...(updatedAt && { updatedAt }),
       ...(typeof isPublished === 'boolean' && { isPublished }),
+      ...(typeof isApproved === 'boolean' && { isApproved }),
       id: {
         in: userAuctions.map((userAuction) => userAuction.auctionId),
       },
