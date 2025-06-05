@@ -11,6 +11,7 @@ type AuctionInfoType = {
   createdAt: string;
   lotCount: number;
   bidCount: number;
+  isApproved: boolean;
 }[];
 
 type SortAuctionType = {
@@ -60,7 +61,7 @@ export const useSortAuctions = ({ auctions }: SortAuctionType) => {
       return sortDirection['bidCount'] === 'asc' ? a.bidCount - b.bidCount : b.bidCount - a.bidCount;
     }
 
-    return 0;
+    return Number(a.isApproved) - Number(b.isApproved);
   });
 
   return { sortedAuctions, sortBy, setSortBy, sortDirection, setSortDirection };

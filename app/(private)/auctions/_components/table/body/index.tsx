@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TableBody as TableBodyComponent, TableCell, TableRow } from '@/components/ui/table';
 import ActionCell from './action-cell';
 import { Status } from '@prisma/client';
+import { cn } from '@/lib/utils';
 
 type TableBodyProps = {
   isLoading: boolean;
@@ -11,6 +12,7 @@ type TableBodyProps = {
     id: string;
     title: string;
     isPublished: boolean;
+    isApproved: boolean;
     status: string;
     startDate: string;
     endDate: string;
@@ -71,7 +73,7 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
 
   const renderAuctionRows = () => {
     return auctions.map((auction) => (
-      <TableRow key={auction.id} className='hover:bg-gray-50 text-sm'>
+      <TableRow key={auction.id} className={cn('hover:bg-gray-50 text-sm', !auction.isApproved && 'bg-red-50')}>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.startDate)}</TableCell>

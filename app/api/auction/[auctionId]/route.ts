@@ -93,7 +93,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     }
 
     const body = await request.json();
-    const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
+    const { title, description, startDate, endDate, isPublished, isApproved }: Partial<Auction> = body;
 
     const auction = await prismaDb.auction.update({
       data: {
@@ -102,6 +102,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
         startDate,
         endDate,
         isPublished,
+        isApproved,
       },
       where: {
         id: params.auctionId,

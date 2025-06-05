@@ -26,15 +26,18 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
   const { t } = useTranslation();
   const { mutateAsync: updateAuction, isPending: isUpdateAuctionPending } = useUpdateAuction(params.auctionId);
 
-  const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
+  const [showedAlertDialog, setShowedAlertDialog] = useState<'publish' | 'approve'>();
+
   const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(
     params.auctionId,
     'edit'
   );
 
+  const isStartDateInTheFuture = auctionData?.startDate && new Date(auctionData?.startDate) > new Date();
+
   const isAllRequiredFieldsFilled = [
     auctionData?.title,
-    auctionData?.startDate && new Date(auctionData?.startDate) > new Date(),
+    isStartDateInTheFuture,
     auctionData?.endDate,
     auctionData?.lot &&
       auctionData.lot.every(
@@ -43,15 +46,33 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
   ].every(Boolean);
 
   const onConfirm = async () => {
-    if (!isAllRequiredFieldsFilled) return;
+    if (!showedAlertDialog || !['approve', 'publish'].includes(showedAlertDialog)) return;
+
+    if (!isStartDateInTheFuture) {
+      toast.error(t('toast.error.start_date_cannot_be_in_the_past'));
+      return;
+    }
+
+    if (!isAllRequiredFieldsFilled) {
+      toast.error(t('toast.error.all_required_fields_must_be_filled'));
+      return;
+    }
+
+    const isApproved = showedAlertDialog === 'approve';
 
     try {
-      await updateAuction({ isPublished: true });
-      toast.success(t('toast.success.the_auction_has_been_successfully_published'), {
-        style: {
-          textAlign: 'center',
-        },
-      });
+      await updateAuction({ [isApproved ? 'isApproved' : 'isPublished']: true });
+
+      toast.success(
+        isApproved
+          ? t('toast.success.the_auction_has_been_successfully_approved')
+          : t('toast.success.the_auction_has_been_successfully_published'),
+        {
+          style: {
+            textAlign: 'center',
+          },
+        }
+      );
     } catch {
       toast.error(t('toast.error.something_went_wrong'));
     }
@@ -67,20 +88,25 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
 
   return (
     <Container>
-      {isShowedAlertDialog &&
+      {showedAlertDialog &&
         AlertDialog({
           title: `${t('common.are_you_absolutely_sure')}?`,
-          description: `${t('auction.are_you_sure_you_want_to_publish_this_auction')}?`,
+          description: `${showedAlertDialog === 'approve' ? t('auction.are_you_sure_you_want_to_approve_this_auction') : t('auction.are_you_sure_you_want_to_publish_this_auction')}?`,
           cancelBtnTitle: t('common.cancel'),
           actionBtnTitle: t('common.continue'),
-          setShowAlertDialog: setIsShowedAlertDialog,
-          showAlertDialog: isShowedAlertDialog,
+          setShowAlertDialog: () => setShowedAlertDialog(undefined),
+          showAlertDialog: !!showedAlertDialog,
           onConfirm,
         })}
 
       {isAuctionFetched && auctionData ? (
         <div className='mx-auto bg-white'>
-          <Header isButtonDisabled={!isAllRequiredFieldsFilled} onBtnClick={() => setIsShowedAlertDialog(true)} />
+          <Header
+            isApproveButtonDisabled={auctionData.isApproved || !auctionData.isPublished}
+            isPublishButtonDisabled={!isAllRequiredFieldsFilled || auctionData.isPublished}
+            onAuctionApprove={() => setShowedAlertDialog('approve')}
+            onAcutionPublish={() => setShowedAlertDialog('publish')}
+          />
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'>
             <div className='flex flex-col gap-y-4'>
               <InputBox

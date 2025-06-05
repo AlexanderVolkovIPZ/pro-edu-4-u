@@ -49,21 +49,24 @@ const Table = () => {
     });
 
   const auctionsToDisplay =
-    auctions?.map((auction) => ({
-      id: auction.id,
-      title: auction.title,
-      isPublished: auction.isPublished,
-      status: getAuctionStatus({
+    auctions
+      ?.map((auction) => ({
+        id: auction.id,
+        title: auction.title,
+        isPublished: auction.isPublished,
+        status: getAuctionStatus({
+          startDate: auction.startDate,
+          endDate: auction.endDate,
+          isAllLotsSold: auction.lot.every(({ isSold }) => isSold),
+        }),
         startDate: auction.startDate,
         endDate: auction.endDate,
-        isAllLotsSold: auction.lot.every(({ isSold }) => isSold),
-      }),
-      startDate: auction.startDate,
-      endDate: auction.endDate,
-      createdAt: auction.createdAt,
-      lotCount: auction.lot.length,
-      bidCount: auction.lot.reduce((acc, { _count }) => acc + _count.bid, 0),
-    })) || [];
+        createdAt: auction.createdAt,
+        lotCount: auction.lot.length,
+        bidCount: auction.lot.reduce((acc, { _count }) => acc + _count.bid, 0),
+        isApproved: auction.isApproved,
+      }))
+      .sort((a, b) => Number(b.isApproved) - Number(a.isApproved)) || [];
 
   const { setSortBy, setSortDirection, sortedAuctions, sortBy, sortDirection } = useSortAuctions({
     auctions: auctionsToDisplay,
