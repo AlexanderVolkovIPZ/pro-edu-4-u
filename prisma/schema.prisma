@@ -62,6 +62,7 @@ model Auction {
   title       String
   description String?
   isPublished Boolean   @default(false)
+  isApproved  Boolean   @default(false)
   status      Status    @default(UPCOMING)
   startDate   DateTime?
   endDate     DateTime?
