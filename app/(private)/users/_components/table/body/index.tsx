@@ -182,7 +182,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
       return (
         <Input
           value={editableCell.value}
-          onChange={(e) => setEditableCell({ ...editableCell, value: e.target.value.trim() })}
+          onChange={(e) => setEditableCell({ ...editableCell, value: e.target.value })}
           onBlur={async () => await onUpdate()}
           onKeyDown={async (e) => await onInputKeyDown(e)}
           className='h-7 w-auto max-w-[200px]'
