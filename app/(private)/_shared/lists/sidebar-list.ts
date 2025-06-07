@@ -1,4 +1,4 @@
-import { House, LayoutList, Settings, ChartNoAxesCombined, LayoutDashboard, UserCog, Truck } from 'lucide-react';
+import { House, LayoutList, Settings, LayoutDashboard, UserCog, Truck } from 'lucide-react';
 
 export const userSidebarList = [
   {
@@ -15,11 +15,6 @@ export const userSidebarList = [
     link: '/orders',
     name: 'main.orders',
     icon: Truck,
-  },
-  {
-    link: '/analytics',
-    name: 'main.analytics',
-    icon: ChartNoAxesCombined,
   },
   {
     link: '/settings',
@@ -53,11 +48,6 @@ export const adminSidebarList = [
     link: '/orders',
     name: 'main.orders',
     icon: Truck,
-  },
-  {
-    link: '/analytics ',
-    name: 'main.analytics',
-    icon: ChartNoAxesCombined,
   },
   {
     link: '/settings',
