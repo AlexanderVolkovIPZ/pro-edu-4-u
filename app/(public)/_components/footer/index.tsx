@@ -1,22 +1,19 @@
+'use client';
+
 import { Facebook, Instagram, Twitter } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
+  const year = new Date().getFullYear();
+
   return (
     <footer className='bg-card border-t border-gray-200 py-4'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex flex-col md:flex-row items-center justify-between'>
-          <div className='text-muted-foreground text-sm'>© 2024 Bidium. All rights reserved.</div>
-          <div className='flex space-x-6 mt-4 md:mt-0'>
-            <Link href='/privacy-policy' className='text-muted-foreground hover:text-gray-900 flex items-center'>
-              <span>Privacy Policy</span>
-            </Link>
-            <Link href='/terms-of-service' className='text-muted-foreground hover:text-gray-900 flex items-center'>
-              <span>Terms of Service</span>
-            </Link>
-            <Link href='/contact-us' className='text-muted-foreground hover:text-gray-900 flex items-center'>
-              <span>Contact Us</span>
-            </Link>
+          <div className='text-muted-foreground text-sm'>
+            © {year} Bidium. {t('common.all_rights_reserved')}.
           </div>
           <div className='flex space-x-4 mt-4 md:mt-0'>
             <Link
