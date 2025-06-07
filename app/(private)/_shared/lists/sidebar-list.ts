@@ -17,7 +17,7 @@ export const userSidebarList = [
     icon: Truck,
   },
   {
-    link: '/settings',
+    link: '/settings/account',
     name: 'main.settings',
     icon: Settings,
   },
@@ -50,7 +50,7 @@ export const adminSidebarList = [
     icon: Truck,
   },
   {
-    link: '/settings',
+    link: '/settings/account',
     name: 'main.settings',
     icon: Settings,
   },
