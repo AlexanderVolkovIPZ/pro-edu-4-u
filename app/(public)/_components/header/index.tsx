@@ -1,7 +1,6 @@
 'use client';
 
 import MenuBurger from '@/app/(public)/_components/menu-burger';
-import { menuLinksList } from '@/app/(public)/_shared/lists/menu-links-list';
 import LanguageSwitcher from '@/app/_components/LanguageSwitcher';
 import Logo from '@/components/logo';
 import { Button } from '@/components/ui/button';
@@ -19,13 +18,6 @@ const Header = () => {
             <Logo />
           </div>
           <MenuBurger signInLabel={t('common.sign_in_header')} signUpLabel={t('common.sign_up_header')} />
-          <nav className='hidden md:block space-x-8'>
-            {menuLinksList.map(({ title, link }) => (
-              <Link key={title} href={link} className='text-muted-foreground hover:text-gray-900'>
-                {title}
-              </Link>
-            ))}
-          </nav>
           <div className='hidden md:flex items-center gap-x-2'>
             <LanguageSwitcher />
             <Button variant='ghost' asChild>
