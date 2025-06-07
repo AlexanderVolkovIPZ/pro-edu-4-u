@@ -151,8 +151,16 @@ export async function GET(request: Request) {
       include: {
         lot: {
           include: {
-            photo: true,
-            video: true,
+            photo: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
+            video: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
             lotCategory: {
               include: {
                 category: true,

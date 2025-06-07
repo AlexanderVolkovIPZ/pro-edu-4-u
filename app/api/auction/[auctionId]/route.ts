@@ -48,8 +48,16 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
                 },
               },
             },
-            photo: true,
-            video: true,
+            photo: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
+            video: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
             lotDetail: true,
             lotCategory: {
               include: {
