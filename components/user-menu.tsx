@@ -30,11 +30,7 @@ const UserMenu = ({ url, email }: UserMenuProps) => {
           {email && <div className='text-[10px] text-slate-700 pt-1'>{email}</div>}
         </div>
         <Separator />
-        <UserItemMenu
-          label={t('avatar_menu.settings')}
-          icon={Settings}
-          onClick={() => router.push('/settings/account')}
-        />
+        <UserItemMenu label={t('avatar_menu.settings')} icon={Settings} onClick={() => router.push('/settings')} />
         <Separator />
         <UserItemMenu label={t('avatar_menu.log_out')} icon={LogOut} onClick={() => signOut({})} />
       </PopoverContent>
