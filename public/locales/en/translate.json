@@ -34,7 +34,8 @@
       "in_progress": "In Progress",
       "completed": "Completed"
     },
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "all_rights_reserved": "All rights reserved"
   },
   "main": {
     "home": "Home",
@@ -185,7 +186,7 @@
   },
   "settings": {
     "settings": "Settings",
-    "settings_description": "Manage your account settings and set email preferences.",
+    "settings_description": "Manage your account settings.",
     "profile": "Profile",
     "update_your_profile_settings": "Update your profile settings",
     "account": "Account",
@@ -202,7 +203,6 @@
   },
   "avatar_menu": {
     "my_account": "My Account",
-    "profile": "Profile",
     "settings": "Settings",
     "log_out": "Log out"
   },
@@ -253,6 +253,7 @@
   "auction": {
     "auction_setup": "Auction Setup",
     "are_you_sure_you_want_to_publish_this_auction": "Are you sure you want to publish this auction",
+    "are_you_sure_you_want_to_approve_this_auction": "Are you sure you want to approve this auction",
     "title": "Title",
     "description": "Description",
     "no_description": "No description",
@@ -263,6 +264,7 @@
     "end_date": "End Date",
     "no_end_date": "No end date",
     "publish": "Publish",
+    "approve": "Approve",
     "enter_lot_title": "Enter lot title"
   },
   "new_lot": {
@@ -328,6 +330,7 @@
   },
   "toast": {
     "success": {
+      "the_auction_has_been_successfully_approved": "The auction has been successfully approved",
       "the_auction_has_been_successfully_published": "The auction has been successfully published",
       "the_title_has_been_successfully_updated": "The title has been successfully updated",
       "the_description_has_been_successfully_updated": "The description has been successfully updated",
@@ -366,7 +369,9 @@
       "invalid_credentials": "Invalid credentials",
       "authentication_failed": "Authentication failed",
       "bid_not_sent_trying_to_reconnect": "Bid not sent, trying to reconnect",
-      "user_is_not_active": "User is not active. Please contact the administrator!"
+      "user_is_not_active": "User is not active. Please contact the administrator!",
+      "all_required_fields_must_be_filled": "All required fields must be filled",
+      "start_date_cannot_be_in_the_past": "Start date cannot be in the past"
     }
   },
   "validation": {

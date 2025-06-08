@@ -34,7 +34,8 @@
       "in_progress": "В процесі",
       "completed": "Завершено"
     },
-    "anonymous": "Анонім"
+    "anonymous": "Анонім",
+    "all_rights_reserved": "Всі права захищені"
   },
   "main": {
     "home": "Головна",
@@ -185,7 +186,7 @@
   },
   "settings": {
     "settings": "Налаштування",
-    "settings_description": "Керуйте налаштуваннями облікового запису та вподобаннями електронної пошти.",
+    "settings_description": "Керуйте налаштуваннями облікового запису.",
     "profile": "Профіль",
     "update_your_profile_settings": "Оновлення налаштування профілю",
     "account": "Обліковий запис",
@@ -202,7 +203,6 @@
   },
   "avatar_menu": {
     "my_account": "Мій Акаунт",
-    "profile": "Профіль",
     "settings": "Налаштування",
     "log_out": "Вийти"
   },
@@ -253,6 +253,7 @@
   "auction": {
     "auction_setup": "Налаштування Аукціону",
     "are_you_sure_you_want_to_publish_this_auction": "Ви впевнені, що хочете опублікувати цей аукціон",
+    "are_you_sure_you_want_to_approve_this_auction": "Ви впевнені, що хочете підтвердити цей аукціон",
     "title": "Назва",
     "description": "Опис",
     "no_description": "Опис відсутній",
@@ -263,6 +264,7 @@
     "end_date": "Дата завершення",
     "no_end_date": "Дата завершення відсутня",
     "publish": "Опублікувати",
+    "approve": "Підтвердити",
     "enter_lot_title": "Введіть назву лота"
   },
   "new_lot": {
@@ -328,6 +330,7 @@
   },
   "toast": {
     "success": {
+      "the_auction_has_been_successfully_approved": "Аукціон успішно затверджено",
       "the_auction_has_been_successfully_published": "Аукціон успішно опубліковано",
       "the_title_has_been_successfully_updated": "Заголовок успішно оновлено",
       "the_description_has_been_successfully_updated": "Опис успішно оновлено",
@@ -366,7 +369,9 @@
       "invalid_credentials": "Невірні облікові дані",
       "authentication_failed": "Помилка автентифікації",
       "bid_not_sent_trying_to_reconnect": "Ставка не надіслана, спроба підключення",
-      "user_is_not_active": "Користувач є неактивним. Зверніться до адміністратора!"
+      "user_is_not_active": "Користувач є неактивним. Зверніться до адміністратора!",
+      "all_required_fields_must_be_filled": "Всі обов'язкові поля повинні бути заповнені",
+      "start_date_cannot_be_in_the_past": "Початкова дата не може бути в минулому"
     }
   },
   "validation": {
