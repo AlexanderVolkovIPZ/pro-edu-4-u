@@ -58,29 +58,29 @@ jobs:
           STRIPE_API_KEY: ${{ vars.STRIPE_API_KEY }}
         run: npm run build
 
-      - name: 🧪 Run tests
-        env:
-          AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
-          AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      # - name: 🧪 Run tests
+      #   env:
+      #     AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
+      #     AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
+      #     AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      #     CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      #     EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      #     JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      #     NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      #     STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      #     STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
-          AUTH_GITHUB_ID: ${{ vars.AUTH_GITHUB_ID }}
-          AUTH_GOOGLE_ID: ${{ vars.AUTH_GOOGLE_ID }}
-          CLOUDINARY_API_KEY: ${{ vars.CLOUDINARY_API_KEY }}
-          CLOUDINARY_FOLDER_NAME: ${{ vars.CLOUDINARY_FOLDER_NAME }}
-          EMAIL_USER: ${{ vars.EMAIL_USER }}
-          NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
-          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          STRIPE_API_KEY: ${{ vars.STRIPE_API_KEY }}
-        # run: npm run test
+      #     AUTH_GITHUB_ID: ${{ vars.AUTH_GITHUB_ID }}
+      #     AUTH_GOOGLE_ID: ${{ vars.AUTH_GOOGLE_ID }}
+      #     CLOUDINARY_API_KEY: ${{ vars.CLOUDINARY_API_KEY }}
+      #     CLOUDINARY_FOLDER_NAME: ${{ vars.CLOUDINARY_FOLDER_NAME }}
+      #     EMAIL_USER: ${{ vars.EMAIL_USER }}
+      #     NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+      #     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+      #     NODE_ENV: ${{ vars.NODE_ENV }}
+      #     STRIPE_API_KEY: ${{ vars.STRIPE_API_KEY }}
+      # run: npm run test
 
       # Optional: upload build artifacts
       # - name: Upload build
