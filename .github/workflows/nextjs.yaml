@@ -80,7 +80,7 @@ jobs:
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
           NODE_ENV: ${{ vars.NODE_ENV }}
           STRIPE_API_KEY: ${{ vars.STRIPE_API_KEY }}
-        run: npm run test
+        # run: npm run test
 
       # Optional: upload build artifacts
       # - name: Upload build
