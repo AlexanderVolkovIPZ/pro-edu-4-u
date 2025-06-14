@@ -2,6 +2,7 @@ import { Bid, User } from '@prisma/client';
 import { Server as HttpServer } from 'http';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Server as SocketIoServer } from 'socket.io';
+import prismaDb from '@/lib/prismadb';
 
 export const config = {
   api: {
@@ -44,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     io.on('connection', async (socket) => {
       socket.on('newBid', async ({ lotId, amount, userId }) => {
         try {
-          const createdBid = await prismaDb?.bid.create({
+          const createdBid = await prismaDb.bid.create({
             data: {
               lotId,
               amount,

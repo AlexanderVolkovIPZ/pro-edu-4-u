@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request) {
   try {
@@ -18,11 +19,11 @@ export async function GET(request: Request) {
 
     const { page, limit } = params;
 
-    const userCount = (await prismaDb?.user.count({})) ?? 0;
+    const userCount = (await prismaDb.user.count({})) ?? 0;
     const totalCount = userCount > 0 ? userCount - 1 : 0; // without current user
     const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
 
-    const users = await prismaDb?.user.findMany({
+    const users = await prismaDb.user.findMany({
       select: { id: true, email: true, role: true, createdAt: true, name: true, emailVerified: true, isActive: true },
       where: {
         id: { not: authUser.id },

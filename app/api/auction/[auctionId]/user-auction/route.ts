@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { AuctionRole, UserAuction } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const { id, auctionId, userId, createdAt } = params;
     const role = searchParams.role as AuctionRole | undefined;
 
-    const auctions = await prismaDb?.userAuction.findMany({
+    const auctions = await prismaDb.userAuction.findMany({
       where: {
         ...(id && { id }),
         ...(auctionId && { auctionId }),

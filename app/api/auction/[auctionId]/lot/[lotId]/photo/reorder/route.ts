@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { ReorderFileType } from '@/app/types';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -12,7 +13,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     const body: ReorderFileType = await request.json();
     const { id, position } = body;
 
-    const photo = await prismaDb?.photo.findFirst({
+    const photo = await prismaDb.photo.findFirst({
       where: {
         id,
         lotId: params.lotId,
@@ -25,7 +26,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 
     const isNewPositionHigher = photo.position < position;
 
-    const updatedPhotos = await prismaDb?.photo.updateMany({
+    const updatedPhotos = await prismaDb.photo.updateMany({
       where: {
         lotId: params.lotId,
         position: {
@@ -37,7 +38,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       },
     });
 
-    await prismaDb?.photo.update({
+    await prismaDb.photo.update({
       where: {
         id,
       },

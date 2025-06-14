@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { AuctionRole, ShippingStatus, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request) {
   try {
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
           not: ShippingStatus.DELIVERED,
         },
       };
-      totalCount = await prismaDb?.shipping.count({
+      totalCount = await prismaDb.shipping.count({
         where,
       });
     } else if (tab === 'my-orders') {
@@ -45,13 +46,13 @@ export async function GET(request: Request) {
         userId: authUser.id,
       };
 
-      totalCount = await prismaDb?.shipping.count({
+      totalCount = await prismaDb.shipping.count({
         where,
       });
     } else {
       where = !isAuthUserAdmin ? { userId: authUser.id } : undefined;
 
-      totalCount = await prismaDb?.shipping.count({
+      totalCount = await prismaDb.shipping.count({
         where,
       });
     }
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
 
     const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
 
-    const orders = await prismaDb?.shipping.findMany({
+    const orders = await prismaDb.shipping.findMany({
       where,
       select: {
         id: true,

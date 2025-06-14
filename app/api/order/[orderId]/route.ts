@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { AuctionRole, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request, { params }: { params: { orderId: string } }) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: Request, { params }: { params: { orderId: str
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const shipping = await prismaDb?.shipping.findFirst({
+    const shipping = await prismaDb.shipping.findFirst({
       where: {
         id: params.orderId,
       },
@@ -19,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { orderId: str
       return new NextResponse('Order not found', { status: 404 });
     }
 
-    const lot = await prismaDb?.lot.findFirst({
+    const lot = await prismaDb.lot.findFirst({
       where: {
         id: shipping.lotId,
       },
@@ -51,7 +52,7 @@ export async function GET(request: Request, { params }: { params: { orderId: str
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const order = await prismaDb?.shipping.findFirst({
+    const order = await prismaDb.shipping.findFirst({
       where: {
         id: params.orderId,
       },

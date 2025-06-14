@@ -12,7 +12,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     const body = await request.json();
     const { id, position: newLotPosition } = body;
 
-    const lot = await prismaDb?.lot.findUnique({
+    const lot = await prismaDb.lot.findUnique({
       where: {
         id,
         auctionId: params.auctionId,

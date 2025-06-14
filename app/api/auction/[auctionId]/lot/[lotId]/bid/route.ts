@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { Bid } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 
     const data: Bid = await request.json();
 
-    const bid = await prismaDb?.bid.create({
+    const bid = await prismaDb.bid.create({
       data,
     });
 
@@ -41,7 +42,7 @@ export async function GET(request: Request, { params }: { params: { bidId: strin
       return new NextResponse('BidId is required and cannot be empty', { status: 400 });
     }
 
-    const bid = await prismaDb?.bid.findFirst({
+    const bid = await prismaDb.bid.findFirst({
       where: {
         id: bidId,
       },

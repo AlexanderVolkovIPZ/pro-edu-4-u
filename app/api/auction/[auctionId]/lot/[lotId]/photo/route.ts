@@ -3,6 +3,7 @@ import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/c
 import { CreateFileType, DeleteFileType } from '@/app/types';
 import { AuctionRole, Photo, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     const uploadedPhotos: Photo[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
-        await prismaDb?.photo.update({
+        await prismaDb.photo.update({
           where: {
             id,
           },
@@ -32,7 +33,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         folder: process.env.CLOUDINARY_FOLDER_NAME,
       });
 
-      const response: Photo | undefined = await prismaDb?.photo.create({
+      const response: Photo | undefined = await prismaDb.photo.create({
         data: {
           url,
           name,
@@ -61,7 +62,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const userAuction = await prismaDb?.userAuction.findFirst({
+    const userAuction = await prismaDb.userAuction.findFirst({
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
@@ -76,7 +77,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
 
     const { id }: DeleteFileType = await request.json();
 
-    const photo = await prismaDb?.photo.findFirst({
+    const photo = await prismaDb.photo.findFirst({
       where: {
         id,
         lotId: params.lotId,
@@ -89,9 +90,9 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
 
     await deleteFromCloudinary(photo.publicId);
 
-    const deletedPhoto = await prismaDb?.photo.delete({ where: { id, lotId: params.lotId } });
+    const deletedPhoto = await prismaDb.photo.delete({ where: { id, lotId: params.lotId } });
 
-    await prismaDb?.photo.updateMany({
+    await prismaDb.photo.updateMany({
       where: {
         lotId: params.lotId,
         position: {
