@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { Bid } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request) {
   try {
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
       }).filter(([, value]) => value !== undefined)
     );
 
-    const bids = await prismaDb?.bid.findMany({
+    const bids = await prismaDb.bid.findMany({
       where,
       include: {
         lot: {

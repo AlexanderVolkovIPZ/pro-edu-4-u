@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { CreateLotDetailsType } from '@/app/types';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -22,15 +23,15 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
       ...detail,
     }));
 
-    await prismaDb?.lotDetail.deleteMany({ where: { lotId } });
+    await prismaDb.lotDetail.deleteMany({ where: { lotId } });
 
     if (!data.length) return NextResponse.json([]);
 
-    await prismaDb?.lotDetail.createMany({
+    await prismaDb.lotDetail.createMany({
       data,
     });
 
-    const lotDetails = await prismaDb?.lotDetail.findMany({
+    const lotDetails = await prismaDb.lotDetail.findMany({
       where: {
         lotId,
       },
@@ -56,7 +57,7 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
   }
 
   try {
-    const lotCategories = await prismaDb?.lotCategory.findFirst({
+    const lotCategories = await prismaDb.lotCategory.findFirst({
       where: {
         lotId,
       },

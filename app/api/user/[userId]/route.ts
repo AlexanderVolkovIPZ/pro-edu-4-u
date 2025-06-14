@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { User, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(request: Request, { params }: { params: { userId: string } }) {
   try {
@@ -18,7 +19,7 @@ export async function PATCH(request: Request, { params }: { params: { userId: st
     const body = await request.json();
     const { name, email, emailVerified, image, password, role, isActive }: Partial<User> = body;
 
-    const updatedUser = await prismaDb?.user.update({
+    const updatedUser = await prismaDb.user.update({
       where: {
         id: params.userId,
       },
@@ -51,7 +52,7 @@ export async function DELETE(request: Request, { params }: { params: { userId: s
       return new NextResponse('User not found', { status: 404 });
     }
 
-    const user = await prismaDb?.user.findFirst({
+    const user = await prismaDb.user.findFirst({
       where: {
         id: params.userId,
       },
@@ -61,7 +62,7 @@ export async function DELETE(request: Request, { params }: { params: { userId: s
       return new NextResponse('User not found', { status: 404 });
     }
 
-    const deletedUser = await prismaDb?.user.delete({
+    const deletedUser = await prismaDb.user.delete({
       where: {
         id: params.userId,
       },

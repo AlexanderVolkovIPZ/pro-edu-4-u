@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { Shipping, UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(request: Request, { params }: { params: { shippingId: string } }) {
   try {
@@ -19,7 +20,7 @@ export async function PATCH(request: Request, { params }: { params: { shippingId
     delete body.id;
     const data: Partial<Omit<Shipping, 'id'>> = body;
 
-    const shipping = await prismaDb?.shipping.update({
+    const shipping = await prismaDb.shipping.update({
       data,
       where: {
         id: params.shippingId,

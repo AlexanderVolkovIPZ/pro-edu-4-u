@@ -2,6 +2,7 @@ import getAuthUser from '@/app/actions/get-auth-user';
 import { UserRole } from '@prisma/client';
 import dayjs from 'dayjs';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function GET(request: Request) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     }
 
     const salesPeriod = new Date(Date.now() - 1000 * 60 * 60 * 24 * Number(days));
-    const salesData = await prismaDb?.bid.findMany({
+    const salesData = await prismaDb.bid.findMany({
       where: { isPaid: true, isWinner: true, updatedAt: { gte: salesPeriod } },
       select: { createdAt: true },
     });
@@ -35,28 +36,28 @@ export async function GET(request: Request) {
     const statsPeriod = new Date(Date.now() - 1000 * 60 * 60 * 24 * 30 * 1);
 
     const auctionsPreviosPeriodCount =
-      (await prismaDb?.auction.count({
+      (await prismaDb.auction.count({
         where: { isPublished: true, createdAt: { gte: comparePeriod, lte: statsPeriod } },
       })) ?? 0;
     const auctionsCurrentPeriodCount =
-      (await prismaDb?.auction.count({
+      (await prismaDb.auction.count({
         where: { isPublished: true, createdAt: { gte: statsPeriod } },
       })) ?? 0;
     const growthAuctionsCount = calculateGrowth(auctionsCurrentPeriodCount, auctionsPreviosPeriodCount);
 
     const lotsPreviosPeriodCount =
-      (await prismaDb?.lot.count({
+      (await prismaDb.lot.count({
         where: { isSold: false, auction: { isPublished: true }, createdAt: { gte: comparePeriod, lte: statsPeriod } },
       })) ?? 0;
     const lotsCurrentPeriodCount =
-      (await prismaDb?.lot.count({
+      (await prismaDb.lot.count({
         where: { isSold: false, auction: { isPublished: true }, createdAt: { gte: statsPeriod } },
       })) ?? 0;
     const growthLotsCount = calculateGrowth(lotsCurrentPeriodCount, lotsPreviosPeriodCount);
 
     const userPreviosPeriodCount =
-      (await prismaDb?.user.count({ where: { createdAt: { gte: comparePeriod, lte: statsPeriod } } })) ?? 0;
-    const userCurrentPeriodCount = (await prismaDb?.user.count({ where: { createdAt: { gte: statsPeriod } } })) ?? 0;
+      (await prismaDb.user.count({ where: { createdAt: { gte: comparePeriod, lte: statsPeriod } } })) ?? 0;
+    const userCurrentPeriodCount = (await prismaDb.user.count({ where: { createdAt: { gte: statsPeriod } } })) ?? 0;
     const growthUserCount = calculateGrowth(userCurrentPeriodCount, userPreviosPeriodCount);
 
     const result = {

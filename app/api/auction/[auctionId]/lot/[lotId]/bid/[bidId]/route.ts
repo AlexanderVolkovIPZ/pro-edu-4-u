@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { Bid } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(
   request: Request,
@@ -15,7 +16,7 @@ export async function PATCH(
     const body: Omit<Bid, 'id' | 'createdAt'> = await request.json();
     const { amount, bidderId, isWinner, lotId } = body;
 
-    const bid = await prismaDb?.bid.update({
+    const bid = await prismaDb.bid.update({
       data: {
         amount,
         bidderId,

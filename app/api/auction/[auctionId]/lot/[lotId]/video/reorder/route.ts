@@ -1,6 +1,7 @@
 import getAuthUser from '@/app/actions/get-auth-user';
 import { ReorderFileType } from '@/app/types';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -12,7 +13,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     const body: ReorderFileType = await request.json();
     const { id, position } = body;
 
-    const video = await prismaDb?.video.findFirst({
+    const video = await prismaDb.video.findFirst({
       where: {
         id,
         lotId: params.lotId,
@@ -25,7 +26,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 
     const isNewPositionHigher = video.position < position;
 
-    const updatedVideos = await prismaDb?.video.updateMany({
+    const updatedVideos = await prismaDb.video.updateMany({
       where: {
         lotId: params.lotId,
         position: {
@@ -37,7 +38,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       },
     });
 
-    await prismaDb?.video.update({
+    await prismaDb.video.update({
       where: {
         id,
       },

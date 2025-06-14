@@ -3,6 +3,7 @@ import { stripe } from '@/app/lib/stripe';
 import { BidType, Shipping } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import prismaDb from '@/lib/prismadb';
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     } = await request.json();
     const { lots: lotsId, shippingInfo, bidType } = body;
 
-    const lots = await prismaDb?.lot.findMany({
+    const lots = await prismaDb.lot.findMany({
       where: {
         id: { in: lotsId },
       },
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
       return new NextResponse('Lots not found', { status: 404 });
     }
 
-    const alreadyPaidBid = await prismaDb?.bid.findFirst({
+    const alreadyPaidBid = await prismaDb.bid.findFirst({
       where: {
         lotId: { in: lotsId },
         bidderId: authUser.id,
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
     if (bidType === BidType.BIDDING) {
-      const bids = await prismaDb?.bid.findMany({
+      const bids = await prismaDb.bid.findMany({
         where: {
           lotId: { in: lotsId },
           bidderId: authUser.id,
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
       return new NextResponse('Invalid bid type', { status: 400 });
     }
 
-    const stripeCustomer = await prismaDb?.user.findUnique({
+    const stripeCustomer = await prismaDb.user.findUnique({
       where: {
         id: authUser.id,
       },
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
         name: authUser.name ?? undefined,
       });
 
-      await prismaDb?.user.update({
+      await prismaDb.user.update({
         where: { id: authUser.id },
         data: { stripeCustomerId: customer.id },
       });

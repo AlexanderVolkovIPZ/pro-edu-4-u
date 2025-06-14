@@ -3,6 +3,7 @@ import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/c
 import { CreateFileType, DeleteFileType } from '@/app/types';
 import { AuctionRole, UserRole, Video } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import prismaDb from '@/lib/prismadb';
 
 export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     const uploadedVideos: Video[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
-        await prismaDb?.video.update({
+        await prismaDb.video.update({
           where: {
             id,
           },
@@ -33,7 +34,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         resource_type: 'video',
       });
 
-      const response: Video | undefined = await prismaDb?.video.create({
+      const response: Video | undefined = await prismaDb.video.create({
         data: {
           url,
           name,
@@ -62,7 +63,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const userAuction = await prismaDb?.userAuction.findFirst({
+    const userAuction = await prismaDb.userAuction.findFirst({
       where: {
         userId: authUser.id,
         auctionId: params.auctionId,
@@ -77,7 +78,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
 
     const { id }: DeleteFileType = await request.json();
 
-    const video = await prismaDb?.video.findFirst({
+    const video = await prismaDb.video.findFirst({
       where: {
         id,
         lotId: params.lotId,
@@ -90,9 +91,9 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
 
     await deleteFromCloudinary(video.publicId, { resource_type: 'video' });
 
-    const deletedVideo = await prismaDb?.video.delete({ where: { id, lotId: params.lotId } });
+    const deletedVideo = await prismaDb.video.delete({ where: { id, lotId: params.lotId } });
 
-    await prismaDb?.video.updateMany({
+    await prismaDb.video.updateMany({
       where: {
         lotId: params.lotId,
         position: {
