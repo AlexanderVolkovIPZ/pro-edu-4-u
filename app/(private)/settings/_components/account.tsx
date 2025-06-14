@@ -13,7 +13,7 @@ import { FieldError, FieldValues, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import TabPageHeader from '../../_components/_shared/tab-page-header';
+import TabPageHeader from './_shared/tab-page-header';
 import FormField from './form-field';
 
 const getChangePasswordSchema = (t: TFunction) =>

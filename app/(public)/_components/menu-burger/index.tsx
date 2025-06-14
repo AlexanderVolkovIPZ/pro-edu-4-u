@@ -1,4 +1,3 @@
-import { menuLinksList } from '@/app/(public)/_shared/lists/menu-links-list';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { MenuIcon } from 'lucide-react';
@@ -14,13 +13,6 @@ const MenuBurger = ({ signInLabel, signUpLabel }: { signInLabel: string; signUpL
       </SheetTrigger>
       <SheetContent side='right'>
         <nav className='flex flex-col items-center gap-y-5'>
-          {menuLinksList.map(({ title, link }) => (
-            <SheetClose asChild key={title}>
-              <Link href={link} className='text-muted-foreground hover:text-gray-900 text-2xl'>
-                {title}
-              </Link>
-            </SheetClose>
-          ))}
           <SheetClose asChild>
             <Link href='/sign-in' className='text-muted-foreground hover:text-gray-900 text-2xl'>
               {signInLabel}

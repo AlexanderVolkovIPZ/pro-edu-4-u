@@ -48,8 +48,16 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
                 },
               },
             },
-            photo: true,
-            video: true,
+            photo: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
+            video: {
+              orderBy: {
+                position: 'asc',
+              },
+            },
             lotDetail: true,
             lotCategory: {
               include: {
@@ -94,6 +102,29 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
 
     const body = await request.json();
     const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
+    let { isApproved }: Partial<Auction> = body;
+
+    if (!isAuthUserAdmin) {
+      isApproved = false;
+    }
+
+    if (isApproved) {
+      const auction = await prismaDb.auction.findFirst({
+        where: {
+          id: params.auctionId,
+        },
+      });
+
+      if (!auction) {
+        return new NextResponse('Auction not found', { status: 404 });
+      }
+
+      const isStartDateInThePast =
+        !auction.startDate || (auction.startDate && new Date(auction.startDate) < new Date());
+      if (isStartDateInThePast) {
+        return new NextResponse('Start date cannot be in the past', { status: 400 });
+      }
+    }
 
     const auction = await prismaDb.auction.update({
       data: {
@@ -102,6 +133,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
         startDate,
         endDate,
         isPublished,
+        isApproved,
       },
       where: {
         id: params.auctionId,

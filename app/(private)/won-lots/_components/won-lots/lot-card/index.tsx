@@ -60,7 +60,7 @@ const LotCard = ({ price, auctionName, lotName, media, categories, lotWonDate, i
                 </div>
               </div>
               <div className='text-right space-y-1.5'>
-                <div className='text-xl font-bold text-rose-500'>${price.toLocaleString()}</div>
+                <div className='text-xl font-bold text-rose-500'>₴{price.toLocaleString()}</div>
                 <div className='flex items-center justify-end gap-1.5 text-xs text-muted-foreground'>
                   <Calendar className='w-3.5 h-3.5' />
                   <span>

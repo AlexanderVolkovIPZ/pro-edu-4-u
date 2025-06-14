@@ -1,7 +1,7 @@
-import Profile from './_components/profile';
+import Account from './_components/account';
 
-const SettingsPage = () => {
-  return <Profile />;
+const AccountPage = () => {
+  return <Account />;
 };
 
-export default SettingsPage;
+export default AccountPage;

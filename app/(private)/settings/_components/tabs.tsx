@@ -4,18 +4,18 @@ import { usePathname } from 'next/navigation';
 import Tab from './tab';
 
 const tabList = [
-  {
-    title: 'profile',
-    path: '/',
-  },
+  // {
+  //   title: 'profile',
+  //   path: '/',
+  // },
   {
     title: 'account',
     path: '/account',
   },
-  {
-    title: 'appearance',
-    path: '/appearance',
-  },
+  // {
+  //   title: 'appearance',
+  //   path: '/appearance',
+  // },
 ];
 
 const Tabs = () => {

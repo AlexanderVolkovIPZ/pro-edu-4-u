@@ -49,7 +49,7 @@ export async function GET(request: Request) {
         where,
       });
     } else {
-      const where = !isAuthUserAdmin ? { userId: authUser.id } : undefined;
+      where = !isAuthUserAdmin ? { userId: authUser.id } : undefined;
 
       totalCount = await prismaDb?.shipping.count({
         where,

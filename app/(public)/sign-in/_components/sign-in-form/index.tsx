@@ -72,7 +72,11 @@ export default function SignIn() {
       }
 
       if (response?.error) {
-        toast.error(t('toast.error.invalid_credentials'));
+        toast.error(
+          t(response.error, {
+            defaultValue: t('toast.error.something_went_wrong'),
+          })
+        );
       }
     } catch {
       toast.error(t('toast.error.something_went_wrong'));

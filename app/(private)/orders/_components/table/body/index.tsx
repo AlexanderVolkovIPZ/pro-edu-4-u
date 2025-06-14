@@ -209,9 +209,7 @@ const Body = ({ isLoading, orders }: TableBodyProps) => {
           <TableCell className='px-6 py-4 whitespace-nowrap text-gray-500'>
             <SquareArrowOutUpRight
               className='mr-2 h-4 w-4 hover:scale-110 hover:text-rose-500 transition-all cursor-pointer'
-              onClick={() => {
-                router.push(`/orders/${order.id}`);
-              }}
+              onClick={() => router.push(`/orders/${order.id}`)}
             />
           </TableCell>
         </TableRow>

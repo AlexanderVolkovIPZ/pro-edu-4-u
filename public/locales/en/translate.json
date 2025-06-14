@@ -34,7 +34,8 @@
       "in_progress": "In Progress",
       "completed": "Completed"
     },
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "all_rights_reserved": "All rights reserved"
   },
   "main": {
     "home": "Home",
@@ -129,7 +130,8 @@
     "role": "Role",
     "created_at": "Created At",
     "verified_at": "Verified At",
-    "are_you_sure_you_want_to_delete_this_user": "Are you sure you want to delete this user",
+    "are_you_sure_you_want_to_deactivate_this_user": "Are you sure you want to deactivate this user",
+    "are_you_sure_you_want_to_activate_this_user": "Are you sure you want to activate this user",
     "users": "users",
     "go_to_home": "Go to Home",
     "looks_like_you_have_not_had_any_created_user": "Looks like you have not had any created user",
@@ -184,7 +186,7 @@
   },
   "settings": {
     "settings": "Settings",
-    "settings_description": "Manage your account settings and set email preferences.",
+    "settings_description": "Manage your account settings.",
     "profile": "Profile",
     "update_your_profile_settings": "Update your profile settings",
     "account": "Account",
@@ -201,7 +203,6 @@
   },
   "avatar_menu": {
     "my_account": "My Account",
-    "profile": "Profile",
     "settings": "Settings",
     "log_out": "Log out"
   },
@@ -252,6 +253,7 @@
   "auction": {
     "auction_setup": "Auction Setup",
     "are_you_sure_you_want_to_publish_this_auction": "Are you sure you want to publish this auction",
+    "are_you_sure_you_want_to_approve_this_auction": "Are you sure you want to approve this auction",
     "title": "Title",
     "description": "Description",
     "no_description": "No description",
@@ -262,6 +264,7 @@
     "end_date": "End Date",
     "no_end_date": "No end date",
     "publish": "Publish",
+    "approve": "Approve",
     "enter_lot_title": "Enter lot title"
   },
   "new_lot": {
@@ -327,6 +330,7 @@
   },
   "toast": {
     "success": {
+      "the_auction_has_been_successfully_approved": "The auction has been successfully approved",
       "the_auction_has_been_successfully_published": "The auction has been successfully published",
       "the_title_has_been_successfully_updated": "The title has been successfully updated",
       "the_description_has_been_successfully_updated": "The description has been successfully updated",
@@ -345,7 +349,7 @@
       "status_updated_successfully": "Status updated successfully",
       "password_updated_successfully": "Password updated successfully",
       "field_updated_successfully": "field updated successfully",
-      "the_user_deleted_successfully": "The user deleted successfully",
+      "the_user_deactivated_successfully": "The user deactivated successfully",
       "authentication_success": "Authentication success",
       "registration_success": "Registration success",
       "successfully_uploaded_media": "Successfully uploaded {{count}} {{mediaType}}",
@@ -364,7 +368,10 @@
       "failed_to_delete_auction": "Failed to delete auction",
       "invalid_credentials": "Invalid credentials",
       "authentication_failed": "Authentication failed",
-      "bid_not_sent_trying_to_reconnect": "Bid not sent, trying to reconnect"
+      "bid_not_sent_trying_to_reconnect": "Bid not sent, trying to reconnect",
+      "user_is_not_active": "User is not active. Please contact the administrator!",
+      "all_required_fields_must_be_filled": "All required fields must be filled",
+      "start_date_cannot_be_in_the_past": "Start date cannot be in the past"
     }
   },
   "validation": {

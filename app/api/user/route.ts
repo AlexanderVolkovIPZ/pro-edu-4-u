@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
 
     const users = await prismaDb?.user.findMany({
-      select: { id: true, email: true, role: true, createdAt: true, name: true, emailVerified: true },
+      select: { id: true, email: true, role: true, createdAt: true, name: true, emailVerified: true, isActive: true },
       where: {
         id: { not: authUser.id },
       },

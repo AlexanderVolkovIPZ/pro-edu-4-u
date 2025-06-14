@@ -12,11 +12,16 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const searchParams = Object.fromEntries(url.searchParams.entries());
-    const { days } = searchParams;
+    const { days = '30' } = searchParams;
+
+    const daysNum = parseInt(days);
+    if (isNaN(daysNum) || daysNum <= 0) {
+      return new NextResponse('Invalid days parameter', { status: 400 });
+    }
 
     const salesPeriod = new Date(Date.now() - 1000 * 60 * 60 * 24 * Number(days));
     const salesData = await prismaDb?.bid.findMany({
-      where: { isPaid: true, createdAt: { gte: salesPeriod } },
+      where: { isPaid: true, isWinner: true, updatedAt: { gte: salesPeriod } },
       select: { createdAt: true },
     });
 
@@ -80,9 +85,11 @@ export async function GET(request: Request) {
 }
 
 const calculateGrowth = (current: number, previous: number) => {
-  if (previous > 0) {
-    return current > previous ? (current * 100) / previous : -((current * 100) / previous);
+  if (previous === 0) {
+    if (current === 0) return 0;
+
+    return current * 100;
   }
 
-  return current * 100;
+  return ((current - previous) / previous) * 100;
 };

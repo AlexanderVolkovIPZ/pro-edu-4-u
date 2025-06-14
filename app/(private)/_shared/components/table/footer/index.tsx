@@ -53,40 +53,42 @@ const Footer = ({ page, perPageCount, entitiesName, setPage, totalPages, totalCo
                 })}
               </p>
 
-              <nav className='hidden sm:block' aria-label='Pagination'>
-                <div className='flex items-center space-x-1'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='rounded-l-md'
-                    onClick={() => setPage(Math.max(1, page - 1))}
-                    disabled={page === 1}
-                  >
-                    {t('common.previous')}
-                  </Button>
-
-                  {[...Array(totalPages)].map((_, i) => (
+              {totalPages > 1 && (
+                <nav className='hidden sm:block' aria-label='Pagination'>
+                  <div className='flex items-center space-x-1'>
                     <Button
-                      key={i}
-                      variant={page === i + 1 ? 'default' : 'outline'}
+                      variant='outline'
                       size='sm'
-                      onClick={() => setPage(i + 1)}
+                      className='rounded-l-md'
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1}
                     >
-                      {i + 1}
+                      {t('common.previous')}
                     </Button>
-                  ))}
 
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='rounded-r-md'
-                    onClick={() => setPage(Math.min(totalPages, page + 1))}
-                    disabled={page === totalPages}
-                  >
-                    {t('common.next')}
-                  </Button>
-                </div>
-              </nav>
+                    {[...Array(totalPages)].map((_, i) => (
+                      <Button
+                        key={i}
+                        variant={page === i + 1 ? 'default' : 'outline'}
+                        size='sm'
+                        onClick={() => setPage(i + 1)}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='rounded-r-md'
+                      onClick={() => setPage(Math.min(totalPages, page + 1))}
+                      disabled={page === totalPages}
+                    >
+                      {t('common.next')}
+                    </Button>
+                  </div>
+                </nav>
+              )}
             </div>
           </TableCell>
         )}

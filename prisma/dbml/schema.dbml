@@ -11,6 +11,7 @@ Table User {
   image String
   password String
   role UserRole [not null, default: 'USER']
+  isActive Boolean [not null, default: true]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   account Account [not null]
@@ -46,6 +47,7 @@ Table Auction {
   title String [not null]
   description String
   isPublished Boolean [not null, default: false]
+  isApproved Boolean [not null, default: false]
   status Status [not null, default: 'UPCOMING']
   startDate DateTime
   endDate DateTime
@@ -141,6 +143,7 @@ Table Bid {
   lotId String [not null]
   bidderId String [not null]
   amount Float [not null]
+  type BidType [not null, default: 'BIDDING']
   isWinner Boolean [not null, default: false]
   isPaid Boolean [not null, default: false]
   createdAt DateTime [default: `now()`, not null]
@@ -164,7 +167,7 @@ Table Shipping {
   lastName String [not null]
   phone String [not null]
   email String [not null]
-  status ShippingStatus [default: 'PENDING']
+  status ShippingStatus [not null, default: 'PENDING']
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   lot Lot [not null]
@@ -176,7 +179,7 @@ Enum ShippingStatus {
   SHIPPED
   IN_TRANSIT
   DELIVERED
-  CANCELLED
+  CANCELED
 }
 
 Enum Status {
@@ -192,6 +195,11 @@ Enum AuctionRole {
 Enum UserRole {
   USER
   ADMIN
+}
+
+Enum BidType {
+  BIDDING
+  INSTANT
 }
 
 Ref: Account.userId > User.id [delete: Cascade]

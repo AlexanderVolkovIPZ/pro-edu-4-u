@@ -17,7 +17,6 @@ const PAGE_ITEMS_LIMIT = 8;
 const Main = () => {
   const router = useRouter();
   const { params, setParams } = useQueryParams({
-    isPublished: true,
     page: 1,
     limit: PAGE_ITEMS_LIMIT,
     minLotPrice: undefined,
@@ -36,7 +35,6 @@ const Main = () => {
     isFetched,
   } = useAuctionsByFilter<AuctionWithRelationsType>({
     filters: {
-      isPublished: params.isPublished,
       page: params.page,
       limit: params.limit,
       minLotPrice: params.minLotPrice,

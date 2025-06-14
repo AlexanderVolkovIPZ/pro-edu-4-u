@@ -129,16 +129,18 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
             <div>
               <h3 className='font-medium mb-2'>{t('main.filters.categories')}</h3>
               <div className='space-y-2'>
-                {lotCategoriesExistedNames.map((category) => (
-                  <div key={category} className='flex items-center space-x-2'>
-                    <Checkbox
-                      id={category}
-                      checked={filters.categories?.includes(category)}
-                      onCheckedChange={(checked) => onCategoryChange(category, !!checked)}
-                    />
-                    <Label htmlFor={category}>{category}</Label>
-                  </div>
-                ))}
+                {lotCategoriesExistedNames
+                  .sort((a, b) => a.localeCompare(b))
+                  .map((category) => (
+                    <div key={category} className='flex items-center space-x-2'>
+                      <Checkbox
+                        id={category}
+                        checked={filters.categories?.includes(category)}
+                        onCheckedChange={(checked) => onCategoryChange(category, !!checked)}
+                      />
+                      <Label htmlFor={category}>{category}</Label>
+                    </div>
+                  ))}
               </div>
             </div>
 

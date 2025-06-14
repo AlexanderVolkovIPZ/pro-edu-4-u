@@ -25,14 +25,16 @@ const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
                     <AvatarFallback>{bid.bidderName[0].toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className='text-sm font-medium'>{bid.bidderName}</p>
+                    <p className='text-sm font-medium'>
+                      {bid.bidderName} {bid.isWinner ? '🏆' : ''}
+                    </p>
                     <p className='text-xs text-muted-foreground'>
                       <Clock className='mr-1 inline-block h-3 w-3' />
                       {new Date(bid.createdAt).toLocaleString()}
                     </p>
                   </div>
                 </div>
-                <span className='text-lg font-semibold'>${bid.amount.toLocaleString()}</span>
+                <span className='text-lg font-semibold'>₴{bid.amount.toLocaleString()}</span>
               </div>
             ))}
           </div>

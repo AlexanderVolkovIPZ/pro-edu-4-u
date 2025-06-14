@@ -1,12 +1,13 @@
 'use client';
 
 import { Separator } from '@/components/ui/separator';
-import { CircleUser, LogOut, Menu, Settings } from 'lucide-react';
+import { LogOut, Menu, Settings } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useTranslation } from 'react-i18next';
 import Avatar from './avatar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import UserItemMenu from './user-item-menu';
+import { useRouter } from 'next/navigation';
 
 type UserMenuProps = {
   url?: string | null;
@@ -14,6 +15,7 @@ type UserMenuProps = {
 };
 
 const UserMenu = ({ url, email }: UserMenuProps) => {
+  const router = useRouter();
   const { t } = useTranslation();
 
   return (
@@ -28,8 +30,7 @@ const UserMenu = ({ url, email }: UserMenuProps) => {
           {email && <div className='text-[10px] text-slate-700 pt-1'>{email}</div>}
         </div>
         <Separator />
-        <UserItemMenu label={t('avatar_menu.profile')} onClick={() => {}} icon={CircleUser} />
-        <UserItemMenu label={t('avatar_menu.settings')} icon={Settings} onClick={() => {}} />
+        <UserItemMenu label={t('avatar_menu.settings')} icon={Settings} onClick={() => router.push('/settings')} />
         <Separator />
         <UserItemMenu label={t('avatar_menu.log_out')} icon={LogOut} onClick={() => signOut({})} />
       </PopoverContent>

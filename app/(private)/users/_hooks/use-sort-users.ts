@@ -7,6 +7,7 @@ type UserInfoType = {
   role: string;
   createdAt: string;
   emailVerified: string;
+  isActive: boolean;
 }[];
 
 export const useSortUsers = ({ users }: { users: UserInfoType }) => {

@@ -38,7 +38,7 @@ const OrderConfirmation = ({ totalAmount }: { totalAmount: number }) => {
 
         <div className='flex items-center justify-between'>
           <span className='text-lg font-medium'>{t('checkout.total_amount')}:</span>
-          <span className='text-2xl font-bold text-rose-500'>${totalAmount.toFixed(2)}</span>
+          <span className='text-2xl font-bold text-rose-500'>₴{totalAmount.toFixed(2)}</span>
         </div>
       </CardContent>
     </Card>

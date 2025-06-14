@@ -25,7 +25,10 @@ export function useChangePassword<T>(): UseMutationResult<AxiosResponse<T>, Erro
 }
 
 type GetUsersType = {
-  users: (Pick<User, 'id' | 'name' | 'email' | 'role'> & { createdAt: string; emailVerified: string | null })[];
+  users: (Pick<User, 'id' | 'name' | 'email' | 'role' | 'isActive'> & {
+    createdAt: string;
+    emailVerified: string | null;
+  })[];
   total: number;
   totalPages: number;
   page: number;

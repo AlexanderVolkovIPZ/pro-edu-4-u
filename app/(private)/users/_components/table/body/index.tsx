@@ -2,7 +2,7 @@
 
 import { getEmailSchema } from '@/app/_shared/schemas/email-schema';
 import { AccountContext } from '@/app/providers/account-provider';
-import { useDeleteUser, useUpdateUser } from '@/app/queries/auth-user';
+import { useUpdateUser } from '@/app/queries/auth-user';
 import { capitalize } from '@/app/utils/capitalize';
 import { getDatePickerDateFormat, getDatePickerTimeFormat } from '@/app/utils/get-date-picker-format';
 import AlertDialog from '@/components/alert-dialog';
@@ -19,7 +19,7 @@ import { TableBody as TableBodyComponent, TableCell, TableRow } from '@/componen
 import { UserRole } from '@prisma/client';
 import dayjs from 'dayjs';
 import { TFunction } from 'i18next';
-import { ChevronDown, Trash } from 'lucide-react';
+import { ChevronDown, Trash, RotateCcw } from 'lucide-react';
 import type React from 'react';
 import { useContext, useState } from 'react';
 import DatePicker from 'react-datepicker';
@@ -38,6 +38,7 @@ type TableBodyProps = {
     role: string;
     createdAt: string;
     emailVerified: string;
+    isActive: boolean;
   }[];
 };
 
@@ -65,10 +66,9 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
 
   const [editableCell, setEditableCell] = useState<EditableCell | null>(null);
   const [isShowedAlertDialog, setIsShowedAlertDialog] = useState(false);
-  const [userToDeleteId, setUserToDeleteId] = useState<string | null>(null);
+  const [userToUpdateId, setUserToUpdateId] = useState<string | null>(null);
 
   const { mutateAsync: updateUser } = useUpdateUser();
-  const { mutateAsync: deleteUser } = useDeleteUser();
 
   const onCellClick = (userId: string, field: EditableCell['field'], value: string) =>
     setEditableCell({ userId, field, value });
@@ -138,15 +138,25 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
     }
   };
 
-  const onDelete = async (userId: string | null) => {
+  const onActivateOrDeactivateUser = async (userId: string | null) => {
     try {
       if (!userId) return;
 
-      await deleteUser({
+      const user = users.find((u) => u.id === userId);
+      if (!user) return;
+
+      const newActiveStatus = !user.isActive;
+
+      await updateUser({
         id: userId,
+        isActive: newActiveStatus,
       });
 
-      toast.success(t('toast.success.the_user_deleted_successfully'), {
+      const successMessage = newActiveStatus
+        ? t('toast.success.the_user_activated_successfully')
+        : t('toast.success.the_user_deactivated_successfully');
+
+      toast.success(successMessage, {
         style: {
           textAlign: 'center',
         },
@@ -172,7 +182,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
       return (
         <Input
           value={editableCell.value}
-          onChange={(e) => setEditableCell({ ...editableCell, value: e.target.value.trim() })}
+          onChange={(e) => setEditableCell({ ...editableCell, value: e.target.value })}
           onBlur={async () => await onUpdate()}
           onKeyDown={async (e) => await onInputKeyDown(e)}
           className='h-7 w-auto max-w-[200px]'
@@ -306,29 +316,44 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
           {renderCell(user.id, 'emailVerified', user.emailVerified, true)}
         </TableCell>
         <TableCell className='px-6 py-4 whitespace-nowrap text-gray-500'>
-          <Trash
-            className='mr-2 h-4 w-4 hover:scale-110 hover:text-rose-500 transition-all cursor-pointer'
-            onClick={() => {
-              setUserToDeleteId(user.id);
-              setIsShowedAlertDialog(true);
-            }}
-          />
+          {user.isActive ? (
+            <Trash
+              className='mr-2 h-4 w-4 hover:scale-110 hover:text-rose-500 transition-all cursor-pointer'
+              onClick={() => {
+                setUserToUpdateId(user.id);
+                setIsShowedAlertDialog(true);
+              }}
+            />
+          ) : (
+            <RotateCcw
+              className='mr-2 h-4 w-4 hover:scale-110 hover:text-rose-500 transition-all cursor-pointer'
+              onClick={() => {
+                setUserToUpdateId(user.id);
+                setIsShowedAlertDialog(true);
+              }}
+            />
+          )}
         </TableCell>
       </TableRow>
     ));
   };
+
+  const currentUser = users.find((u) => u.id === userToUpdateId);
+  const isCurrentUserActive = currentUser?.isActive ?? true;
 
   return (
     <>
       {isShowedAlertDialog &&
         AlertDialog({
           title: `${t('common.are_you_absolutely_sure')}?`,
-          description: `${t('users.are_you_sure_you_want_to_delete_this_user')}?`,
+          description: isCurrentUserActive
+            ? `${t('users.are_you_sure_you_want_to_deactivate_this_user')}?`
+            : `${t('users.are_you_sure_you_want_to_activate_this_user')}?`,
           cancelBtnTitle: t('common.cancel'),
           actionBtnTitle: t('common.continue'),
           setShowAlertDialog: setIsShowedAlertDialog,
           showAlertDialog: isShowedAlertDialog,
-          onConfirm: () => onDelete(userToDeleteId),
+          onConfirm: () => onActivateOrDeactivateUser(userToUpdateId),
         })}
       <TableBodyComponent className='bg-white divide-y divide-gray-200'>
         {isLoading ? renderSkeletonRows() : renderAuctionRows()}

@@ -44,12 +44,20 @@ export function MediaSlider({
 
   const renderMedia = (currentMedia: Media) => {
     if (currentMedia?.type === 'image') {
-      return <Image {...imageProps} src={currentMedia.src} alt={alt} className='aspect-video object-cover' />;
-    } else if (currentMedia?.type === 'video') {
-      return <video {...videoProps} src={currentMedia.src} controls className='aspect-video object-cover' />;
+      return (
+        <Image
+          {...imageProps}
+          src={currentMedia?.src}
+          alt={alt}
+          className='aspect-video object-cover'
+          fetchPriority='low'
+          priority={currentIndex === 0}
+          loading={currentIndex === 0 ? 'eager' : 'lazy'}
+        />
+      );
     }
 
-    return <Image {...imageProps} src={currentMedia?.src} alt={alt} className='aspect-video object-cover' />;
+    return <video {...videoProps} src={currentMedia?.src} controls className='aspect-video object-cover' />;
   };
 
   return (

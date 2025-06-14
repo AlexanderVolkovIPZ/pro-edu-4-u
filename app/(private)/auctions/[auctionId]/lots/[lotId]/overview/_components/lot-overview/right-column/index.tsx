@@ -61,6 +61,7 @@ const RightColumn = ({ lotInfo }: RightColumnProps) => {
       bidderId: bid.user.id,
       createdAt: new Date(bid.createdAt).toISOString(),
       type: bid.type,
+      isWinner: bid.isWinner,
     }))
     .sort((a, b) => b.amount - a.amount);
 

@@ -117,6 +117,7 @@ const BidProcessInfo = ({
           bidderId: newBid.user.id,
           createdAt: new Date(newBid.createdAt).toISOString(),
           type: BidType.BIDDING,
+          isWinner: newBid.isWinner,
         },
         ...prevBids,
       ]);
