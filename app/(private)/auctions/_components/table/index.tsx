@@ -34,14 +34,13 @@ const Table = () => {
   const { params, setParams } = useQueryParams({
     page: 1,
     limit: 5,
-    loadForCurrentUser: true,
   });
   const { data: { auctions = [], total = 0, totalPages = 0, limit = 0 } = {}, isFetching } =
     useAuctionsByFilter<ExtendedAuction>({
       filters: {
         page: params.page,
         limit: params.limit,
-        loadForCurrentUser: params.loadForCurrentUser,
+        loadForCurrentUser: true,
       },
       options: {
         staleTime: 1000 * 60 * 3,
