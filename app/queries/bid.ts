@@ -1,8 +1,9 @@
 import { Auction, Bid } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
-import { BID } from './query-keys';
+import { AUCTION, BID } from './query-keys';
 import { LotWithRelationsType } from '../types';
+import { queryClient } from '../providers/query-client-provider';
 
 export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
   auctionId: string,
@@ -21,6 +22,9 @@ export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
         data
       );
       return response.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
     },
   });
 }
