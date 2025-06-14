@@ -35,8 +35,6 @@ const Main = () => {
     isFetched,
   } = useAuctionsByFilter<AuctionWithRelationsType>({
     filters: {
-      isPublished: true,
-      isApproved: true,
       page: params.page,
       limit: params.limit,
       minLotPrice: params.minLotPrice,
