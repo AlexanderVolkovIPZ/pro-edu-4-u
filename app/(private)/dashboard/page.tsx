@@ -1,12 +1,14 @@
 'use client';
 
 import Container from '@/components/container';
-import DashboardStats from './_components/dashboard-stats';
 import Header from './_components/header';
 import { useContext } from 'react';
 import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { UserRole } from '@prisma/client';
 import { notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const DashboardStats = dynamic(() => import('./_components/dashboard-stats'), { ssr: false });
 
 const DashboardPage = () => {
   const authUser = useContext(AuthUserContext);
