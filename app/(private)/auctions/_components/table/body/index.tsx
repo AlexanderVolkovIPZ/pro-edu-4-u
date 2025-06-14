@@ -73,7 +73,10 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
 
   const renderAuctionRows = () => {
     return auctions.map((auction) => (
-      <TableRow key={auction.id} className={cn('hover:bg-gray-50 text-sm', !auction.isApproved && 'bg-red-50')}>
+      <TableRow
+        key={auction.id}
+        className={cn('hover:bg-gray-50 text-sm', !auction.isApproved && 'bg-red-50 hover:bg-red-100')}
+      >
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.startDate)}</TableCell>
