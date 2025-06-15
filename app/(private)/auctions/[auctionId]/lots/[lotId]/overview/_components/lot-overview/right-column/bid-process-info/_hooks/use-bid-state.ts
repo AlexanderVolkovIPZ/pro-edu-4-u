@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BidInfo } from '../_shared/types';
 import { BID_INCREMENT_STORAGE_KEY, IS_AUTO_BID } from '../_shared/constants';
 
@@ -6,6 +6,10 @@ export const useBidState = (initialBids: BidInfo[], startBid: number, minBidIncr
   const [bids, setBids] = useState<BidInfo[]>(initialBids);
   const [currentBid, setCurrentBid] = useState(bids.at(0)?.amount);
   const [isBidSent, setIsBidSent] = useState(false);
+
+  useEffect(() => {
+    setBids(initialBids);
+  }, [initialBids]);
 
   const [isAutoBid, setIsAutoBid] = useState(!!localStorage.getItem(IS_AUTO_BID));
 
