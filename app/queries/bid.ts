@@ -2,7 +2,7 @@ import { Auction, Bid } from '@prisma/client';
 import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { AUCTION, BID } from './query-keys';
-import { LotWithRelationsType } from '../types';
+import { AuctionWithRelationsType, LotWithRelationsType } from '../types';
 import { queryClient } from '../providers/query-client-provider';
 
 export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
@@ -23,8 +23,36 @@ export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
       );
       return response.data;
     },
+    onMutate: async ({ payloadBidId, data }) => {
+      queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
+      queryClient.cancelQueries({ queryKey: [BID] });
+
+      const previousAuction = queryClient.getQueryData<AuctionWithRelationsType>([AUCTION, auctionId]);
+
+      if (!previousAuction) return;
+
+      queryClient.setQueryData<AuctionWithRelationsType>([AUCTION, auctionId], (oldAuction) => {
+        return oldAuction
+          ? {
+              ...oldAuction,
+              lot: oldAuction.lot.map((lot) => ({
+                ...lot,
+                bid: lot.bid.map((bid) => (bid.id === payloadBidId ? { ...bid, ...data } : bid)),
+              })),
+            }
+          : undefined;
+      });
+
+      return previousAuction;
+    },
+    onError: (_error, _newData, context) => {
+      if (context) {
+        queryClient.setQueryData([AUCTION, auctionId], context);
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
     },
   });
 }
