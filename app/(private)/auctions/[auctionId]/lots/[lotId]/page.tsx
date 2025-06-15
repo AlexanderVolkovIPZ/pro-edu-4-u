@@ -139,7 +139,7 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                 onError={() => toast.error(t('toast.error.something_went_wrong'))}
               />
               <CategoryInput
-                initialCategories={categoriesData}
+                initialCategories={categoriesData?.sort((a, b) => a.name.localeCompare(b.name))}
                 initialLotCategoryIds={lotData?.lotCategory?.map((lotCategory) => lotCategory.categoryId)}
                 isLoading={isCreateLotCategoriesPending}
                 showRequiredFieldIcon={true}
