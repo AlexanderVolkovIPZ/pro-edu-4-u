@@ -93,7 +93,7 @@ const BidProcessInfo = ({
       })();
 
       (async () => {
-        updateBid({
+        await updateBid({
           payloadBidId: maxBidId,
           data: { isWinner: true },
         });
@@ -101,7 +101,7 @@ const BidProcessInfo = ({
 
       setStatus(Status.COMPLETED);
     }
-  }, [bids, progressValue, updateBid, updateLot]);
+  }, [auctionId, bids, progressValue, updateBid, updateLot]);
 
   useEffect(() => {
     if (!socket) return;
@@ -208,24 +208,26 @@ const BidProcessInfo = ({
             </h2>
 
             <div className='space-y-4'>
-              <BidInput
-                value={inputValue}
-                onChange={(e) => {
-                  const value = +e.target.value;
-                  if (!Number.isNaN(value)) setInputValue(value);
-                }}
-                onIncrease={() => setInputValue((prev) => prev + 1)}
-                onDecrease={() => setInputValue((prev) => prev - 1)}
-                min={calculateNextBid()}
-              />
-
-              <BidIncrementSlider
-                label={t('bid_process.bid_increment')}
-                minBidIncrement={minBidIncrement}
-                maxBidIncrement={minBidIncrement * 5}
-                bidIncrement={bidIncrement}
-                setBidIncrement={setBidIncrement}
-              />
+              {isAutoBid ? (
+                <BidIncrementSlider
+                  label={t('bid_process.bid_increment')}
+                  minBidIncrement={minBidIncrement}
+                  maxBidIncrement={minBidIncrement * 5}
+                  bidIncrement={bidIncrement}
+                  setBidIncrement={setBidIncrement}
+                />
+              ) : (
+                <BidInput
+                  value={inputValue}
+                  onChange={(e) => {
+                    const value = +e.target.value;
+                    if (!Number.isNaN(value)) setInputValue(value);
+                  }}
+                  onIncrease={() => setInputValue((prev) => prev + 1)}
+                  onDecrease={() => setInputValue((prev) => prev - 1)}
+                  min={calculateNextBid()}
+                />
+              )}
             </div>
 
             <div className='grid grid-cols-2 gap-4'>
@@ -268,7 +270,12 @@ const BidProcessInfo = ({
         </>
       )}
 
-      {!isLotUpcoming && <BidHistory bids={bids.filter((bid) => bid.type !== BidType.INSTANT)} />}
+      {!isLotUpcoming && bids.length > 0 && (
+        <BidHistory
+          isCompleted={status === Status.COMPLETED}
+          bids={bids.filter((bid) => bid.type !== BidType.INSTANT)}
+        />
+      )}
     </div>
   );
 };
