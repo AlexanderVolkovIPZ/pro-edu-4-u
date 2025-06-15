@@ -305,6 +305,7 @@
     "categories_selected": "categories selected"
   },
   "order": {
+    "lot_delivery_information": "Lot Delivery Information",
     "looks_like_this_order_does_not_exist": "Looks like this order doesn't exist",
     "go_to_home_page": "Go to Home Page",
     "delivery_status": "Delivery Status",

@@ -305,6 +305,7 @@
     "categories_selected": "вибрані категорії"
   },
   "order": {
+    "lot_delivery_information": "Інформація про доставку лоту",
     "looks_like_this_order_does_not_exist": "Схоже, цього замовлення не існує",
     "go_to_home_page": "Перейти на головну сторінку",
     "delivery_status": "Статус доставки",
