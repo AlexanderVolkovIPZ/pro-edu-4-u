@@ -5,8 +5,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BidInfo } from '../_shared/types';
+import { cn } from '@/lib/utils';
 
-const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
+const BidHistory = ({ bids, isCompleted }: { bids: BidInfo[]; isCompleted: boolean }) => {
   const { t } = useTranslation();
 
   return (
@@ -15,7 +16,9 @@ const BidHistory = ({ bids }: { bids: BidInfo[] }) => {
         <History className='h-5 w-5 text-slate-600' />
         {t('lot.bid_history')}
       </h3>
-      <ScrollArea className='h-[300px] pr-4'>
+      <ScrollArea
+        className={cn('max-h-[320px] h-auto pr-4 overflow-auto', isCompleted ? 'max-h-[320px]' : 'max-h-[190px]')}
+      >
         {bids.length ? (
           <div>
             {bids.map((bid) => (

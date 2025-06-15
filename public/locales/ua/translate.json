@@ -305,6 +305,7 @@
     "categories_selected": "вибрані категорії"
   },
   "order": {
+    "lot_delivery_information": "Інформація про доставку лоту",
     "looks_like_this_order_does_not_exist": "Схоже, цього замовлення не існує",
     "go_to_home_page": "Перейти на головну сторінку",
     "delivery_status": "Статус доставки",
@@ -415,7 +416,7 @@
     "bid_increment": "Крок ставки",
     "no_bids_yet": "Ще немає ставок",
     "bidding_process_starting_soon": "Процес ставок починається скоро",
-    "bidding_process_in_progress": "Процес ставок в процесі",
+    "bidding_process_in_progress": "Торги в процесі",
     "bidding_process_completed": "Процес ставок завершено"
   }
 }
