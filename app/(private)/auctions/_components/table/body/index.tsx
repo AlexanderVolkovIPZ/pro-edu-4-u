@@ -28,6 +28,7 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
       IN_PROGRESS: { class: 'bg-green-100 text-green-800', label: Status.IN_PROGRESS },
       UPCOMING: { class: 'bg-blue-100 text-blue-800', label: Status.UPCOMING },
       COMPLETED: { class: 'bg-gray-100 text-gray-800', label: Status.COMPLETED },
+      DRAFT: { class: 'bg-gray-100 text-gray-800', label: 'DRAFT' }, // temporary
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || {
@@ -75,10 +76,15 @@ const Body = ({ isLoading, auctions }: TableBodyProps) => {
     return auctions.map((auction) => (
       <TableRow
         key={auction.id}
-        className={cn('hover:bg-gray-50 text-sm', !auction.isApproved && 'bg-red-50 hover:bg-red-100')}
+        className={cn(
+          'hover:bg-gray-50 text-sm',
+          !auction.isApproved && auction.isPublished && 'bg-red-50 hover:bg-red-100'
+        )}
       >
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.title}</TableCell>
-        <TableCell className='px-6 py-2 whitespace-nowrap'>{getStatusBadge(auction.status)}</TableCell>
+        <TableCell className='px-6 py-2 whitespace-nowrap'>
+          {getStatusBadge(!auction.isApproved || !auction.isPublished ? 'DRAFT' : auction.status)}
+        </TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.startDate)}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-500'>{formatDate(auction.endDate)}</TableCell>
         <TableCell className='px-6 py-2 whitespace-nowrap text-gray-900 font-medium'>{auction.lotCount}</TableCell>
