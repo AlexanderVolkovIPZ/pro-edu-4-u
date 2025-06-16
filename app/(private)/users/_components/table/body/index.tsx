@@ -228,6 +228,7 @@ const Body = ({ isLoading, users }: TableBodyProps) => {
           onChange={(date) => setEditableCell({ ...editableCell, value: date ? new Date(date).toISOString() : '' })}
           showTimeSelect
           timeFormat={timeFormat}
+          timeIntervals={1}
           dateFormat={`${dateFormat}, ${timeFormat}`}
           maxDate={dayjs(new Date()).add(1, 'year').toDate()}
           className='w-full h-7 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-slate-400'

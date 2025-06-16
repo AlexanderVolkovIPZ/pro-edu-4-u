@@ -102,7 +102,7 @@ const EndDateInput = ({ initialEndDate, auctionId, showRequiredFieldIcon = false
               onChange={(date) => setValue('endDate', date as Date)}
               showTimeSelect
               timeFormat={timeFormat}
-              timeIntervals={5}
+              timeIntervals={1}
               dateFormat={`${dateFormat}, ${timeFormat}`}
               minDate={new Date()}
               maxDate={dayjs(new Date()).add(1, 'year').toDate()}
