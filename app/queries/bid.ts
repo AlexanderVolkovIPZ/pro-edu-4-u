@@ -65,7 +65,7 @@ export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>({
       options?.onError?.(_error, _newData, context);
     },
     onSettled: (data, error, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
+      queryClient.invalidateQueries({ queryKey: [AUCTION] });
       queryClient.invalidateQueries({ queryKey: [BID] });
 
       options?.onSettled?.(data, error, variables, context);
