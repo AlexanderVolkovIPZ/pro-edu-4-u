@@ -63,7 +63,9 @@ const BidProcessInfo = ({
   } = useBidState(initialBids, startBid, minBidIncrement);
   const { progressValue } = useProgressTimer(bids);
 
-  const { mutateAsync: updateBid } = useUpdateBid(auctionId, lotId, undefined);
+  const { mutateAsync: updateBid } = useUpdateBid({
+    urlParams: { auctionId, lotId },
+  });
   const { mutateAsync: updateLot } = useUpdateLot(auctionId, lotId);
 
   const { t } = useTranslation();
@@ -88,20 +90,27 @@ const BidProcessInfo = ({
         return;
       }
 
+      setStatus(Status.COMPLETED);
+
       (async () => {
         await updateLot({ isSold: true });
       })();
 
       (async () => {
-        await updateBid({
-          payloadBidId: maxBidId,
-          data: { isWinner: true },
-        });
+        await updateBid(
+          {
+            payloadBidId: maxBidId,
+            data: { isWinner: true },
+          },
+          {
+            onSuccess: () => {
+              setBids((prevBids) => prevBids.map((bid) => (bid.id === maxBidId ? { ...bid, isWinner: true } : bid)));
+            },
+          }
+        );
       })();
-
-      setStatus(Status.COMPLETED);
     }
-  }, [auctionId, bids, progressValue, updateBid, updateLot]);
+  }, [auctionId, bids, progressValue, setBids, updateBid, updateLot]);
 
   useEffect(() => {
     if (!socket) return;

@@ -1,29 +1,41 @@
 import { Auction, Bid } from '@prisma/client';
-import { useMutation, UseMutationResult, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions, useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { AUCTION, BID } from './query-keys';
 import { AuctionWithRelationsType, LotWithRelationsType } from '../types';
 import { queryClient } from '../providers/query-client-provider';
 
-export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
-  auctionId: string,
-  lotId: string,
-  bidId?: string
-): UseMutationResult<Bid, Error, { payloadBidId?: string; data: T }> {
+type UpdateBidUrlParams = {
+  auctionId: string;
+  lotId: string;
+  bidId?: string;
+};
+
+export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>({
+  urlParams,
+  options,
+}: {
+  urlParams: UpdateBidUrlParams;
+  options?: UseMutationOptions<Bid, Error, { payloadBidId?: string; data: T }>;
+}) {
+  const { auctionId, lotId, bidId } = urlParams;
   return useMutation<Bid, Error, { payloadBidId?: string; data: T }>({
     mutationFn: async ({ payloadBidId, data }) => {
-      const finalBidId = bidId || payloadBidId;
-      if (!finalBidId) {
+      const affectedBidId = payloadBidId || bidId;
+      if (!affectedBidId) {
         throw new Error('bidId is required');
       }
 
       const response = await axios.patch<Bid>(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/bid/${finalBidId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/bid/${affectedBidId}`,
         data
       );
       return response.data;
     },
+    ...options,
     onMutate: async ({ payloadBidId, data }) => {
+      options?.onMutate?.({ payloadBidId, data });
+
       queryClient.cancelQueries({ queryKey: [AUCTION, auctionId] });
       queryClient.cancelQueries({ queryKey: [BID] });
 
@@ -49,10 +61,14 @@ export function useUpdateBid<T extends Partial<Omit<Bid, 'id' | 'createdAt'>>>(
       if (context) {
         queryClient.setQueryData([AUCTION, auctionId], context);
       }
+
+      options?.onError?.(_error, _newData, context);
     },
-    onSettled: () => {
+    onSettled: (data, error, variables, context) => {
       queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
       queryClient.invalidateQueries({ queryKey: [BID] });
+
+      options?.onSettled?.(data, error, variables, context);
     },
   });
 }
