@@ -116,6 +116,10 @@ const BidProcessInfo = ({
     if (!socket) return;
 
     socket.on('bidCreated', (newBid) => {
+      if (bidTimeout.current) {
+        clearTimeout(bidTimeout.current);
+      }
+
       const isCurrentUser = newBid.user.id === authUser?.id;
 
       setBids((prevBids) => [
@@ -144,10 +148,6 @@ const BidProcessInfo = ({
         });
       }
     });
-
-    if (bidTimeout.current) {
-      clearTimeout(bidTimeout.current);
-    }
 
     return () => {
       socket.off('bidCreated');
