@@ -47,11 +47,11 @@ export async function GET(request: Request) {
 
     const lotsPreviosPeriodCount =
       (await prismaDb.lot.count({
-        where: { isSold: false, auction: { isPublished: true }, createdAt: { gte: comparePeriod, lte: statsPeriod } },
+        where: { auction: { isPublished: true }, createdAt: { gte: comparePeriod, lte: statsPeriod } },
       })) ?? 0;
     const lotsCurrentPeriodCount =
       (await prismaDb.lot.count({
-        where: { isSold: false, auction: { isPublished: true }, createdAt: { gte: statsPeriod } },
+        where: { auction: { isPublished: true }, createdAt: { gte: statsPeriod } },
       })) ?? 0;
     const growthLotsCount = calculateGrowth(lotsCurrentPeriodCount, lotsPreviosPeriodCount);
 
