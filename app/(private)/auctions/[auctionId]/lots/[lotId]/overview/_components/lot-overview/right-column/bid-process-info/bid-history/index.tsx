@@ -21,7 +21,7 @@ const BidHistory = ({ bids, isCompleted }: { bids: BidInfo[]; isCompleted: boole
       >
         {bids.length ? (
           <div>
-            {bids.map((bid) => (
+            {bids.map((bid, index) => (
               <div key={bid.id} className='flex items-center justify-between py-3 border-b last:border-b-0'>
                 <div className='flex items-center gap-3'>
                   <Avatar className='h-8 w-8'>
@@ -37,7 +37,12 @@ const BidHistory = ({ bids, isCompleted }: { bids: BidInfo[]; isCompleted: boole
                     </p>
                   </div>
                 </div>
-                <span className='text-lg font-semibold'>₴{bid.amount.toLocaleString()}</span>
+                <span
+                  className='text-lg font-semibold'
+                  data-testid={index === 0 ? 'lot-current-price' : 'lot-bid-amount'}
+                >
+                  ₴{bid.amount.toLocaleString()}
+                </span>
               </div>
             ))}
           </div>

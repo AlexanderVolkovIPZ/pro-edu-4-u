@@ -1,0 +1,6 @@
+[
+  { "id": "MC-1", "actor": "blockedOwner", "auction": "blockedOwnerAuction", "expect": "denied" },
+  { "id": "MC-2", "actor": "buyer",        "auction": "ownerAuction",        "expect": "denied" },
+  { "id": "MC-3", "actor": "owner",        "auction": "ownerAuction",        "expect": "allowed" },
+  { "id": "MC-4", "actor": "admin",        "auction": "ownerAuction",        "expect": "allowed" }
+]

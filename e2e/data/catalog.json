@@ -1,0 +1,4 @@
+[
+  { "id": "RT-13", "title": "category and price range", "filter": { "category": "Electronics", "min": 1000, "max": 3000 }, "expectEmpty": false, "smoke": true },
+  { "id": "RT-14", "title": "no matches", "filter": { "category": "Electronics", "min": 900000, "max": 1000000 }, "expectEmpty": true }
+]

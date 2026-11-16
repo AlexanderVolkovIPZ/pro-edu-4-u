@@ -1,0 +1,17 @@
+# Local test database for e2e: MongoDB as a single-node replica set
+# (Prisma for MongoDB requires a replica set). Start: docker compose up -d
+services:
+  mongo:
+    image: mongo:7
+    container_name: bidium-e2e-mongo
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27018']
+    ports:
+      - '27018:27018'
+    healthcheck:
+      # the first call creates the replica set, later calls just check its state
+      test: >
+        mongosh --port 27018 --quiet --eval
+        "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27018' }] }).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 10

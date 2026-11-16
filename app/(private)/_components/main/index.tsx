@@ -63,13 +63,15 @@ const Main = () => {
   if (isFetched && !auctions.length) {
     return (
       <Container>
-        <EmptyPage
-          icon={Annoyed}
-          title='Auctions not found'
-          description='Looks like it hasn’t been created auctions yet.'
-          buttonTitle='Create first auction'
-          onClick={() => router.push('/auctions/create')}
-        />
+        <div data-testid='catalog-empty'>
+          <EmptyPage
+            icon={Annoyed}
+            title='Auctions not found'
+            description='Looks like it hasn’t been created auctions yet.'
+            buttonTitle='Create first auction'
+            onClick={() => router.push('/auctions/create')}
+          />
+        </div>
       </Container>
     );
   }

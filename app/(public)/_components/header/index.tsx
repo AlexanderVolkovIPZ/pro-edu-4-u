@@ -21,7 +21,9 @@ const Header = () => {
           <div className='hidden md:flex items-center gap-x-2'>
             <LanguageSwitcher />
             <Button variant='ghost' asChild>
-              <Link href='/sign-in'>{t('common.sign_in_header')}</Link>
+              <Link href='/sign-in' data-testid='header-login'>
+                {t('common.sign_in_header')}
+              </Link>
             </Button>
             <Button variant='default' asChild>
               <Link href='/sign-up'>{t('common.sign_up_header')}</Link>

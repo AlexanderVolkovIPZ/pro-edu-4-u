@@ -73,9 +73,11 @@ export default function SignIn() {
 
       if (response?.error) {
         toast.error(
-          t(response.error, {
-            defaultValue: t('toast.error.something_went_wrong'),
-          })
+          <span data-testid='login-error'>
+            {t(response.error, {
+              defaultValue: t('toast.error.something_went_wrong'),
+            })}
+          </span>
         );
       }
     } catch {
@@ -99,6 +101,7 @@ export default function SignIn() {
           <Label htmlFor='email' title='Email' />
           <Input
             id='email'
+            data-testid='login-email'
             type='email'
             placeholder='example@gmail.com'
             required
@@ -110,13 +113,20 @@ export default function SignIn() {
           <Label htmlFor='password' title='Password' />
           <Input
             id='password'
+            data-testid='login-password'
             type='password'
             placeholder={t('common.enter_a_secure_password')}
             required
             {...register('password', { required: true })}
           />
         </div>
-        <Button className='w-full' type='submit' onClick={handleSubmit(onSubmit)} disabled={isLoading.credentials}>
+        <Button
+          className='w-full'
+          type='submit'
+          data-testid='login-submit'
+          onClick={handleSubmit(onSubmit)}
+          disabled={isLoading.credentials}
+        >
           {isLoading.credentials ? <Spinner /> : t('common.sign_in')}
         </Button>
       </div>

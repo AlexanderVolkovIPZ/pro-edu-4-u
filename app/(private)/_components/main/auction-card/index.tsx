@@ -41,7 +41,10 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
   });
 
   return (
-    <Card className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'>
+    <Card
+      data-testid='lot-card'
+      className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'
+    >
       <div className='relative'>
         <MediaSlider
           media={lotMediaContent}
@@ -72,7 +75,7 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
 
         <div className='flex items-center text-green-600'>
           <TrendingUp size={18} className='mr-1' />
-          <span className='font-semibold text-lg'>
+          <span className='font-semibold text-lg' data-testid='lot-card-price'>
             ₴{lowestPrice.toLocaleString()} - ₴{highestPrice.toLocaleString()}
           </span>
         </div>

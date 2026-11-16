@@ -86,7 +86,12 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant='link' className='hover:text-rose-500 transition-all' disabled={!isFetched}>
+        <Button
+          variant='link'
+          className='hover:text-rose-500 transition-all'
+          disabled={!isFetched}
+          data-testid='filter-open'
+        >
           <ListFilter className='w-6 h-6' />
         </Button>
       </DropdownMenuTrigger>
@@ -107,6 +112,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
                 <div className='flex items-center justify-between gap-2'>
                   <Input
                     id='min-price'
+                    data-testid='filter-price-min'
                     type='number'
                     min={minLotPriceExisted}
                     max={maxLotPriceExisted}
@@ -116,6 +122,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
 
                   <Input
                     id='max-price'
+                    data-testid='filter-price-max'
                     type='number'
                     min={minLotPriceExisted}
                     max={maxLotPriceExisted}
@@ -128,7 +135,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
 
             <div>
               <h3 className='font-medium mb-2'>{t('main.filters.categories')}</h3>
-              <div className='space-y-2'>
+              <div className='space-y-2' data-testid='filter-category'>
                 {lotCategoriesExistedNames
                   .sort((a, b) => a.localeCompare(b))
                   .map((category) => (
@@ -161,7 +168,7 @@ const FilterMenu = ({ data, isFetched, onChangeFilters }: AuctionFiltering) => {
                 </Button>
               </div>
 
-              <Button size='sm' onClick={onApplyFilters}>
+              <Button size='sm' onClick={onApplyFilters} data-testid='filter-apply'>
                 {t('main.filters.apply')}
               </Button>
             </div>

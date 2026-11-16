@@ -19,7 +19,14 @@ export const BidInput = ({
     <Button variant='outline' size='icon' onClick={onDecrease}>
       <MinusIcon className='h-4 w-4' />
     </Button>
-    <Input type='number' value={value} onChange={onChange} className='text-center text-xl font-bold w-full' min={min} />
+    <Input
+      type='number'
+      value={value}
+      onChange={onChange}
+      className='text-center text-xl font-bold w-full'
+      min={min}
+      data-testid='bid-amount'
+    />
     <Button variant='outline' size='icon' onClick={onIncrease}>
       <PlusIcon className='h-4 w-4' />
     </Button>

@@ -24,14 +24,18 @@ const OverviewInfo = ({ startBid, buyNowBid, minBidIncrement, description, categ
         {startBid && (
           <div className='bg-sky-50 p-3 rounded-lg border-4 border-sky-300 flex flex-col justify-between'>
             <p className='text-xs text-ellipsis text-sky-600'>{t('lot.start_bid')}</p>
-            <p className='font-semibold text-lg text-sky-700'>₴{startBid}</p>
+            <p className='font-semibold text-lg text-sky-700' data-testid='lot-start-price'>
+              ₴{startBid}
+            </p>
           </div>
         )}
 
         {buyNowBid && (
           <div className='bg-sky-50 p-3 rounded-lg border-4 border-sky-300 flex flex-col justify-between'>
             <p className='text-xs text-ellipsis text-sky-600'>{t('lot.buy_now_price')}</p>
-            <p className='font-semibold text-lg text-sky-700'>₴{buyNowBid}</p>
+            <p className='font-semibold text-lg text-sky-700' data-testid='lot-buyout-price'>
+              ₴{buyNowBid}
+            </p>
           </div>
         )}
 
