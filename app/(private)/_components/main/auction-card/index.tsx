@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, TrendingUp, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { getAuctionStatus } from '../../../../utils/get-auction-status';
+import { getAuctionStatus } from '@/app/_shared/domain/auction-status';
 import CountdownTimer from './countdown-timer';
 
 type AuctionCardProps = {
@@ -41,7 +41,10 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
   });
 
   return (
-    <Card className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'>
+    <Card
+      data-testid='lot-card'
+      className='max-w-60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-gray-200 flex flex-col'
+    >
       <div className='relative'>
         <MediaSlider
           media={lotMediaContent}
@@ -72,7 +75,7 @@ const AuctionCard = ({ auction }: AuctionCardProps) => {
 
         <div className='flex items-center text-green-600'>
           <TrendingUp size={18} className='mr-1' />
-          <span className='font-semibold text-lg'>
+          <span className='font-semibold text-lg' data-testid='lot-card-price'>
             ₴{lowestPrice.toLocaleString()} - ₴{highestPrice.toLocaleString()}
           </span>
         </div>

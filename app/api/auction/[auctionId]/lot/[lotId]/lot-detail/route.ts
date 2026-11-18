@@ -1,71 +1,25 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { CreateLotDetailsType } from '@/app/types';
+import { parseBody, withAuth } from '@/server/http';
+import { lotDetailsSchema } from '@/server/schemas/lot.schema';
+import { lotService } from '@/server/services';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const details: CreateLotDetailsType = await request.json();
-
-    const data = details.map((detail) => ({
-      lotId,
-      ...detail,
-    }));
-
-    await prismaDb.lotDetail.deleteMany({ where: { lotId } });
-
-    if (!data.length) return NextResponse.json([]);
-
-    await prismaDb.lotDetail.createMany({
-      data,
-    });
-
-    const lotDetails = await prismaDb.lotDetail.findMany({
-      where: {
-        lotId,
-      },
-    });
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const details = await parseBody(request, lotDetailsSchema);
+    const lotDetails = await lotService.setDetails(authUser, params.auctionId, params.lotId, details);
 
     return NextResponse.json(lotDetails, { status: 201 });
-  } catch (error) {
-    console.error('CREATE_LOT_DETAIL_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_LOT_DETAIL' }
+);
 
-export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+export const GET = withAuth<Params>(
+  async ({ params }) => {
+    const lotDetails = await lotService.getDetails(params.lotId);
 
-  const { lotId } = params;
-
-  if (!lotId) {
-    return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-  }
-
-  try {
-    const lotCategories = await prismaDb.lotCategory.findFirst({
-      where: {
-        lotId,
-      },
-    });
-
-    return NextResponse.json(lotCategories);
-  } catch (error) {
-    console.error('GET_LOT_DETAIL_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(lotDetails);
+  },
+  { label: 'GET_LOT_DETAIL' }
+);

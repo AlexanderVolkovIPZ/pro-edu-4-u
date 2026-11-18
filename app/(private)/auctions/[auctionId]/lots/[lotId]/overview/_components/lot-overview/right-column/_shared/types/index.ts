@@ -1,4 +1,4 @@
-import { Bid, Category, Lot, User } from '@prisma/client';
+import { Bid, Category, Lot, Status, User } from '@prisma/client';
 
 export type LotOverviewInfo = {
   categories?: {
@@ -11,4 +11,4 @@ export type LotOverviewInfo = {
     })[];
   };
 
-export type LotStatus = 'UPCOMING' | 'IN_PROGRESS' | 'COMPLETED';
+export type LotStatus = Status;

@@ -1,191 +1,35 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import prismaDb from '@/lib/prismadb';
-import { Auction, AuctionRole, UserRole } from '@prisma/client';
+import { parseBody, withAuth } from '@/server/http';
+import { auctionAccessModeSchema, updateAuctionSchema } from '@/server/schemas/auction.schema';
+import { auctionService } from '@/server/services';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string };
 
-    const mode = request.headers.get('x-access-mode') ?? 'view';
-
-    const filters =
-      mode === 'edit'
-        ? {
-            userAuction: {
-              some:
-                authUser.role === UserRole.ADMIN
-                  ? {}
-                  : {
-                      userId: authUser.id,
-                      role: AuctionRole.OWNER,
-                    },
-            },
-          }
-        : {};
-
-    const auction = await prismaDb.auction.findFirst({
-      where: {
-        id: params.auctionId,
-        ...filters,
-      },
-      include: {
-        lot: {
-          orderBy: {
-            position: 'asc',
-          },
-          include: {
-            bid: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-            photo: {
-              orderBy: {
-                position: 'asc',
-              },
-            },
-            video: {
-              orderBy: {
-                position: 'asc',
-              },
-            },
-            lotDetail: true,
-            lotCategory: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
+export const GET = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const mode = auctionAccessModeSchema.parse(request.headers.get('x-access-mode'));
+    const auction = await auctionService.getById(authUser, params.auctionId, mode);
 
     return NextResponse.json(auction);
-  } catch (error) {
-    console.error('GET_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_AUCTION' }
+);
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const body = await request.json();
-    const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
-    let { isApproved }: Partial<Auction> = body;
-
-    if (!isAuthUserAdmin) {
-      isApproved = false;
-    }
-
-    if (isApproved) {
-      const auction = await prismaDb.auction.findFirst({
-        where: {
-          id: params.auctionId,
-        },
-      });
-
-      if (!auction) {
-        return new NextResponse('Auction not found', { status: 404 });
-      }
-
-      const isStartDateInThePast =
-        !auction.startDate || (auction.startDate && new Date(auction.startDate) < new Date());
-      if (isStartDateInThePast) {
-        return new NextResponse('Start date cannot be in the past', { status: 400 });
-      }
-    }
-
-    const auction = await prismaDb.auction.update({
-      data: {
-        title,
-        description,
-        startDate,
-        endDate,
-        isPublished,
-        isApproved,
-      },
-      where: {
-        id: params.auctionId,
-      },
-    });
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const input = await parseBody(request, updateAuctionSchema);
+    const auction = await auctionService.update(authUser, params.auctionId, input);
 
     return NextResponse.json(auction);
-  } catch (error) {
-    console.error('UPDATE_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'UPDATE_AUCTION' }
+);
 
-export async function DELETE(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const DELETE = withAuth<Params>(
+  async ({ params, authUser }) => {
+    const auction = await auctionService.delete(authUser, params.auctionId);
 
-    const auction = await prismaDb.auction.findFirst({
-      where: {
-        id: params.auctionId,
-      },
-    });
-
-    if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const deletedAction = await prismaDb.auction.delete({
-      where: {
-        id: params.auctionId,
-      },
-    });
-
-    return NextResponse.json(deletedAction);
-  } catch (error) {
-    console.error('DELETE_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(auction);
+  },
+  { label: 'DELETE_AUCTION' }
+);

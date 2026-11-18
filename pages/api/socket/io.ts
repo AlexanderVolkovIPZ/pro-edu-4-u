@@ -1,8 +1,8 @@
-import { Bid, User } from '@prisma/client';
+import { SOCKET_PATH } from '@/app/_shared/socket/events';
+import { registerBidGateway, setIo, socketAuthMiddleware, TypedServer } from '@/server/realtime';
 import { Server as HttpServer } from 'http';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Server as SocketIoServer } from 'socket.io';
-import prismaDb from '@/lib/prismadb';
 
 export const config = {
   api: {
@@ -13,25 +13,19 @@ export const config = {
 export type NextApiResponseServerIo = NextApiResponse & {
   socket: {
     server: HttpServer & {
-      io?: SocketIoServer;
+      io?: TypedServer;
     };
   };
 };
 
-export type ServerToClientEvents = {
-  error: (status: number, message: string) => void;
-  bidCreated: (bidInfo: Bid & { user: Pick<User, 'name' | 'id'> }) => void;
-};
-
-export type ClientToServerEvents = {
-  newBid: (data: Pick<Bid, 'lotId' | 'amount'> & { userId: string }) => void;
-};
-
+/**
+ * Lazily starts the Socket.io server on the underlying HTTP server. The
+ * actual event handling lives in `server/realtime`.
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
   if (!res.socket.server.io) {
-    const httpServer = res.socket.server;
-    const io = new SocketIoServer<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-      path: '/api/socket/io',
+    const io: TypedServer = new SocketIoServer(res.socket.server, {
+      path: SOCKET_PATH,
       addTrailingSlash: false,
       cors: {
         methods: ['GET', 'POST'],
@@ -40,38 +34,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       pingTimeout: 20000,
     });
 
+    io.use(socketAuthMiddleware);
+    io.on('connection', registerBidGateway);
+
     res.socket.server.io = io;
-
-    io.on('connection', async (socket) => {
-      socket.on('newBid', async ({ lotId, amount, userId }) => {
-        try {
-          const createdBid = await prismaDb.bid.create({
-            data: {
-              lotId,
-              amount,
-              bidderId: userId,
-            },
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          });
-
-          if (!createdBid) {
-            throw new Error('Bid creation failed');
-          }
-
-          io.emit('bidCreated', createdBid);
-        } catch (error) {
-          console.error('BID_CREATION_ERROR ->', error);
-          socket.emit('error', 500, 'Failed to create bid');
-        }
-      });
-    });
+    setIo(io);
   }
 
   res.end();

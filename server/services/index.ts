@@ -1,0 +1,11 @@
+export { auctionService, AuctionService } from './auction.service';
+export { authService, AuthService } from './auth.service';
+export { bidService, BidService } from './bid.service';
+export { categoryService, CategoryService } from './category.service';
+export { lotService, LotService } from './lot.service';
+export { mediaService, MediaService } from './media.service';
+export type { MediaKind } from './media.service';
+export { orderService, OrderService } from './order.service';
+export { paymentService, PaymentService } from './payment.service';
+export { statsService, StatsService } from './stats.service';
+export { userService, UserService } from './user.service';

@@ -1,75 +1,25 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { CreateLotCategoriesType } from '@/app/types';
+import { parseBody, withAuth } from '@/server/http';
+import { lotCategoriesSchema } from '@/server/schemas/lot.schema';
+import { lotService } from '@/server/services';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const { categoryIds }: CreateLotCategoriesType = await request.json();
-
-    await prismaDb.lotCategory.deleteMany({
-      where: {
-        lotId,
-      },
-    });
-
-    if (!categoryIds.length) return NextResponse.json([]);
-
-    const data = categoryIds.map((categoryId) => ({
-      lotId,
-      categoryId,
-    }));
-
-    await prismaDb.lotCategory.createMany({
-      data,
-    });
-
-    const categories = await prismaDb.lotCategory.findMany({
-      where: {
-        lotId,
-      },
-    });
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const { categoryIds } = await parseBody(request, lotCategoriesSchema);
+    const categories = await lotService.setCategories(authUser, params.auctionId, params.lotId, categoryIds);
 
     return NextResponse.json(categories, { status: 201 });
-  } catch (error) {
-    console.error('CREATE_LOT_CATEGORY_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_LOT_CATEGORY' }
+);
 
-export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const GET = withAuth<Params>(
+  async ({ params }) => {
+    const categories = await lotService.getCategories(params.lotId);
 
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const lotCategories = await prismaDb?.lotCategory.findMany({
-      where: {
-        lotId,
-      },
-    });
-
-    return NextResponse.json(lotCategories);
-  } catch (error) {
-    console.error('GET_LOT_CATEGORY_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(categories);
+  },
+  { label: 'GET_LOT_CATEGORY' }
+);

@@ -1,56 +1,16 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { Bid } from '@prisma/client';
+import { parseBody, withAuth } from '@/server/http';
+import { placeBidSchema } from '@/server/schemas/bid.schema';
+import { bidService } from '@/server/services';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const data: Bid = await request.json();
-
-    const bid = await prismaDb.bid.create({
-      data,
-    });
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const { amount } = await parseBody(request, placeBidSchema);
+    const bid = await bidService.place(authUser, { ...params, amount });
 
     return NextResponse.json(bid, { status: 201 });
-  } catch (error) {
-    console.error('CREATE_BID_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
-
-export async function GET(request: Request, { params }: { params: { bidId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const { bidId } = params;
-
-    if (!bidId) {
-      return new NextResponse('BidId is required and cannot be empty', { status: 400 });
-    }
-
-    const bid = await prismaDb.bid.findFirst({
-      where: {
-        id: bidId,
-      },
-    });
-
-    return NextResponse.json(bid);
-  } catch (error) {
-    console.error('GET_BID_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_BID' }
+);

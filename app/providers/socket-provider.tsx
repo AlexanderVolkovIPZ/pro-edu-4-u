@@ -1,6 +1,6 @@
 'use client';
 
-import { ClientToServerEvents, ServerToClientEvents } from '@/pages/api/socket/io';
+import { ClientToServerEvents, ServerToClientEvents, SOCKET_PATH } from '@/app/_shared/socket/events';
 import { createContext, useEffect, useState } from 'react';
 import { io as ClientIO, Socket } from 'socket.io-client';
 
@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initSocket: TypedSocket = ClientIO(process.env.NEXT_PUBLIC_BASE_URL, {
-      path: '/api/socket/io',
+      path: SOCKET_PATH,
       addTrailingSlash: false,
       withCredentials: true,
       reconnection: true,

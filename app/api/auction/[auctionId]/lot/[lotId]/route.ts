@@ -1,178 +1,34 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { deleteFromCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import prismaDb from '@/lib/prismadb';
-import { AuctionRole, UserRole } from '@prisma/client';
+import { parseBody, withAuth } from '@/server/http';
+import { updateLotSchema } from '@/server/schemas/lot.schema';
+import { lotService } from '@/server/services';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const filters =
-      authUser.role === UserRole.ADMIN
-        ? { id: params.lotId, auctionId: params.auctionId }
-        : {
-            id: params.lotId,
-            auctionId: params.auctionId,
-            auction: {
-              userAuction: {
-                some: {
-                  userId: authUser.id,
-                  role: AuctionRole.OWNER,
-                },
-              },
-            },
-          };
-
-    const lot = await prismaDb.lot.findFirst({
-      where: {
-        ...filters,
-      },
-      include: {
-        photo: {
-          orderBy: {
-            position: 'asc',
-          },
-        },
-        video: {
-          orderBy: {
-            position: 'asc',
-          },
-        },
-        lotDetail: true,
-        lotCategory: {
-          include: {
-            category: true,
-          },
-        },
-        bid: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!lot) {
-      return new NextResponse('Lot not found', { status: 404 });
-    }
+export const GET = withAuth<Params>(
+  async ({ params, authUser }) => {
+    const lot = await lotService.getById(authUser, params.auctionId, params.lotId);
 
     return NextResponse.json(lot);
-  } catch (error) {
-    console.error('GET_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_LOT' }
+);
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-
-    const ownerAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
-
-    const hasUserAuctionBid = await prismaDb.bid.findFirst({
-      where: {
-        lotId: params.lotId,
-        user: {
-          id: authUser.id,
-        },
-      },
-    });
-
-    if (!ownerAuction && !isAuthUserAdmin && !hasUserAuctionBid) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const body = await request.json();
-    const { title, position, description, startBid, buyNowBid, minBidIncrement, isSold } = body;
-
-    const lot = await prismaDb.lot.update({
-      data: {
-        title,
-        position,
-        description,
-        startBid,
-        buyNowBid,
-        minBidIncrement,
-        isSold,
-      },
-      where: {
-        id: params.lotId,
-        auctionId: params.auctionId,
-      },
-    });
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const input = await parseBody(request, updateLotSchema);
+    const lot = await lotService.update(authUser, params.auctionId, params.lotId, input);
 
     return NextResponse.json(lot);
-  } catch (error) {
-    console.error('UPDATE_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'UPDATE_LOT' }
+);
 
-export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const photos = await prismaDb.photo.findMany({ where: { lotId: params.lotId } });
-    const videos = await prismaDb.video.findMany({ where: { lotId: params.lotId } });
-
-    for (const photo of photos) {
-      await deleteFromCloudinary(photo.publicId);
-    }
-
-    for (const video of videos) {
-      await deleteFromCloudinary(video.publicId);
-    }
-
-    const lot = await prismaDb.lot.delete({
-      where: {
-        id: params.lotId,
-        auctionId: params.auctionId,
-      },
-      include: {
-        photo: true,
-        video: true,
-      },
-    });
+export const DELETE = withAuth<Params>(
+  async ({ params, authUser }) => {
+    const lot = await lotService.delete(authUser, params.auctionId, params.lotId);
 
     return NextResponse.json(lot);
-  } catch (error) {
-    console.error('DELETE_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'DELETE_LOT' }
+);
