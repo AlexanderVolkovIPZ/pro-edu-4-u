@@ -6,6 +6,16 @@ export const placeBidSchema = z.object({
   amount: positiveMoney,
 });
 
+export const lotRefSchema = z.object({
+  auctionId: objectId,
+  lotId: objectId,
+});
+
+/** Payload of the `newBid` socket event. */
+export const socketBidSchema = lotRefSchema.extend({
+  amount: positiveMoney,
+});
+
 export const listBidsQuerySchema = z.object({
   lotId: objectId.optional(),
   lotsId: jsonStringArrayQuery,
