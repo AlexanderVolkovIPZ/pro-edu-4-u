@@ -57,13 +57,13 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
   }
 
   try {
-    const lotCategories = await prismaDb.lotCategory.findFirst({
+    const lotDetails = await prismaDb.lotDetail.findMany({
       where: {
         lotId,
       },
     });
 
-    return NextResponse.json(lotCategories);
+    return NextResponse.json(lotDetails);
   } catch (error) {
     console.error('GET_LOT_DETAIL_ERROR -> ', error);
     return new NextResponse('Internal server error', { status: 500 });
