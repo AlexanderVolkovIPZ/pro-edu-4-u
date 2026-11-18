@@ -1,58 +1,14 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { AuctionRole, UserRole } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { isAdmin } from '@/server/auth/policies';
+import { HttpError, withAuth } from '@/server/http';
+import { AuctionRole } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { orderId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { orderId: string };
 
-    const shipping = await prismaDb.shipping.findFirst({
-      where: {
-        id: params.orderId,
-      },
-    });
-
-    if (!shipping) {
-      return new NextResponse('Order not found', { status: 404 });
-    }
-
-    const lot = await prismaDb.lot.findFirst({
-      where: {
-        id: shipping.lotId,
-      },
-      select: {
-        auction: {
-          select: {
-            userAuction: {
-              select: {
-                userId: true,
-                role: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!lot) {
-      return new NextResponse('Lot not found', { status: 404 });
-    }
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    const isAuthUserLotCustomer = authUser.id === shipping.userId;
-    const isAuthUserLotOwner = lot.auction.userAuction.some(
-      ({ userId, role }) => userId === authUser.id && role === AuctionRole.OWNER
-    );
-
-    if (!isAuthUserAdmin && !isAuthUserLotCustomer && !isAuthUserLotOwner) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const order = await prismaDb.shipping.findFirst({
+export const GET = withAuth<Params>(
+  async ({ params, authUser }) => {
+    const order = await prismaDb.shipping.findUnique({
       where: {
         id: params.orderId,
       },
@@ -74,14 +30,38 @@ export async function GET(request: Request, { params }: { params: { orderId: str
               take: 1,
             },
             auctionId: true,
+            auction: {
+              select: {
+                userAuction: {
+                  select: {
+                    userId: true,
+                    role: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
 
-    return NextResponse.json(order);
-  } catch (error) {
-    console.error('GET_ORDER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    if (!order) {
+      throw HttpError.notFound('Order not found');
+    }
+
+    const isCustomer = authUser.id === order.userId;
+    const isLotOwner = order.lot.auction.userAuction.some(
+      ({ userId, role }) => userId === authUser.id && role === AuctionRole.OWNER
+    );
+
+    if (!isAdmin(authUser) && !isCustomer && !isLotOwner) {
+      throw HttpError.forbidden();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { auction, ...lot } = order.lot;
+
+    return NextResponse.json({ ...order, lot });
+  },
+  { label: 'GET_ORDER' }
+);

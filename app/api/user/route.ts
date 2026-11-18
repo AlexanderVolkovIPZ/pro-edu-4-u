@@ -1,46 +1,32 @@
-import getAuthUser from '@/app/actions/get-auth-user';
+import prismaDb from '@/lib/prismadb';
+import { parseQuery, withAuth } from '@/server/http';
+import { listUsersQuerySchema } from '@/server/schemas/user.schema';
 import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function GET(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser || authUser.role !== UserRole.ADMIN) {
-      return new NextResponse('User not found', { status: 404 });
-    }
+export const GET = withAuth(
+  async ({ request, authUser }) => {
+    const { page, limit } = parseQuery(request, listUsersQuerySchema);
 
-    const url = new URL(request.url);
-    const searchParams = Object.fromEntries(url.searchParams.entries());
+    const where = { id: { not: authUser.id } };
 
-    const params: { page?: number; limit?: number } = {
-      ...searchParams,
-    };
-
-    const { page, limit } = params;
-
-    const userCount = (await prismaDb.user.count({})) ?? 0;
-    const totalCount = userCount > 0 ? userCount - 1 : 0; // without current user
-    const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
+    const totalCount = await prismaDb.user.count({ where });
+    const totalPages = Math.ceil(totalCount / limit);
 
     const users = await prismaDb.user.findMany({
       select: { id: true, email: true, role: true, createdAt: true, name: true, emailVerified: true, isActive: true },
-      where: {
-        id: { not: authUser.id },
-      },
-      ...(limit && { take: Number(limit) }),
-      ...(page && limit && { skip: (Number(page) - 1) * Number(limit) }),
+      where,
+      take: limit,
+      skip: (page - 1) * limit,
     });
 
     return NextResponse.json({
       users,
       total: totalCount,
       totalPages,
-      page: page || 1,
-      limit: limit || totalCount,
+      page,
+      limit,
     });
-  } catch (error) {
-    console.error('GET_USERS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { role: UserRole.ADMIN, label: 'GET_USERS' }
+);

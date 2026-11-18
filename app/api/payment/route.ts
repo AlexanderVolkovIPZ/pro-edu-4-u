@@ -1,22 +1,14 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import { stripe } from '@/app/lib/stripe';
-import { BidType, Shipping } from '@prisma/client';
+import prismaDb from '@/lib/prismadb';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { createPaymentSchema } from '@/server/schemas/payment.schema';
+import { BidType } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import prismaDb from '@/lib/prismadb';
 
-export async function POST(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-    const body: {
-      lots: string[];
-      shippingInfo: Omit<Shipping, 'id' | 'createdAt' | 'updatedAt' | 'lotId' | 'userId' | 'status'>;
-      bidType: BidType;
-    } = await request.json();
-    const { lots: lotsId, shippingInfo, bidType } = body;
+export const POST = withAuth(
+  async ({ request, authUser }) => {
+    const { lots: lotsId, shippingInfo, bidType } = await parseBody(request, createPaymentSchema);
 
     const lots = await prismaDb.lot.findMany({
       where: {
@@ -24,8 +16,8 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!lots?.length) {
-      return new NextResponse('Lots not found', { status: 404 });
+    if (!lots.length) {
+      throw HttpError.notFound('Lots not found');
     }
 
     const alreadyPaidBid = await prismaDb.bid.findFirst({
@@ -37,7 +29,7 @@ export async function POST(request: Request) {
       },
     });
     if (alreadyPaidBid) {
-      return new NextResponse('You have already paid for one of the selected lots', { status: 400 });
+      throw HttpError.badRequest('You have already paid for one of the selected lots');
     }
 
     let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
@@ -52,8 +44,8 @@ export async function POST(request: Request) {
         },
       });
 
-      if (!bids?.length) {
-        return new NextResponse('No valid bids found', { status: 404 });
+      if (!bids.length) {
+        throw HttpError.notFound('No valid bids found');
       }
 
       lineItems = bids.map((bid) => {
@@ -69,16 +61,20 @@ export async function POST(request: Request) {
           },
         };
       });
-    } else if (bidType === BidType.INSTANT) {
+    } else {
       const buyNowLotId = lotsId[0];
 
       const lot = lots.find((l) => l.id === buyNowLotId);
       if (!lot) {
-        return new NextResponse('Lot not found', { status: 404 });
+        throw HttpError.notFound('Lot not found');
+      }
+
+      if (lot.isSold) {
+        throw HttpError.conflict('Lot is already sold');
       }
 
       if (!lot.buyNowBid) {
-        return new NextResponse('Buy now bid not found', { status: 404 });
+        throw HttpError.notFound('Buy now bid not found');
       }
 
       lineItems = [
@@ -97,20 +93,9 @@ export async function POST(request: Request) {
           },
         },
       ];
-    } else {
-      return new NextResponse('Invalid bid type', { status: 400 });
     }
 
-    const stripeCustomer = await prismaDb.user.findUnique({
-      where: {
-        id: authUser.id,
-      },
-      select: {
-        stripeCustomerId: true,
-      },
-    });
-
-    let stripeCustomerId = stripeCustomer?.stripeCustomerId;
+    let stripeCustomerId = authUser.stripeCustomerId;
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: authUser.email ?? undefined,
@@ -141,8 +126,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error) {
-    console.error('PAYMENT_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'PAYMENT_AUCTION' }
+);

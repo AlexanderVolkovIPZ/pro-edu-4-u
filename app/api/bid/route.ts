@@ -1,44 +1,22 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { Bid } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { isAdmin } from '@/server/auth/policies';
+import { parseQuery, withAuth } from '@/server/http';
+import { listBidsQuerySchema } from '@/server/schemas/bid.schema';
+import { Prisma } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const GET = withAuth(
+  async ({ request, authUser }) => {
+    const { lotId, lotsId, bidderId, isWinner, isPaid } = parseQuery(request, listBidsQuerySchema);
 
-    const url = new URL(request.url);
-    const searchParams = Object.fromEntries(url.searchParams.entries());
-
-    const lotsId: string[] = searchParams.lotsId ? JSON.parse(searchParams.lotsId) : [];
-
-    const params: Partial<Bid> = {
-      ...searchParams,
-      isPaid: searchParams.isPaid === 'true' ? true : searchParams.isPaid === 'false' ? false : undefined,
-      isWinner: searchParams.isWinner === 'true' ? true : searchParams.isWinner === 'false' ? false : undefined,
+    const where: Prisma.BidWhereInput = {
+      // Regular users may only list their own bids.
+      bidderId: isAdmin(authUser) ? bidderId : authUser.id,
+      ...(lotId && { lotId }),
+      ...(lotsId?.length && { lotId: { in: lotsId } }),
+      ...(isWinner !== undefined && { isWinner }),
+      ...(isPaid !== undefined && { isPaid }),
     };
-
-    const where = Object.fromEntries(
-      Object.entries({
-        id: params.id,
-        lotId: params.lotId,
-        bidderId: params.bidderId,
-        amount: params.amount,
-        isWinner: params.isWinner,
-        isPaid: params.isPaid,
-        createdAt: params.createdAt,
-        ...(lotsId.length
-          ? {
-              lotId: {
-                in: lotsId,
-              },
-            }
-          : {}),
-      }).filter(([, value]) => value !== undefined)
-    );
 
     const bids = await prismaDb.bid.findMany({
       where,
@@ -59,8 +37,6 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(bids);
-  } catch (error) {
-    console.error('GET_BIDS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_BIDS' }
+);

@@ -1,42 +1,41 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { User, UserRole } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertSelfOrAdmin, isAdmin } from '@/server/auth/policies';
+import { parseBody, withAuth } from '@/server/http';
+import { adminUpdateUserSchema, updateProfileSchema } from '@/server/schemas/user.schema';
+import { NextResponse } from 'next/server';
 
-export async function PATCH(request: Request, { params }: { params: { userId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { userId: string };
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    const isOwner = authUser.id === params.userId;
-    if (!isAuthUserAdmin && !isOwner) {
-      return new NextResponse('Forbidden', { status: 403 });
-    }
+/**
+ * Users may edit their own profile fields; only administrators may change
+ * email, role or activity status. Passwords are changed through
+ * `/api/auth/change-password`, never through this endpoint.
+ */
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    assertSelfOrAdmin(authUser, params.userId);
 
-    const body = await request.json();
-    const { name, email, emailVerified, image, password, role, isActive }: Partial<User> = body;
+    const data = await parseBody(request, isAdmin(authUser) ? adminUpdateUserSchema : updateProfileSchema);
 
     const updatedUser = await prismaDb.user.update({
       where: {
         id: params.userId,
       },
-      data: {
-        ...(name && { name }),
-        ...(email && { email }),
-        ...(emailVerified && { emailVerified }),
-        ...(image && { image }),
-        ...(password && { password }),
-        ...(role && { role }),
-        ...(isActive !== undefined && { isActive }),
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerified: true,
+        image: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
     return NextResponse.json(updatedUser);
-  } catch (error) {
-    console.error('UPDATE_USER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'UPDATE_USER' }
+);

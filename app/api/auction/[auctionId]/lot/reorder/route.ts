@@ -1,16 +1,16 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { reorderSchema } from '@/server/schemas/lot.schema';
+import { NextResponse } from 'next/server';
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string };
 
-    const body = await request.json();
-    const { id, position: newLotPosition } = body;
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
+
+    const { id, position: newLotPosition } = await parseBody(request, reorderSchema);
 
     const lot = await prismaDb.lot.findUnique({
       where: {
@@ -20,8 +20,9 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     });
 
     if (!lot) {
-      return;
+      throw HttpError.notFound('Lot not found');
     }
+
     const oldLotPosition = lot.position;
     const isHigherPosition = newLotPosition > oldLotPosition;
     const positionConfig = isHigherPosition
@@ -34,15 +35,12 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
           lt: oldLotPosition,
         };
 
-    const lots =
-      (await prismaDb.lot.findMany({
-        where: {
-          position: {
-            ...positionConfig,
-          },
-          auctionId: params.auctionId,
-        },
-      })) || [];
+    const lots = await prismaDb.lot.findMany({
+      where: {
+        position: positionConfig,
+        auctionId: params.auctionId,
+      },
+    });
 
     await prismaDb.$transaction(async (prisma) => {
       await Promise.all(
@@ -63,8 +61,6 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     });
 
     return NextResponse.json({ lot, ...lots });
-  } catch (error) {
-    console.error('REORDER_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'REORDER_LOT' }
+);

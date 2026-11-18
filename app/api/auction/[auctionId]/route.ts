@@ -1,28 +1,24 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction, AuctionRole, UserRole } from '@prisma/client';
+import { assertCanManageAuction, isAdmin } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { auctionAccessModeSchema, updateAuctionSchema } from '@/server/schemas/auction.schema';
+import { AuctionRole, Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string };
 
-    const mode = request.headers.get('x-access-mode') ?? 'view';
+export const GET = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const mode = auctionAccessModeSchema.parse(request.headers.get('x-access-mode'));
 
-    const filters =
-      mode === 'edit'
+    const filters: Prisma.AuctionWhereInput =
+      mode === 'edit' && !isAdmin(authUser)
         ? {
             userAuction: {
-              some:
-                authUser.role === UserRole.ADMIN
-                  ? {}
-                  : {
-                      userId: authUser.id,
-                      role: AuctionRole.OWNER,
-                    },
+              some: {
+                userId: authUser.id,
+                role: AuctionRole.OWNER,
+              },
             },
           }
         : {};
@@ -70,70 +66,40 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
     });
 
     if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
+      throw HttpError.notFound('Auction not found');
     }
 
     return NextResponse.json(auction);
-  } catch (error) {
-    console.error('GET_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_AUCTION' }
+);
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
+    const { isApproved, ...data } = await parseBody(request, updateAuctionSchema);
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
+    // Only administrators approve auctions; owners can publish them for review.
+    const approvalChange = isAdmin(authUser) ? isApproved : undefined;
 
-    const body = await request.json();
-    const { title, description, startDate, endDate, isPublished }: Partial<Auction> = body;
-    let { isApproved }: Partial<Auction> = body;
-
-    if (!isAuthUserAdmin) {
-      isApproved = false;
-    }
-
-    if (isApproved) {
-      const auction = await prismaDb.auction.findFirst({
-        where: {
-          id: params.auctionId,
-        },
-      });
+    if (approvalChange) {
+      const auction = await prismaDb.auction.findUnique({ where: { id: params.auctionId } });
 
       if (!auction) {
-        return new NextResponse('Auction not found', { status: 404 });
+        throw HttpError.notFound('Auction not found');
       }
 
-      const isStartDateInThePast =
-        !auction.startDate || (auction.startDate && new Date(auction.startDate) < new Date());
+      const isStartDateInThePast = !auction.startDate || auction.startDate < new Date();
       if (isStartDateInThePast) {
-        return new NextResponse('Start date cannot be in the past', { status: 400 });
+        throw HttpError.badRequest('Start date cannot be in the past');
       }
     }
 
     const auction = await prismaDb.auction.update({
       data: {
-        title,
-        description,
-        startDate,
-        endDate,
-        isPublished,
-        isApproved,
+        ...data,
+        ...(approvalChange !== undefined && { isApproved: approvalChange }),
       },
       where: {
         id: params.auctionId,
@@ -141,51 +107,21 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
     });
 
     return NextResponse.json(auction);
-  } catch (error) {
-    console.error('UPDATE_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'UPDATE_AUCTION' }
+);
 
-export async function DELETE(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const DELETE = withAuth<Params>(
+  async ({ params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const auction = await prismaDb.auction.findFirst({
+    const deletedAuction = await prismaDb.auction.delete({
       where: {
         id: params.auctionId,
       },
     });
 
-    if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
-
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const deletedAction = await prismaDb.auction.delete({
-      where: {
-        id: params.auctionId,
-      },
-    });
-
-    return NextResponse.json(deletedAction);
-  } catch (error) {
-    console.error('DELETE_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(deletedAuction);
+  },
+  { label: 'DELETE_AUCTION' }
+);

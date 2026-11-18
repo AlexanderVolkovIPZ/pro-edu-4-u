@@ -1,51 +1,34 @@
-import { getSession } from '@/app/actions/get-session';
 import prismaDb from '@/lib/prismadb';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { changePasswordSchema } from '@/server/schemas/auth.schema';
 import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
-export async function PUT(request: Request) {
-  try {
-    const session = await getSession();
-
-    if (!session) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const body = await request.json();
-    const { oldPassword, newPassword } = body;
+export const PUT = withAuth(
+  async ({ request, authUser }) => {
+    const { oldPassword, newPassword } = await parseBody(request, changePasswordSchema);
 
     const user = await prismaDb.user.findUnique({
-      where: {
-        email: session.user?.email ?? undefined,
-      },
+      where: { id: authUser.id },
+      select: { id: true, password: true },
     });
 
-    if (!user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    if (!user.password) {
-      return new NextResponse('Password change is not allowed for accounts authenticated via external providers', {
-        status: 400,
-      });
+    if (!user?.password) {
+      throw HttpError.badRequest('Password change is not allowed for accounts authenticated via external providers');
     }
 
     const isCorrectPassword = await bcrypt.compare(oldPassword, user.password);
     if (!isCorrectPassword) {
-      return new NextResponse('Forbidden', {
-        status: 403,
-      });
+      throw HttpError.forbidden('Current password is incorrect');
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     await prismaDb.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
     });
 
-    return NextResponse.json(user, { status: 200 });
-  } catch (error) {
-    console.error('PASSWORD_UPDATE_ERROR-> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json({ success: true });
+  },
+  { label: 'PASSWORD_UPDATE' }
+);
