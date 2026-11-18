@@ -1,27 +1,15 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { AuctionRole, ShippingStatus, UserRole } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { isAdmin } from '@/server/auth/policies';
+import { parseQuery, withAuth } from '@/server/http';
+import { listOrdersQuerySchema } from '@/server/schemas/order.schema';
+import { AuctionRole, Prisma, ShippingStatus } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const GET = withAuth(
+  async ({ request, authUser }) => {
+    const { page, limit, tab } = parseQuery(request, listOrdersQuerySchema);
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-
-    const url = new URL(request.url);
-    const searchParams = Object.fromEntries(url.searchParams.entries());
-
-    const params: { page?: number; limit?: number; loadForCurrentUser?: boolean; tab?: string } = {
-      ...searchParams,
-    };
-    const { page, limit, tab } = params;
-
-    let totalCount;
-    let where;
+    let where: Prisma.ShippingWhereInput | undefined;
     if (tab === 'sent-orders') {
       where = {
         lot: {
@@ -38,28 +26,17 @@ export async function GET(request: Request) {
           not: ShippingStatus.DELIVERED,
         },
       };
-      totalCount = await prismaDb.shipping.count({
-        where,
-      });
     } else if (tab === 'my-orders') {
       where = {
         userId: authUser.id,
       };
-
-      totalCount = await prismaDb.shipping.count({
-        where,
-      });
     } else {
-      where = !isAuthUserAdmin ? { userId: authUser.id } : undefined;
-
-      totalCount = await prismaDb.shipping.count({
-        where,
-      });
+      // 'all-orders' (default tab): everything for administrators, own purchases otherwise
+      where = isAdmin(authUser) ? undefined : { userId: authUser.id };
     }
 
-    totalCount ??= 0;
-
-    const totalPages = Math.ceil(totalCount / (limit ? Number(limit) : 5));
+    const totalCount = await prismaDb.shipping.count({ where });
+    const totalPages = Math.ceil(totalCount / limit);
 
     const orders = await prismaDb.shipping.findMany({
       where,
@@ -101,19 +78,17 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: 'desc',
       },
-      ...(limit && { take: Number(limit) }),
-      ...(page && limit && { skip: (Number(page) - 1) * Number(limit) }),
+      take: limit,
+      skip: (page - 1) * limit,
     });
 
     return NextResponse.json({
       orders,
       total: totalCount,
       totalPages,
-      page: page || 1,
-      limit: limit || totalCount,
+      page,
+      limit,
     });
-  } catch (error) {
-    console.error('GET_ORDER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_ORDERS' }
+);

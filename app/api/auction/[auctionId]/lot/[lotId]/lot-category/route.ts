@@ -1,22 +1,17 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { CreateLotCategoriesType } from '@/app/types';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { parseBody, withAuth } from '@/server/http';
+import { lotCategoriesSchema } from '@/server/schemas/lot.schema';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
+
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
     const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const { categoryIds }: CreateLotCategoriesType = await request.json();
+    const { categoryIds } = await parseBody(request, lotCategoriesSchema);
 
     await prismaDb.lotCategory.deleteMany({
       where: {
@@ -26,13 +21,8 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
 
     if (!categoryIds.length) return NextResponse.json([]);
 
-    const data = categoryIds.map((categoryId) => ({
-      lotId,
-      categoryId,
-    }));
-
     await prismaDb.lotCategory.createMany({
-      data,
+      data: categoryIds.map((categoryId) => ({ lotId, categoryId })),
     });
 
     const categories = await prismaDb.lotCategory.findMany({
@@ -42,34 +32,19 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     });
 
     return NextResponse.json(categories, { status: 201 });
-  } catch (error) {
-    console.error('CREATE_LOT_CATEGORY_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_LOT_CATEGORY' }
+);
 
-export async function GET(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
-    }
-
-    const lotCategories = await prismaDb?.lotCategory.findMany({
+export const GET = withAuth<Params>(
+  async ({ params }) => {
+    const lotCategories = await prismaDb.lotCategory.findMany({
       where: {
-        lotId,
+        lotId: params.lotId,
       },
     });
 
     return NextResponse.json(lotCategories);
-  } catch (error) {
-    console.error('GET_LOT_CATEGORY_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_LOT_CATEGORY' }
+);

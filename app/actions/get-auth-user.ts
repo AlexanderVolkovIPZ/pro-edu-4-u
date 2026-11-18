@@ -1,8 +1,11 @@
+import { AuthUser } from '@/app/_shared/types/auth-user';
 import { GetServerSessionParams } from '../types';
 import { getSession } from './get-session';
 import prismaDb from '@/lib/prismadb';
 
-export default async function getAuthUser(args?: GetServerSessionParams) {
+export type { AuthUser };
+
+export default async function getAuthUser(args?: GetServerSessionParams): Promise<AuthUser | null> {
   try {
     const session = await getSession(...(args ?? []));
 
@@ -20,8 +23,11 @@ export default async function getAuthUser(args?: GetServerSessionParams) {
       return null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = currentUser;
+
     return {
-      ...currentUser,
+      ...safeUser,
       provider: session.provider,
     };
   } catch {

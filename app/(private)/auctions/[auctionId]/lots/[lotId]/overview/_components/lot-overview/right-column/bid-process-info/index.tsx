@@ -2,8 +2,7 @@
 
 import { AuthUserContext } from '@/app/providers/auth-user-provider';
 import { SocketContext } from '@/app/providers/socket-provider';
-import { useUpdateBid } from '@/app/queries/bid';
-import { useUpdateLot } from '@/app/queries/lot';
+import { useFinalizeLot } from '@/app/queries/lot';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -25,6 +24,8 @@ import CountdownTimer from './countdown-timer';
 import { StatusBadge } from './status-badge';
 
 const PROGRESS_VALUE_MAX = 100;
+const FINALIZE_RETRY_DELAY_MS = 1000;
+const MAX_FINALIZE_ATTEMPTS = 5;
 
 type BidProcessInfoProps = {
   lotId: string;
@@ -63,10 +64,7 @@ const BidProcessInfo = ({
   } = useBidState(initialBids, startBid, minBidIncrement);
   const { progressValue } = useProgressTimer(bids);
 
-  const { mutateAsync: updateBid } = useUpdateBid({
-    urlParams: { auctionId, lotId },
-  });
-  const { mutateAsync: updateLot } = useUpdateLot(auctionId, lotId);
+  const { mutateAsync: finalizeLot } = useFinalizeLot(auctionId, lotId);
 
   const { t } = useTranslation();
 
@@ -83,34 +81,44 @@ const BidProcessInfo = ({
 
   const isUserConnected = socket && isSocketConnected;
 
+  // When the bidding goes silent (or the slot ends) the client asks the server
+  // to close the lot. The server validates the request and decides the winner.
+  // Requests are throttled: at most one per top bid, retried after a delay.
+  const finalizeRequestedFor = useRef<string | null>(null);
+  const nextFinalizeAttemptAt = useRef(0);
+  const finalizeAttempts = useRef(0);
   useEffect(() => {
-    if (progressValue >= PROGRESS_VALUE_MAX && bids.length) {
-      const maxBidId = bids.at(0)?.id;
-      if (!maxBidId) {
-        return;
-      }
+    const topBid = bids.at(0);
+    if (!topBid) return;
 
-      setStatus(Status.COMPLETED);
+    const needsFinalization = isLotInProgress
+      ? progressValue >= PROGRESS_VALUE_MAX || lotTimeLeft <= 0
+      : status === Status.COMPLETED && !topBid.isWinner;
 
-      (async () => {
-        await updateLot({ isSold: true });
-      })();
-
-      (async () => {
-        await updateBid(
-          {
-            payloadBidId: maxBidId,
-            data: { isWinner: true },
-          },
-          {
-            onSuccess: () => {
-              setBids((prevBids) => prevBids.map((bid) => (bid.id === maxBidId ? { ...bid, isWinner: true } : bid)));
-            },
-          }
-        );
-      })();
+    if (
+      !needsFinalization ||
+      finalizeRequestedFor.current === topBid.id ||
+      Date.now() < nextFinalizeAttemptAt.current ||
+      finalizeAttempts.current >= MAX_FINALIZE_ATTEMPTS
+    ) {
+      return;
     }
-  }, [auctionId, bids, progressValue, setBids, updateBid, updateLot]);
+
+    finalizeRequestedFor.current = topBid.id;
+    finalizeAttempts.current += 1;
+
+    finalizeLot().then(
+      () => {
+        setStatus(Status.COMPLETED);
+        setBids((prevBids) => prevBids.map((bid) => (bid.id === topBid.id ? { ...bid, isWinner: true } : bid)));
+      },
+      () => {
+        // Not due yet according to the server; allow a retry after a pause.
+        finalizeRequestedFor.current = null;
+        nextFinalizeAttemptAt.current = Date.now() + FINALIZE_RETRY_DELAY_MS;
+      }
+    );
+  }, [bids, finalizeLot, isLotInProgress, lotTimeLeft, progressValue, setBids, status]);
 
   useEffect(() => {
     if (!socket) return;
@@ -156,12 +164,12 @@ const BidProcessInfo = ({
 
   const onBid = () => {
     if (!isUserConnected) {
-      toast.error(t('toast.error.you_are_not_connected_to_the_server'));
+      toast.error(<span data-testid='bid-error'>{t('toast.error.you_are_not_connected_to_the_server')}</span>);
       return;
     }
 
     if (currentBid && bidToSend <= currentBid) {
-      toast.error(t('toast.error.the_bid_must_be_higher_than_the_current_bid'));
+      toast.error(<span data-testid='bid-error'>{t('toast.error.the_bid_must_be_higher_than_the_current_bid')}</span>);
       return;
     }
 
@@ -265,6 +273,7 @@ const BidProcessInfo = ({
                 className='w-full relative uppercase font-bold py-4 bg-green-600 hover:bg-green-500 shadow-md hover:shadow-lg transition-all duration-200'
                 onClick={onBid}
                 disabled={!isLotInProgress || isBidSent || isLastBidByMe || isAutoBid}
+                data-testid='bid-submit'
               >
                 <Gavel className='h-5 w-5 mr-2' />
                 {t('bid_process.bid')} ${bidToSend}

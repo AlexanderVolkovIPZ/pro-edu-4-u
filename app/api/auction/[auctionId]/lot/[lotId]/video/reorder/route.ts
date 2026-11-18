@@ -1,36 +1,35 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { ReorderFileType } from '@/app/types';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { reorderSchema } from '@/server/schemas/lot.schema';
+import { NextResponse } from 'next/server';
 
-export async function PATCH(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const body: ReorderFileType = await request.json();
-    const { id, position } = body;
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const video = await prismaDb.video.findFirst({
+    const { id, position } = await parseBody(request, reorderSchema);
+
+    const media = await prismaDb.video.findFirst({
       where: {
         id,
         lotId: params.lotId,
       },
     });
 
-    if (!video) {
-      return new NextResponse('Video not found', { status: 404 });
+    if (!media) {
+      throw HttpError.notFound('Video not found');
     }
 
-    const isNewPositionHigher = video.position < position;
+    const isNewPositionHigher = media.position < position;
 
-    const updatedVideos = await prismaDb.video.updateMany({
+    const updated = await prismaDb.video.updateMany({
       where: {
         lotId: params.lotId,
         position: {
-          ...(isNewPositionHigher ? { gt: video.position, lte: position } : { gte: position, lt: video.position }),
+          ...(isNewPositionHigher ? { gt: media.position, lte: position } : { gte: position, lt: media.position }),
         },
       },
       data: {
@@ -47,9 +46,7 @@ export async function PATCH(request: Request, { params }: { params: { auctionId:
       },
     });
 
-    return NextResponse.json(updatedVideos);
-  } catch (error) {
-    console.error('REORDER_VIDEO_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(updated);
+  },
+  { label: 'REORDER_VIDEO' }
+);

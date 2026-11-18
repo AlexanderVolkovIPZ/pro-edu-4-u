@@ -1,20 +1,23 @@
 import { generateHtmlTemplate } from '@/app/utils/generate-html-template';
 import prismaDb from '@/lib/prismadb';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import { HttpError, parseQuery, withErrorHandling } from '@/server/http';
+import { verifyEmailQuerySchema } from '@/server/schemas/auth.schema';
 import jwt from 'jsonwebtoken';
-import { NextResponse } from 'next/server';
-dayjs.extend(utc);
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const token = searchParams.get('token');
+export const GET = withErrorHandling(
+  async ({ request }) => {
+    const { token } = parseQuery(request, verifyEmailQuerySchema);
 
-    const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string) as { userId: string };
+    let userId: string;
+    try {
+      ({ userId } = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string });
+    } catch {
+      throw HttpError.badRequest('Invalid or expired token!');
+    }
+
     await prismaDb.user.update({
-      where: { id: decoded.userId },
-      data: { emailVerified: dayjs().utc(true).toDate() },
+      where: { id: userId },
+      data: { emailVerified: new Date() },
     });
 
     const htmlContent = generateHtmlTemplate('templates/registration-successful.html');
@@ -23,7 +26,6 @@ export async function GET(request: Request) {
       headers: { 'Content-Type': 'text/html' },
       status: 200,
     });
-  } catch {
-    return new NextResponse('Invalid or expired token!', { status: 400 });
-  }
-}
+  },
+  { label: 'VERIFY_EMAIL' }
+);

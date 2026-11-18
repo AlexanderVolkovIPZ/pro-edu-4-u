@@ -1,42 +1,27 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { createLotSchema } from '@/server/schemas/lot.schema';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string };
 
-    const body = await request.json();
-    const { title } = body;
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    if (!title) {
-      return new NextResponse('Title is required and cannot be empty', { status: 400 });
-    }
+    const { title } = await parseBody(request, createLotSchema);
 
-    const auctionId = params.auctionId;
-    if (!auctionId) {
-      return new NextResponse('Auction is required and cannot be empty', { status: 400 });
-    }
-
-    const auction = await prismaDb.auction.findFirst({
-      where: {
-        id: auctionId,
-      },
-      include: {
-        lot: true,
-      },
+    const auction = await prismaDb.auction.findUnique({
+      where: { id: params.auctionId },
+      include: { lot: { select: { position: true } } },
     });
 
     if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
+      throw HttpError.notFound('Auction not found');
     }
 
-    const lotPosition = auction.lot?.length
-      ? auction.lot.reduce((max, lot) => (lot.position > max.position ? lot : max)).position + 1
-      : 1;
+    const lotPosition = auction.lot.reduce((max, lot) => Math.max(max, lot.position), 0) + 1;
 
     const lot = await prismaDb.lot.create({
       data: {
@@ -47,19 +32,12 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     });
 
     return NextResponse.json(lot);
-  } catch (error) {
-    console.error('CREATE_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_LOT' }
+);
 
-export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
+export const GET = withAuth<Params>(
+  async ({ params }) => {
     const lots = await prismaDb.lot.findMany({
       where: {
         auctionId: params.auctionId,
@@ -85,8 +63,6 @@ export async function GET(request: Request, { params }: { params: { auctionId: s
     });
 
     return NextResponse.json(lots);
-  } catch (error) {
-    console.error('GET_LOTS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_LOTS' }
+);

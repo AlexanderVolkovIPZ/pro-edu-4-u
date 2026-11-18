@@ -6,7 +6,7 @@ import axios from 'axios';
 import getReorderedLots from '../actions/get-reordered-lots';
 import { queryClient } from '../providers/query-client-provider';
 import { AuctionWithLotsType, AuctionWithRelationsType, LotWithRelationsType } from '../types';
-import { AUCTION, LOT } from './query-keys';
+import { AUCTION, BID, LOT } from './query-keys';
 
 export function useCreateLot<T extends Pick<Lot, 'title' | 'auctionId'>>(
   auctionId: string
@@ -132,6 +132,26 @@ export function useDeleteLot(
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
       queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
+    },
+  });
+}
+
+/**
+ * Asks the server to close bidding for a lot. The server decides whether the
+ * lot can actually be finalized (schedule, last bid time) and who the winner is.
+ */
+export function useFinalizeLot(auctionId: string, lotId: string): UseMutationResult<Lot, Error, void> {
+  return useMutation<Lot, Error, void>({
+    mutationFn: async () => {
+      const response = await axios.post<Lot>(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auction/${auctionId}/lot/${lotId}/finalize`
+      );
+      return response.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [AUCTION, auctionId] });
+      queryClient.invalidateQueries({ queryKey: [LOT, auctionId, lotId] });
+      queryClient.invalidateQueries({ queryKey: [BID] });
     },
   });
 }

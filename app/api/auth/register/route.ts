@@ -1,42 +1,28 @@
 import { generateHtmlTemplate } from '@/app/utils/generate-html-template';
 import prismaDb from '@/lib/prismadb';
+import { HttpError, parseBody, withErrorHandling } from '@/server/http';
+import { registerSchema } from '@/server/schemas/auth.schema';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { email, password } = body;
+export const POST = withErrorHandling(
+  async ({ request }) => {
+    const { email, password } = await parseBody(request, registerSchema);
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    let user = null;
+    const existingUser = await prismaDb.user.findUnique({ where: { email } });
 
-    user = await prismaDb.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      user = await prismaDb.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-        },
-      });
-    } else if (user && !user.password) {
-      user = await prismaDb.user.update({
-        data: {
-          password: hashedPassword,
-        },
-        where: {
-          email,
-        },
-      });
+    if (existingUser?.password) {
+      throw HttpError.conflict('An account with this email already exists');
     }
+
+    // Users who signed up through an OAuth provider may add a password later.
+    const user = existingUser
+      ? await prismaDb.user.update({ where: { email }, data: { password: hashedPassword } })
+      : await prismaDb.user.create({ data: { email, password: hashedPassword } });
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: '1h',
@@ -65,9 +51,7 @@ export async function POST(request: Request) {
       ]),
     });
 
-    return NextResponse.json(user, { status: 201 });
-  } catch (error) {
-    console.error('USER_REGISTER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json({ id: user.id, email: user.email }, { status: 201 });
+  },
+  { label: 'USER_REGISTER' }
+);

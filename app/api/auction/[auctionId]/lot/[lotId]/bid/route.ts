@@ -1,30 +1,43 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { Bid } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { placeBidSchema } from '@/server/schemas/bid.schema';
+import { BidType } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
+type Params = { auctionId: string; lotId: string };
+
+/**
+ * Places a bid on behalf of the current user. The bidder, type and winner /
+ * payment flags are controlled by the server and cannot be supplied by the
+ * client.
+ */
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const { amount } = await parseBody(request, placeBidSchema);
+
+    const lot = await prismaDb.lot.findFirst({
+      where: { id: params.lotId, auctionId: params.auctionId },
+      select: { id: true, isSold: true },
+    });
+
+    if (!lot) {
+      throw HttpError.notFound('Lot not found');
     }
 
-    const { lotId } = params;
-
-    if (!lotId) {
-      return new NextResponse('LotId is required and cannot be empty', { status: 400 });
+    if (lot.isSold) {
+      throw HttpError.conflict('Lot is already sold');
     }
-
-    const data: Bid = await request.json();
 
     const bid = await prismaDb.bid.create({
-      data,
+      data: {
+        lotId: lot.id,
+        bidderId: authUser.id,
+        amount,
+        type: BidType.BIDDING,
+      },
     });
 
     return NextResponse.json(bid, { status: 201 });
-  } catch (error) {
-    console.error('CREATE_BID_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_BID' }
+);

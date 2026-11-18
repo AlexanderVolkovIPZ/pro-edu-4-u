@@ -1,122 +1,64 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import prismaDb from '@/lib/prismadb';
-import { Auction, Prisma, UserRole } from '@prisma/client';
+import { parseBody, parseQuery, withAuth } from '@/server/http';
+import { isAdmin } from '@/server/auth/policies';
+import { createAuctionSchema, listAuctionsQuerySchema } from '@/server/schemas/auction.schema';
+import { Auction, AuctionRole, Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const body = await request.json();
-    const { title } = body;
-
-    if (!title) {
-      return new NextResponse('Title is required and cannot be empty', { status: 400 });
-    }
+export const POST = withAuth(
+  async ({ request, authUser }) => {
+    const { title } = await parseBody(request, createAuctionSchema);
 
     const auction = await prismaDb.auction.create({
       data: {
         title,
-      },
-    });
-
-    await prismaDb.userAuction.create({
-      data: {
-        userId: authUser.id,
-        auctionId: auction.id,
+        userAuction: {
+          create: { userId: authUser.id, role: AuctionRole.OWNER },
+        },
       },
     });
 
     return NextResponse.json(auction);
-  } catch (error) {
-    console.error('CREATE_AUCTION_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_AUCTION' }
+);
 
-export async function GET(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const url = new URL(request.url);
-    const searchParams = Object.fromEntries(url.searchParams.entries());
-
-    const params: Partial<Auction> & {
-      page?: number;
-      limit?: number;
-      loadForCurrentUser?: boolean;
-      minLotPrice?: number;
-      maxLotPrice?: number;
-      categories?: string;
-    } = {
-      ...searchParams,
-    };
-
-    const {
-      title,
-      description,
-      startDate,
-      endDate,
-      createdAt,
-      updatedAt,
-      isPublished,
-      isApproved,
-      page = 1,
-      limit = 8,
-      loadForCurrentUser,
-      minLotPrice,
-      maxLotPrice,
-    } = params;
-
-    const categoriesName: string[] | undefined = params.categories ? JSON.parse(params.categories) : [];
+export const GET = withAuth(
+  async ({ request, authUser }) => {
+    const { page, limit, loadForCurrentUser, minLotPrice, maxLotPrice, categories } = parseQuery(
+      request,
+      listAuctionsQuerySchema
+    );
 
     const userAuctions = await prismaDb.userAuction.findMany({
-      where:
-        loadForCurrentUser && authUser.role !== UserRole.ADMIN
-          ? {
-              userId: authUser.id,
-            }
-          : {},
+      where: loadForCurrentUser && !isAdmin(authUser) ? { userId: authUser.id } : {},
+      select: { auctionId: true },
     });
 
-    const filters = {
-      ...(title && { title }),
-      ...(description && { description }),
-      ...(startDate && { startDate }),
-      ...(endDate && { endDate }),
-      ...(createdAt && { createdAt }),
-      ...(updatedAt && { updatedAt }),
-      ...(typeof isPublished === 'boolean' && { isPublished }),
-      ...(typeof isApproved === 'boolean' && { isApproved }),
+    const filters: Prisma.AuctionWhereInput = {
       id: {
         in: userAuctions.map((userAuction) => userAuction.auctionId),
       },
     };
 
-    const lotConditions = [];
+    const lotConditions: Prisma.LotWhereInput[] = [];
 
-    if (minLotPrice || maxLotPrice) {
+    if (minLotPrice !== undefined || maxLotPrice !== undefined) {
       lotConditions.push({
         startBid: {
-          ...(minLotPrice && { gte: Number(minLotPrice) }),
-          ...(maxLotPrice && { lte: Number(maxLotPrice) }),
+          ...(minLotPrice !== undefined && { gte: minLotPrice }),
+          ...(maxLotPrice !== undefined && { lte: maxLotPrice }),
         },
       });
     }
 
-    if (categoriesName?.length) {
+    if (categories?.length) {
       lotConditions.push({
         lotCategory: {
           some: {
             category: {
               name: {
-                in: categoriesName,
+                in: categories,
               },
             },
           },
@@ -164,16 +106,16 @@ export async function GET(request: Request) {
         },
       },
       userAuction: true,
-    } as const;
+    } satisfies Prisma.AuctionInclude;
 
     const now = new Date();
-    const pageSize = Number(limit);
-    const currentPage = Number(page);
+    const pageSize = limit;
+    const currentPage = page;
     const skip = (currentPage - 1) * pageSize;
 
-    const mergedConditions = Object.assign({}, ...lotConditions);
+    const mergedConditions: Prisma.LotWhereInput = Object.assign({}, ...lotConditions);
 
-    const auctionsCondition = [
+    const auctionsCondition: { where: Prisma.AuctionWhereInput }[] = [
       //ACTIVE AUCTIONS
       {
         where: {
@@ -228,11 +170,7 @@ export async function GET(request: Request) {
     ];
 
     const [activeCount, upcomingCount, endedCount, draftCount] = await Promise.all(
-      auctionsCondition.map(async (condition) => {
-        return await prismaDb.auction.count({
-          where: condition.where as Prisma.AuctionWhereInput,
-        });
-      })
+      auctionsCondition.map((condition) => prismaDb.auction.count({ where: condition.where }))
     );
 
     let totalCount = activeCount + upcomingCount + endedCount;
@@ -347,11 +285,9 @@ export async function GET(request: Request) {
       minLotPriceExisted: minLotPriceExistedResult._min.startBid || 0,
       lotCategoriesExistedNames: await getLotCategoriesNames(),
     });
-  } catch (error) {
-    console.error('GET_AUCTIONS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_AUCTIONS' }
+);
 
 async function getLotCategoriesNames(): Promise<string[]> {
   const categories = await prismaDb.category.findMany({

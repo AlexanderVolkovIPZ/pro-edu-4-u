@@ -1,25 +1,26 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import { CreateFileType, DeleteFileType } from '@/app/types';
-import { AuctionRole, UserRole, Video } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { deleteMediaSchema, uploadMediaSchema } from '@/server/schemas/media.schema';
+import { Video } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const body: CreateFileType<Video> = await request.json();
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const uploadedVideos: Video[] = [];
+    const body = await parseBody(request, uploadMediaSchema);
+
+    const uploaded: Video[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
         await prismaDb.video.update({
           where: {
             id,
+            lotId: params.lotId,
           },
           data: {
             position,
@@ -34,7 +35,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         resource_type: 'video',
       });
 
-      const response: Video | undefined = await prismaDb.video.create({
+      const created = await prismaDb.video.create({
         data: {
           url,
           name,
@@ -44,60 +45,40 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         },
       });
 
-      if (response) {
-        uploadedVideos.push(response);
-      }
+      uploaded.push(created);
     }
 
-    return NextResponse.json(uploadedVideos);
-  } catch (error) {
-    console.error('CREATE_VIDEO_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(uploaded);
+  },
+  { label: 'CREATE_VIDEO' }
+);
 
-export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const DELETE = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
+    const { id } = await parseBody(request, deleteMediaSchema);
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const { id }: DeleteFileType = await request.json();
-
-    const video = await prismaDb.video.findFirst({
+    const media = await prismaDb.video.findFirst({
       where: {
         id,
         lotId: params.lotId,
       },
     });
 
-    if (!video) {
-      return new NextResponse('Video not found', { status: 404 });
+    if (!media) {
+      throw HttpError.notFound('Video not found');
     }
 
-    await deleteFromCloudinary(video.publicId, { resource_type: 'video' });
+    await deleteFromCloudinary(media.publicId, { resource_type: 'video' });
 
-    const deletedVideo = await prismaDb.video.delete({ where: { id, lotId: params.lotId } });
+    const deleted = await prismaDb.video.delete({ where: { id, lotId: params.lotId } });
 
     await prismaDb.video.updateMany({
       where: {
         lotId: params.lotId,
         position: {
-          gt: video.position,
+          gt: media.position,
         },
       },
       data: {
@@ -107,9 +88,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       },
     });
 
-    return NextResponse.json(deletedVideo);
-  } catch (error) {
-    console.error('DELETE_VIDEO_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(deleted);
+  },
+  { label: 'DELETE_VIDEO' }
+);

@@ -1,25 +1,26 @@
-import getAuthUser from '@/app/actions/get-auth-user';
 import { deleteFromCloudinary, uploadToCloudinary } from '@/app/lib/cloudinary/cloudinary-service';
-import { CreateFileType, DeleteFileType } from '@/app/types';
-import { AuctionRole, Photo, UserRole } from '@prisma/client';
-import { NextResponse } from 'next/server';
 import prismaDb from '@/lib/prismadb';
+import { assertCanManageAuction } from '@/server/auth/policies';
+import { HttpError, parseBody, withAuth } from '@/server/http';
+import { deleteMediaSchema, uploadMediaSchema } from '@/server/schemas/media.schema';
+import { Photo } from '@prisma/client';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string; lotId: string };
 
-    const body: CreateFileType<Photo> = await request.json();
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const uploadedPhotos: Photo[] = [];
+    const body = await parseBody(request, uploadMediaSchema);
+
+    const uploaded: Photo[] = [];
     for (const { file, position, name, isFileUploaded, id } of body) {
       if (isFileUploaded) {
         await prismaDb.photo.update({
           where: {
             id,
+            lotId: params.lotId,
           },
           data: {
             position,
@@ -33,7 +34,7 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         folder: process.env.CLOUDINARY_FOLDER_NAME,
       });
 
-      const response: Photo | undefined = await prismaDb.photo.create({
+      const created = await prismaDb.photo.create({
         data: {
           url,
           name,
@@ -43,60 +44,40 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
         },
       });
 
-      if (response) {
-        uploadedPhotos.push(response);
-      }
+      uploaded.push(created);
     }
 
-    return NextResponse.json(uploadedPhotos);
-  } catch (error) {
-    console.error('CREATE_PHOTO_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(uploaded);
+  },
+  { label: 'CREATE_PHOTO' }
+);
 
-export async function DELETE(request: Request, { params }: { params: { auctionId: string; lotId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+export const DELETE = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    await assertCanManageAuction(authUser, params.auctionId);
 
-    const userAuction = await prismaDb.userAuction.findFirst({
-      where: {
-        userId: authUser.id,
-        auctionId: params.auctionId,
-        role: AuctionRole.OWNER,
-      },
-    });
+    const { id } = await parseBody(request, deleteMediaSchema);
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    if (!userAuction && !isAuthUserAdmin) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const { id }: DeleteFileType = await request.json();
-
-    const photo = await prismaDb.photo.findFirst({
+    const media = await prismaDb.photo.findFirst({
       where: {
         id,
         lotId: params.lotId,
       },
     });
 
-    if (!photo) {
-      return new NextResponse('Photo not found', { status: 404 });
+    if (!media) {
+      throw HttpError.notFound('Photo not found');
     }
 
-    await deleteFromCloudinary(photo.publicId);
+    await deleteFromCloudinary(media.publicId);
 
-    const deletedPhoto = await prismaDb.photo.delete({ where: { id, lotId: params.lotId } });
+    const deleted = await prismaDb.photo.delete({ where: { id, lotId: params.lotId } });
 
     await prismaDb.photo.updateMany({
       where: {
         lotId: params.lotId,
         position: {
-          gt: photo.position,
+          gt: media.position,
         },
       },
       data: {
@@ -106,9 +87,7 @@ export async function DELETE(request: Request, { params }: { params: { auctionId
       },
     });
 
-    return NextResponse.json(deletedPhoto);
-  } catch (error) {
-    console.error('DELETE_PHOTO_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(deleted);
+  },
+  { label: 'DELETE_PHOTO' }
+);
