@@ -28,29 +28,3 @@ export async function POST(request: Request, { params }: { params: { auctionId: 
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
-
-export async function GET(request: Request, { params }: { params: { bidId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const { bidId } = params;
-
-    if (!bidId) {
-      return new NextResponse('BidId is required and cannot be empty', { status: 400 });
-    }
-
-    const bid = await prismaDb.bid.findFirst({
-      where: {
-        id: bidId,
-      },
-    });
-
-    return NextResponse.json(bid);
-  } catch (error) {
-    console.error('GET_BID_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}

@@ -1,8 +1,8 @@
-import { Bid, User } from '@prisma/client';
 import { Server as HttpServer } from 'http';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Server as SocketIoServer } from 'socket.io';
 import prismaDb from '@/lib/prismadb';
+import { ClientToServerEvents, ServerToClientEvents, SOCKET_PATH } from '@/app/_shared/socket/events';
 
 export const config = {
   api: {
@@ -18,20 +18,11 @@ export type NextApiResponseServerIo = NextApiResponse & {
   };
 };
 
-export type ServerToClientEvents = {
-  error: (status: number, message: string) => void;
-  bidCreated: (bidInfo: Bid & { user: Pick<User, 'name' | 'id'> }) => void;
-};
-
-export type ClientToServerEvents = {
-  newBid: (data: Pick<Bid, 'lotId' | 'amount'> & { userId: string }) => void;
-};
-
 export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
   if (!res.socket.server.io) {
     const httpServer = res.socket.server;
     const io = new SocketIoServer<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-      path: '/api/socket/io',
+      path: SOCKET_PATH,
       addTrailingSlash: false,
       cors: {
         methods: ['GET', 'POST'],

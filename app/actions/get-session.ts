@@ -1,4 +1,4 @@
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { authOptions } from '@/app/lib/auth/auth-options';
 import { getServerSession } from 'next-auth';
 import { GetServerSessionParams } from '../types';
 

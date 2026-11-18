@@ -40,37 +40,3 @@ export async function PATCH(request: Request, { params }: { params: { userId: st
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
-
-export async function DELETE(request: Request, { params }: { params: { userId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    if (authUser.role !== UserRole.ADMIN || authUser.id !== params.userId) {
-      return new NextResponse('User not found', { status: 404 });
-    }
-
-    const user = await prismaDb.user.findFirst({
-      where: {
-        id: params.userId,
-      },
-    });
-
-    if (!user) {
-      return new NextResponse('User not found', { status: 404 });
-    }
-
-    const deletedUser = await prismaDb.user.delete({
-      where: {
-        id: params.userId,
-      },
-    });
-
-    return NextResponse.json(deletedUser);
-  } catch (error) {
-    console.error('DELETE_USER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
