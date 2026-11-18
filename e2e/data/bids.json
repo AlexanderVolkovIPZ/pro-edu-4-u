@@ -1,0 +1,15 @@
+{
+  "valid": [
+    { "id": "TC-03", "title": "regular bid", "amount": "min+450", "expect": "accepted" }
+  ],
+  "boundary": [
+    { "id": "TC-01", "title": "1 below the minimum", "amount": "min-1", "expect": "disabled" },
+    { "id": "TC-02", "title": "exactly the minimum", "amount": "min", "expect": "accepted" },
+    { "id": "TC-05", "title": "1 above the buyout price", "amount": "buyout+1", "expect": "rejected" }
+  ],
+  "invalid": [
+    { "id": "TC-06a", "title": "not a number", "amount": "abc", "expect": "rejected" },
+    { "id": "TC-06b", "title": "negative amount", "amount": "-50", "expect": "rejected" },
+    { "id": "TC-06c", "title": "zero", "amount": "0", "expect": "rejected" }
+  ]
+}

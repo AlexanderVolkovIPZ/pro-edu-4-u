@@ -1,0 +1,5 @@
+{
+  "baseUrl": "https://bidium.example",
+  "readOnly": true,
+  "seed": { "lots": {}, "auctions": {} }
+}

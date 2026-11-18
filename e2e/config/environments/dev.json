@@ -1,0 +1,15 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "readOnly": false,
+  "seed": {
+    "lots": {
+      "chromium": { "auctionId": "6a00000000000000000000a1", "lotId": "6a00000000000000000000b1" },
+      "firefox": { "auctionId": "6a00000000000000000000a2", "lotId": "6a00000000000000000000b2" },
+      "webkit": { "auctionId": "6a00000000000000000000a3", "lotId": "6a00000000000000000000b3" }
+    },
+    "auctions": {
+      "ownerAuction": "6a00000000000000000000a4",
+      "blockedOwnerAuction": "6a00000000000000000000a5"
+    }
+  }
+}

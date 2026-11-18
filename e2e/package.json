@@ -1,0 +1,22 @@
+{
+  "name": "bidium-taf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test Automation Framework for Bidium (gTAA, POM, DDT)",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:api": "playwright test --project=api",
+    "test:gui": "playwright test --project=chromium --project=firefox --project=webkit",
+    "typecheck": "tsc --noEmit",
+    "report": "allure generate allure-results --clean -o allure-report && allure open allure-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "26.6.6",
+    "allure-commandline": "2.46.1",
+    "allure-playwright": "3.14.0",
+    "dotenv": "18.0.10",
+    "typescript": "7.0.2"
+  }
+}

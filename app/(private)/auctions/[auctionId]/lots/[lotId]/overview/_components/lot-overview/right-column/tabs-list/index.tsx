@@ -16,7 +16,7 @@ const TabsList = ({ shouldHideTabsNamesList }: TabsListProps) => {
       {list
         .filter(({ name }) => !shouldHideTabsNamesList.includes(name))
         .map(({ name, route }) => (
-          <TabsTrigger key={route} value={route} className='w-full'>
+          <TabsTrigger key={route} value={route} className='w-full' data-testid={`lot-tab-${route}`}>
             {t(`lot.${name}`)}
           </TabsTrigger>
         ))}

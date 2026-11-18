@@ -1,0 +1,9 @@
+{
+  "valid": [
+    { "id": "RT-03", "title": "valid email and password", "user": "owner", "password": "$SEED", "expect": "success", "smoke": true }
+  ],
+  "invalid": [
+    { "id": "RT-05", "title": "wrong password", "user": "owner", "password": "wrong-password-1", "expect": "error" },
+    { "id": "RT-05b", "title": "unregistered email", "email": "nobody@bidium.test", "password": "$SEED", "expect": "error" }
+  ]
+}

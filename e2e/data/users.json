@@ -1,0 +1,6 @@
+{
+  "owner":        { "email": "owner@bidium.test" },
+  "buyer":        { "email": "buyer@bidium.test" },
+  "admin":        { "email": "admin@bidium.test" },
+  "blockedOwner": { "email": "blocked@bidium.test" }
+}

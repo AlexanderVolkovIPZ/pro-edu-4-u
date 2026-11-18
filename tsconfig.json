@@ -35,5 +35,5 @@
     ".next/types/**/*.ts",
     "app/(private)/auctions/[auctionId]/lots/[lotId]/overview/_components/lot-overview/right-column/bid-process-info/countdown-timer"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "e2e"]
 }

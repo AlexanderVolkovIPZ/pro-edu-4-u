@@ -156,12 +156,12 @@ const BidProcessInfo = ({
 
   const onBid = () => {
     if (!isUserConnected) {
-      toast.error(t('toast.error.you_are_not_connected_to_the_server'));
+      toast.error(<span data-testid='bid-error'>{t('toast.error.you_are_not_connected_to_the_server')}</span>);
       return;
     }
 
     if (currentBid && bidToSend <= currentBid) {
-      toast.error(t('toast.error.the_bid_must_be_higher_than_the_current_bid'));
+      toast.error(<span data-testid='bid-error'>{t('toast.error.the_bid_must_be_higher_than_the_current_bid')}</span>);
       return;
     }
 
@@ -265,6 +265,7 @@ const BidProcessInfo = ({
                 className='w-full relative uppercase font-bold py-4 bg-green-600 hover:bg-green-500 shadow-md hover:shadow-lg transition-all duration-200'
                 onClick={onBid}
                 disabled={!isLotInProgress || isBidSent || isLastBidByMe || isAutoBid}
+                data-testid='bid-submit'
               >
                 <Gavel className='h-5 w-5 mr-2' />
                 {t('bid_process.bid')} ${bidToSend}

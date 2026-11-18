@@ -1,0 +1,15 @@
+{
+  "baseUrl": "https://staging.bidium.example",
+  "readOnly": false,
+  "seed": {
+    "lots": {
+      "chromium": { "auctionId": "REPLACE_WITH_SEED_AUCTION_ID_1", "lotId": "REPLACE_WITH_SEED_LOT_ID_1" },
+      "firefox": { "auctionId": "REPLACE_WITH_SEED_AUCTION_ID_2", "lotId": "REPLACE_WITH_SEED_LOT_ID_2" },
+      "webkit": { "auctionId": "REPLACE_WITH_SEED_AUCTION_ID_3", "lotId": "REPLACE_WITH_SEED_LOT_ID_3" }
+    },
+    "auctions": {
+      "ownerAuction": "REPLACE_WITH_SEED_AUCTION_ID_4",
+      "blockedOwnerAuction": "REPLACE_WITH_SEED_AUCTION_ID_5"
+    }
+  }
+}
