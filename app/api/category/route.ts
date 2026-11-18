@@ -1,10 +1,10 @@
-import prismaDb from '@/lib/prismadb';
 import { withAuth } from '@/server/http';
+import { categoryService } from '@/server/services';
 import { NextResponse } from 'next/server';
 
 export const GET = withAuth(
   async () => {
-    const categories = await prismaDb.category.findMany();
+    const categories = await categoryService.list();
 
     return NextResponse.json(categories);
   },

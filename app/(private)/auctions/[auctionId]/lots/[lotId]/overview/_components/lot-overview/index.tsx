@@ -1,6 +1,6 @@
 'use client';
 
-import { LOT_STATUSES } from '@/app/constants';
+import { getLotStatus } from '@/app/_shared/domain/auction-status';
 import { useLotDate } from '@/app/hooks/use-lot-date';
 import { useAuction } from '@/app/queries/auction';
 import { AuctionWithRelationsType } from '@/app/types';
@@ -31,18 +31,9 @@ const LotOverview = ({ auctionId, lotId }: LotOverviewProps) => {
   const isLotDateInfoLoaded = startDate && endDate && timeStartLeft;
 
   const currentDate = new Date();
-  const isLotTimeStarted = dayjs(startDate).isBefore(currentDate);
-  const isLotTimeFinished = dayjs(currentDate).isAfter(endDate);
   const timeLotLeft = dayjs(endDate).isAfter(currentDate) ? dayjs(endDate).diff(currentDate, 'seconds') : 0;
 
-  const isLotBidProcessInProgress = isLotTimeStarted && !isLotTimeFinished && !lotData?.isSold;
-  const isLotBidProcessIsFinished = isLotTimeStarted && (isLotTimeFinished || !!lotData?.isSold);
-
-  const status = isLotBidProcessInProgress
-    ? LOT_STATUSES.IN_PROGRESS
-    : isLotBidProcessIsFinished
-      ? LOT_STATUSES.COMPLETED
-      : LOT_STATUSES.UPCOMING;
+  const status = getLotStatus({ startDate, endDate, isSold: lotData?.isSold }, +currentDate);
 
   if (isAuctionFetched && !lotData) {
     return (
