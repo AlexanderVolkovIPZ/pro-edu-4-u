@@ -1,5 +1,0 @@
-export const LOT_STATUSES = {
-  UPCOMING: 'UPCOMING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED',
-} as const;

@@ -4,7 +4,7 @@ import Footer from '@/app/(private)/_shared/components/table/footer';
 import { useQueryParams } from '@/app/hooks/use-query-params';
 import { useAuctionsByFilter } from '@/app/queries/auction';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
-import { getAuctionStatus } from '@/app/utils/get-auction-status';
+import { getAuctionStatus } from '@/app/_shared/domain/auction-status';
 import { CardContent } from '@/components/ui/card';
 import { Table as TableComponent } from '@/components/ui/table';
 import { Annoyed, ChevronDown, ChevronUp } from 'lucide-react';

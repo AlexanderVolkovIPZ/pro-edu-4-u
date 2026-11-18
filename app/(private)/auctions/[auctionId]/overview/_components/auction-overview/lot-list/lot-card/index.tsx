@@ -2,7 +2,7 @@
 
 import { TimeLeftType, useLotDate } from '@/app/hooks/use-lot-date';
 import { AuctionWithRelationsType, LotWithRelationsType } from '@/app/types';
-import getLotStatus from '@/app/utils/get-lot-status';
+import { getLotStatus } from '@/app/_shared/domain/auction-status';
 import { Media, MediaSlider } from '@/components/media-slider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ export function LotCard({
     ...lot.video.map((video) => ({ type: 'video' as const, src: video.url })),
   ];
 
-  const lotStatus = getLotStatus(startDate, endDate, lot.isSold);
+  const lotStatus = getLotStatus({ startDate, endDate, isSold: lot.isSold });
 
   const timerComponents: JSX.Element[] = [];
 

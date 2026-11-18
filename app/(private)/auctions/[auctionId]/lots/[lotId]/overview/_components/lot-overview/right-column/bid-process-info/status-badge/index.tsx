@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
-import { LOT_STATUSES } from '@/app/constants';
+import { Status } from '@prisma/client';
 
 const STATUS_MESSAGES = {
   UPCOMING: 'bidding_process_starting_soon',
@@ -10,14 +10,14 @@ const STATUS_MESSAGES = {
   COMPLETED: 'bidding_process_completed',
 };
 
-export const StatusBadge = ({ status }: { status: keyof typeof LOT_STATUSES }) => {
+export const StatusBadge = ({ status }: { status: Status }) => {
   const { t } = useTranslation();
 
   return (
     <div
       className={cn(
         'text-center font-medium p-2 rounded-md',
-        status === LOT_STATUSES.IN_PROGRESS ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+        status === Status.IN_PROGRESS ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
       )}
     >
       {t(`bid_process.${STATUS_MESSAGES[status]}`)}
