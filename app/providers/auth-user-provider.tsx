@@ -1,8 +1,8 @@
 'use client';
-import { User } from '@prisma/client';
+import type { AuthUser as AuthUserType } from '@/app/_shared/types/auth-user';
 import { createContext } from 'react';
 
-type AuthUser = User | null;
+type AuthUser = AuthUserType | null;
 
 export const AuthUserContext = createContext<AuthUser>(null);
 

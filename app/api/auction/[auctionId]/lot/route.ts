@@ -1,92 +1,25 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import prismaDb from '@/lib/prismadb';
+import { parseBody, withAuth } from '@/server/http';
+import { createLotSchema } from '@/server/schemas/lot.schema';
+import { lotService } from '@/server/services';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { auctionId: string };
 
-    const body = await request.json();
-    const { title } = body;
-
-    if (!title) {
-      return new NextResponse('Title is required and cannot be empty', { status: 400 });
-    }
-
-    const auctionId = params.auctionId;
-    if (!auctionId) {
-      return new NextResponse('Auction is required and cannot be empty', { status: 400 });
-    }
-
-    const auction = await prismaDb.auction.findFirst({
-      where: {
-        id: auctionId,
-      },
-      include: {
-        lot: true,
-      },
-    });
-
-    if (!auction) {
-      return new NextResponse('Auction not found', { status: 404 });
-    }
-
-    const lotPosition = auction.lot?.length
-      ? auction.lot.reduce((max, lot) => (lot.position > max.position ? lot : max)).position + 1
-      : 1;
-
-    const lot = await prismaDb.lot.create({
-      data: {
-        title,
-        auctionId: auction.id,
-        position: lotPosition,
-      },
-    });
+export const POST = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const input = await parseBody(request, createLotSchema);
+    const lot = await lotService.create(authUser, params.auctionId, input);
 
     return NextResponse.json(lot);
-  } catch (error) {
-    console.error('CREATE_LOT_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'CREATE_LOT' }
+);
 
-export async function GET(request: Request, { params }: { params: { auctionId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const lots = await prismaDb.lot.findMany({
-      where: {
-        auctionId: params.auctionId,
-      },
-      include: {
-        photo: {
-          orderBy: {
-            position: 'asc',
-          },
-        },
-        video: {
-          orderBy: {
-            position: 'asc',
-          },
-        },
-        lotDetail: true,
-        lotCategory: {
-          include: {
-            category: true,
-          },
-        },
-      },
-    });
+export const GET = withAuth<Params>(
+  async ({ params }) => {
+    const lots = await lotService.list(params.auctionId);
 
     return NextResponse.json(lots);
-  } catch (error) {
-    console.error('GET_LOTS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_LOTS' }
+);

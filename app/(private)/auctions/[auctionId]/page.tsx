@@ -12,10 +12,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { getTitleSchema } from '../_shared/schemas/title-schema';
-import EndDateInput from './_components/end-date-input';
+import AuctionDateInput from './_components/auction-date-input';
 import Header from './_components/header';
 import LotInput from './_components/lot-input';
-import StartDateInput from './_components/start-date-input';
 import DescriptionInput from './_shared/components/description-input';
 
 type AuctionIdPageParams = {
@@ -156,13 +155,15 @@ const AuctionIdPage = ({ params }: { params: AuctionIdPageParams }) => {
             </div>
 
             <div className='flex flex-col gap-y-4'>
-              <StartDateInput
-                initialStartDate={auctionData?.startDate}
+              <AuctionDateInput
+                field='startDate'
+                initialDate={auctionData?.startDate}
                 auctionId={params.auctionId}
                 showRequiredFieldIcon={true}
               />
-              <EndDateInput
-                initialEndDate={auctionData?.endDate}
+              <AuctionDateInput
+                field='endDate'
+                initialDate={auctionData?.endDate}
                 auctionId={params.auctionId}
                 showRequiredFieldIcon={true}
               />

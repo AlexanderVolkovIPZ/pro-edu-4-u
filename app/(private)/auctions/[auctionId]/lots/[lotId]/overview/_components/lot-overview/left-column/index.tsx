@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import BasicInfo from './basic-info';
 import { AuctionWithRelationsType } from '@/app/types';
 import { useAuction } from '@/app/queries/auction';
-import getLotStatus from '@/app/utils/get-lot-status';
+import { getLotStatus } from '@/app/_shared/domain/auction-status';
 import { TimeLeftType } from '@/app/hooks/use-lot-date';
 import Container from '@/components/container';
 import NotFound from '@/app/not-found';
@@ -19,7 +19,7 @@ type LeftColumnProps = {
 const LeftColumn = ({ auctionId, lotId, timeStartLeft, startDate, endDate }: LeftColumnProps) => {
   const { data: auctionData, isFetched: isAuctionFetched } = useAuction<AuctionWithRelationsType>(auctionId);
   const lotData = auctionData?.lot.find((lot) => lot.id === lotId);
-  const lotStatus = getLotStatus(startDate, endDate, lotData?.isSold);
+  const lotStatus = getLotStatus({ startDate, endDate, isSold: lotData?.isSold });
 
   const lotMediaContent: Media[] = [
     ...(lotData?.photo.map((photo) => ({ type: 'image' as const, src: photo.url })) ?? []),

@@ -1,19 +1,20 @@
 'use client';
 
+import { BidCreatedPayload } from '@/app/_shared/socket/events';
 import { AuthUserContext } from '@/app/providers/auth-user-provider';
-import { SocketContext } from '@/app/providers/socket-provider';
-import { useUpdateBid } from '@/app/queries/bid';
-import { useUpdateLot } from '@/app/queries/lot';
+import { useFinalizeLot } from '@/app/queries/lot';
 import Spinner from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { BidType, Status } from '@prisma/client';
 import { Bolt, Gavel } from 'lucide-react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { LotStatus } from '../_shared/types';
+import { useAutoBid } from './_hooks/use-auto-bid';
 import { useBidState } from './_hooks/use-bid-state';
+import { useLotBiddingSocket } from './_hooks/use-lot-bidding-socket';
 import { useProgressTimer } from './_hooks/use-progress-timer';
 import { IS_AUTO_BID } from './_shared/constants';
 import { BidInfo } from './_shared/types';
@@ -25,6 +26,8 @@ import CountdownTimer from './countdown-timer';
 import { StatusBadge } from './status-badge';
 
 const PROGRESS_VALUE_MAX = 100;
+const FINALIZE_RETRY_DELAY_MS = 1000;
+const MAX_FINALIZE_ATTEMPTS = 5;
 
 type BidProcessInfoProps = {
   lotId: string;
@@ -45,8 +48,8 @@ const BidProcessInfo = ({
   auctionId,
   startBid,
 }: BidProcessInfoProps) => {
-  const { socket, isConnected: isSocketConnected } = useContext(SocketContext);
   const authUser = useContext(AuthUserContext);
+  const { t } = useTranslation();
 
   const {
     bids,
@@ -62,13 +65,7 @@ const BidProcessInfo = ({
     calculateNextBid,
   } = useBidState(initialBids, startBid, minBidIncrement);
   const { progressValue } = useProgressTimer(bids);
-
-  const { mutateAsync: updateBid } = useUpdateBid({
-    urlParams: { auctionId, lotId },
-  });
-  const { mutateAsync: updateLot } = useUpdateLot(auctionId, lotId);
-
-  const { t } = useTranslation();
+  const { mutateAsync: finalizeLot } = useFinalizeLot(auctionId, lotId);
 
   const [status, setStatus] = useState(defaultStatus);
   const [inputValue, setInputValue] = useState(calculateNextBid());
@@ -79,132 +76,130 @@ const BidProcessInfo = ({
   const bidToSend = Math.max(inputValue, calculateNextBid());
   const isLastBidByMe = bids.at(0)?.bidderId === authUser?.id;
 
-  const bidTimeout = useRef<NodeJS.Timeout | null>(null);
+  const toBidInfo = useCallback(
+    (bid: BidCreatedPayload): BidInfo => ({
+      id: bid.id,
+      amount: bid.amount,
+      bidderName: bid.user.name || t('bid_process.anonymous'),
+      bidderId: bid.user.id,
+      createdAt: new Date(bid.createdAt).toISOString(),
+      type: BidType.BIDDING,
+      isWinner: bid.isWinner,
+    }),
+    [t]
+  );
 
-  const isUserConnected = socket && isSocketConnected;
-
-  useEffect(() => {
-    if (progressValue >= PROGRESS_VALUE_MAX && bids.length) {
-      const maxBidId = bids.at(0)?.id;
-      if (!maxBidId) {
-        return;
-      }
-
+  const markWinner = useCallback(
+    (winnerBidId: string) => {
       setStatus(Status.COMPLETED);
+      setBids((prevBids) => prevBids.map((bid) => (bid.id === winnerBidId ? { ...bid, isWinner: true } : bid)));
+    },
+    [setBids]
+  );
 
-      (async () => {
-        await updateLot({ isSold: true });
-      })();
-
-      (async () => {
-        await updateBid(
-          {
-            payloadBidId: maxBidId,
-            data: { isWinner: true },
-          },
-          {
-            onSuccess: () => {
-              setBids((prevBids) => prevBids.map((bid) => (bid.id === maxBidId ? { ...bid, isWinner: true } : bid)));
-            },
-          }
-        );
-      })();
+  const { placeBid, isConnected } = useLotBiddingSocket(
+    { auctionId, lotId },
+    {
+      onBidCreated: (newBid) => {
+        setBids((prevBids) => [toBidInfo(newBid), ...prevBids]);
+        setCurrentBid(newBid.amount);
+        setIsBidSent(false);
+      },
+      onBidRejected: ({ code }) => {
+        setIsBidSent(false);
+        toast.error(t(`toast.error.bid_rejected.${code}`, { defaultValue: t('toast.error.something_went_wrong') }));
+      },
+      onLotFinalized: ({ winnerBidId }) => markWinner(winnerBidId),
     }
-  }, [auctionId, bids, progressValue, setBids, updateBid, updateLot]);
+  );
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('bidCreated', (newBid) => {
-      if (bidTimeout.current) {
-        clearTimeout(bidTimeout.current);
-      }
-
-      const isCurrentUser = newBid.user.id === authUser?.id;
-
-      setBids((prevBids) => [
-        {
-          id: newBid.id,
-          amount: newBid.amount,
-          bidderName: newBid.user.name || t('bid_process.anonymous'),
-          bidderId: newBid.user.id,
-          createdAt: new Date(newBid.createdAt).toISOString(),
-          type: BidType.BIDDING,
-          isWinner: newBid.isWinner,
-        },
-        ...prevBids,
-      ]);
-
-      setCurrentBid(newBid.amount);
-      setIsBidSent(false);
-
-      if (!isCurrentUser && isAutoBid) {
-        setIsBidSent(true);
-        const nextBid = newBid.amount + bidIncrement;
-        socket.emit('newBid', {
-          lotId,
-          amount: nextBid,
-          userId: authUser?.id || '',
-        });
-      }
-    });
-
-    return () => {
-      socket.off('bidCreated');
-    };
-  }, [authUser?.id, bidIncrement, isAutoBid, lotId, setBids, setCurrentBid, setIsBidSent, socket, t]);
-
-  const onBid = () => {
-    if (!isUserConnected) {
-      toast.error(t('toast.error.you_are_not_connected_to_the_server'));
-      return;
-    }
-
-    if (currentBid && bidToSend <= currentBid) {
-      toast.error(t('toast.error.the_bid_must_be_higher_than_the_current_bid'));
-      return;
-    }
-
-    socket.emit('newBid', {
-      lotId,
-      amount: bidToSend,
-      userId: authUser?.id || '',
-    });
-
-    setIsBidSent(true);
-  };
-
-  const onMakeBidIfPossible = () => {
-    if (!isLastBidByMe && !isBidSent && isLotInProgress) {
-      onBid();
-      return true;
-    }
-    return false;
-  };
-
-  const onToggleAutoBid = () => {
-    setIsAutoBid((prev) => {
-      const newAutoBidState = !prev;
-
-      if (!newAutoBidState) {
-        localStorage.removeItem(IS_AUTO_BID);
-
+  const sendBid = useCallback(
+    (amount: number): boolean => {
+      if (!placeBid(amount)) {
+        toast.error(<span data-testid='bid-error'>{t('toast.error.you_are_not_connected_to_the_server')}</span>);
         return false;
       }
 
-      localStorage.setItem(IS_AUTO_BID, 'true');
-
-      if (!isLastBidByMe && isLotInProgress) {
-        onMakeBidIfPossible();
-      }
-
+      setIsBidSent(true);
       return true;
-    });
+    },
+    [placeBid, setIsBidSent, t]
+  );
+
+  useAutoBid({
+    enabled: isAutoBid,
+    bids,
+    myUserId: authUser?.id,
+    isLotInProgress,
+    nextBidAmount: currentBid ? currentBid + bidIncrement : startBid,
+    placeBid: sendBid,
+  });
+
+  // When the bidding goes silent (or the time slot ends) the client asks the
+  // server to close the lot. The server validates the request and decides the
+  // winner; it also closes lots on its own, so this is only a nudge. It also
+  // covers lots whose slot ended while no server was around to close them.
+  // Requests are throttled: at most one per top bid, retried after a delay.
+  const finalizeRequestedFor = useRef<string | null>(null);
+  const nextFinalizeAttemptAt = useRef(0);
+  const finalizeAttempts = useRef(0);
+  useEffect(() => {
+    const topBid = bids.at(0);
+    if (!topBid) return;
+
+    const needsFinalization = isLotInProgress
+      ? progressValue >= PROGRESS_VALUE_MAX || lotTimeLeft <= 0
+      : status === Status.COMPLETED && !topBid.isWinner;
+
+    if (
+      !needsFinalization ||
+      finalizeRequestedFor.current === topBid.id ||
+      Date.now() < nextFinalizeAttemptAt.current ||
+      finalizeAttempts.current >= MAX_FINALIZE_ATTEMPTS
+    ) {
+      return;
+    }
+
+    finalizeRequestedFor.current = topBid.id;
+    finalizeAttempts.current += 1;
+
+    finalizeLot().then(
+      () => markWinner(topBid.id),
+      () => {
+        // Not due yet according to the server (e.g. a newer bid arrived); retry after a pause.
+        finalizeRequestedFor.current = null;
+        nextFinalizeAttemptAt.current = Date.now() + FINALIZE_RETRY_DELAY_MS;
+      }
+    );
+  }, [bids, finalizeLot, isLotInProgress, lotTimeLeft, markWinner, progressValue, status]);
+
+  const onBid = () => {
+    if (currentBid && bidToSend <= currentBid) {
+      toast.error(<span data-testid='bid-error'>{t('toast.error.the_bid_must_be_higher_than_the_current_bid')}</span>);
+      return;
+    }
+
+    sendBid(bidToSend);
+  };
+
+  const onToggleAutoBid = () => {
+    const next = !isAutoBid;
+    if (next) {
+      localStorage.setItem(IS_AUTO_BID, 'true');
+      // Enabling auto-bid immediately takes the lead if somebody else holds it.
+      if (!isLastBidByMe && !isBidSent && isLotInProgress) {
+        sendBid(bidToSend);
+      }
+    } else {
+      localStorage.removeItem(IS_AUTO_BID);
+    }
+
+    setIsAutoBid(next);
   };
 
   return (
     <div className='space-y-3'>
-      {!isUserConnected && <ConnectionLabel />}
+      {!isConnected && <ConnectionLabel />}
 
       <StatusBadge status={status} />
 
@@ -265,6 +260,7 @@ const BidProcessInfo = ({
                 className='w-full relative uppercase font-bold py-4 bg-green-600 hover:bg-green-500 shadow-md hover:shadow-lg transition-all duration-200'
                 onClick={onBid}
                 disabled={!isLotInProgress || isBidSent || isLastBidByMe || isAutoBid}
+                data-testid='bid-submit'
               >
                 <Gavel className='h-5 w-5 mr-2' />
                 {t('bid_process.bid')} ${bidToSend}

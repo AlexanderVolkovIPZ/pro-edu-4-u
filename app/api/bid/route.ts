@@ -1,66 +1,14 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { Bid } from '@prisma/client';
+import { parseQuery, withAuth } from '@/server/http';
+import { listBidsQuerySchema } from '@/server/schemas/bid.schema';
+import { bidService } from '@/server/services';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function GET(request: Request) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const url = new URL(request.url);
-    const searchParams = Object.fromEntries(url.searchParams.entries());
-
-    const lotsId: string[] = searchParams.lotsId ? JSON.parse(searchParams.lotsId) : [];
-
-    const params: Partial<Bid> = {
-      ...searchParams,
-      isPaid: searchParams.isPaid === 'true' ? true : searchParams.isPaid === 'false' ? false : undefined,
-      isWinner: searchParams.isWinner === 'true' ? true : searchParams.isWinner === 'false' ? false : undefined,
-    };
-
-    const where = Object.fromEntries(
-      Object.entries({
-        id: params.id,
-        lotId: params.lotId,
-        bidderId: params.bidderId,
-        amount: params.amount,
-        isWinner: params.isWinner,
-        isPaid: params.isPaid,
-        createdAt: params.createdAt,
-        ...(lotsId.length
-          ? {
-              lotId: {
-                in: lotsId,
-              },
-            }
-          : {}),
-      }).filter(([, value]) => value !== undefined)
-    );
-
-    const bids = await prismaDb.bid.findMany({
-      where,
-      include: {
-        lot: {
-          include: {
-            photo: true,
-            video: true,
-            auction: true,
-            lotCategory: {
-              include: {
-                category: true,
-              },
-            },
-          },
-        },
-      },
-    });
+export const GET = withAuth(
+  async ({ request, authUser }) => {
+    const query = parseQuery(request, listBidsQuerySchema);
+    const bids = await bidService.list(authUser, query);
 
     return NextResponse.json(bids);
-  } catch (error) {
-    console.error('GET_BIDS_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+  },
+  { label: 'GET_BIDS' }
+);

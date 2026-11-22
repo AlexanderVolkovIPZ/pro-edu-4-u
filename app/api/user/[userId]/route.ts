@@ -1,76 +1,16 @@
-import getAuthUser from '@/app/actions/get-auth-user';
-import { User, UserRole } from '@prisma/client';
+import { parseBody, withAuth } from '@/server/http';
+import { adminUpdateUserSchema } from '@/server/schemas/user.schema';
+import { userService } from '@/server/services';
 import { NextResponse } from 'next/server';
-import prismaDb from '@/lib/prismadb';
 
-export async function PATCH(request: Request, { params }: { params: { userId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
+type Params = { userId: string };
 
-    const isAuthUserAdmin = authUser.role === UserRole.ADMIN;
-    const isOwner = authUser.id === params.userId;
-    if (!isAuthUserAdmin && !isOwner) {
-      return new NextResponse('Forbidden', { status: 403 });
-    }
+export const PATCH = withAuth<Params>(
+  async ({ request, params, authUser }) => {
+    const input = await parseBody(request, adminUpdateUserSchema);
+    const user = await userService.update(authUser, params.userId, input);
 
-    const body = await request.json();
-    const { name, email, emailVerified, image, password, role, isActive }: Partial<User> = body;
-
-    const updatedUser = await prismaDb.user.update({
-      where: {
-        id: params.userId,
-      },
-      data: {
-        ...(name && { name }),
-        ...(email && { email }),
-        ...(emailVerified && { emailVerified }),
-        ...(image && { image }),
-        ...(password && { password }),
-        ...(role && { role }),
-        ...(isActive !== undefined && { isActive }),
-      },
-    });
-
-    return NextResponse.json(updatedUser);
-  } catch (error) {
-    console.error('UPDATE_USER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
-
-export async function DELETE(request: Request, { params }: { params: { userId: string } }) {
-  try {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    if (authUser.role !== UserRole.ADMIN || authUser.id !== params.userId) {
-      return new NextResponse('User not found', { status: 404 });
-    }
-
-    const user = await prismaDb.user.findFirst({
-      where: {
-        id: params.userId,
-      },
-    });
-
-    if (!user) {
-      return new NextResponse('User not found', { status: 404 });
-    }
-
-    const deletedUser = await prismaDb.user.delete({
-      where: {
-        id: params.userId,
-      },
-    });
-
-    return NextResponse.json(deletedUser);
-  } catch (error) {
-    console.error('DELETE_USER_ERROR -> ', error);
-    return new NextResponse('Internal server error', { status: 500 });
-  }
-}
+    return NextResponse.json(user);
+  },
+  { label: 'UPDATE_USER' }
+);

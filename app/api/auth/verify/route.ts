@@ -1,29 +1,17 @@
 import { generateHtmlTemplate } from '@/app/utils/generate-html-template';
-import prismaDb from '@/lib/prismadb';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import jwt from 'jsonwebtoken';
-import { NextResponse } from 'next/server';
-dayjs.extend(utc);
+import { parseQuery, withErrorHandling } from '@/server/http';
+import { verifyEmailQuerySchema } from '@/server/schemas/auth.schema';
+import { authService } from '@/server/services';
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const token = searchParams.get('token');
+export const GET = withErrorHandling(
+  async ({ request }) => {
+    const { token } = parseQuery(request, verifyEmailQuerySchema);
+    await authService.verifyEmail(token);
 
-    const decoded = jwt.verify(token as string, process.env.JWT_SECRET as string) as { userId: string };
-    await prismaDb.user.update({
-      where: { id: decoded.userId },
-      data: { emailVerified: dayjs().utc(true).toDate() },
-    });
-
-    const htmlContent = generateHtmlTemplate('templates/registration-successful.html');
-
-    return new Response(htmlContent, {
+    return new Response(generateHtmlTemplate('templates/registration-successful.html'), {
       headers: { 'Content-Type': 'text/html' },
       status: 200,
     });
-  } catch {
-    return new NextResponse('Invalid or expired token!', { status: 400 });
-  }
-}
+  },
+  { label: 'VERIFY_EMAIL' }
+);
