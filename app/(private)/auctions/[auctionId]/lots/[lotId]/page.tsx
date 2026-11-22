@@ -6,11 +6,10 @@ import { useCreateLotCategories } from '@/app/queries/lot-category';
 import { useCreateLotDetails } from '@/app/queries/lot-detail';
 import AlertDialog from '@/components/alert-dialog';
 import Container from '@/components/container';
-import ImageUploader from '@/components/image-uploader';
+import MediaUploader from '@/components/media-uploader';
 import InputBox from '@/components/input-box';
 import NotFound from '@/components/not-found';
 import { Skeleton } from '@/components/ui/skeleton';
-import VideoUploader from '@/components/video-uploader';
 import { BookType, LucideDollarSign } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -271,10 +270,11 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
               />
             </div>
             <div className='flex flex-col gap-y-4'>
-              <ImageUploader
+              <MediaUploader
+                kind='photo'
                 auctionId={params.auctionId}
                 lotId={params.lotId}
-                images={lotData?.photo ?? []}
+                items={lotData?.photo ?? []}
                 dropzoneOptions={{
                   accept: {
                     'image/*': ['.jpeg', '.jpg', '.png', '.gif'],
@@ -283,10 +283,11 @@ const LotIdPage = ({ params }: { params: LotIdPageParams }) => {
                   maxFiles: 20,
                 }}
               />
-              <VideoUploader
+              <MediaUploader
+                kind='video'
                 auctionId={params.auctionId}
                 lotId={params.lotId}
-                videos={lotData?.video ?? []}
+                items={lotData?.video ?? []}
                 dropzoneOptions={{
                   accept: {
                     'video/*': ['.mp4', '.webm', '.ogg'],
