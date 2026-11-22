@@ -1,15 +1,13 @@
+import { MediaKind, MediaRecord } from '@/app/_shared/types/media';
 import prismaDb from '@/lib/prismadb';
-import { Photo, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { AccessPolicy, accessPolicy, Principal } from '../auth/access-policy';
 import { HttpError } from '../http/http-error';
 import { ReorderInput } from '../schemas/lot.schema';
 import { UploadMediaInput } from '../schemas/media.schema';
 import { cloudinaryMediaStorage, MediaResourceType, MediaStorage } from './media-storage';
 
-export type MediaKind = 'photo' | 'video';
-
-/** Photos and videos share the same shape; this is the common record type. */
-export type MediaRecord = Photo;
+export type { MediaKind, MediaRecord };
 
 type PositionRange = { gt?: number; gte?: number; lt?: number; lte?: number };
 
